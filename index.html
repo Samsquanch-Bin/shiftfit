@@ -173,7 +173,7 @@ h3{font-size:17px;margin:22px 0 10px;font-weight:700}
 .feel{display:flex;align-items:center;gap:8px;font-size:14px;margin-top:8px}.feel i{width:14px;height:14px;border-radius:7px;background:var(--night);opacity:.7}
 .vid{display:flex;align-items:center;justify-content:center;gap:8px;min-height:48px;border-radius:24px;background:var(--day);color:#fff;font-weight:700;text-decoration:none;margin-top:12px}
 .vid svg{width:20px;height:20px;fill:#fff}
-.yt{width:100%;aspect-ratio:16/9;border-radius:16px;overflow:hidden;background:#000}.yt iframe{width:100%;height:100%;border:0;display:block}
+.yt{flex:none;width:100%;aspect-ratio:16/9;border-radius:16px;overflow:hidden;background:#000}.yt iframe{width:100%;height:100%;border:0;display:block}
 .vtog{display:flex;gap:6px;justify-content:center;margin-top:10px}
 
 .tg-g{background:#c2410c}
@@ -389,8 +389,10 @@ const MUS={goblet:[['quads','glutes'],['abs','upperback']],rdl:[['hamstrings','g
 floor:[['chest'],['triceps','shoulders']],row1:[['upperback'],['biceps','shoulders','forearms']],ohp:[['shoulders'],['triceps','traps','abs']],pushup:[['chest'],['triceps','shoulders','abs']],curl:[['biceps'],['forearms']],tri:[['triceps'],[]],plank:[['abs'],['obliques','shoulders','glutes']],
 ddl:[['glutes','hamstrings','quads'],['lowerback','forearms','traps']],stepup:[['quads','glutes'],['hamstrings','calves']],bentrow:[['upperback'],['biceps','lowerback','shoulders']],lateral:[['shoulders'],['traps']],farmer:[['forearms','traps'],['abs','obliques','shoulders']]};
 const muMap=ids=>{const m={};ids.forEach(id=>{MUS[id][1].forEach(k=>{m[k]=Math.max(m[k]||0,1)});MUS[id][0].forEach(k=>{m[k]=2})});return m};
-const muBlock=ids=>{const m=muMap(ids),p=Object.keys(MUN).filter(k=>m[k]===2),q=Object.keys(MUN).filter(k=>m[k]===1);
- return `<div class="mcard">${body(m)}<div class="mleg"><span><i style="background:#e5484d"></i><b>Main:</b> ${p.map(k=>MUN[k]).join(', ')}</span>${q.length?`<span><i style="background:var(--bsec)"></i><b>Also:</b> ${q.map(k=>MUN[k]).join(', ')}</span>`:''}</div></div>`};
+const muBlock=(ids,extra='',swap='')=>{const m=muMap(ids),p=Object.keys(MUN).filter(k=>m[k]===2),q=Object.keys(MUN).filter(k=>m[k]===1);
+ return `<div class="mcard">${swap||body(m)}<div class="mleg"><span><i style="background:#e5484d"></i><b>Main:</b> ${p.map(k=>MUN[k]).join(', ')}</span>${q.length?`<span><i style="background:var(--bsec)"></i><b>Also:</b> ${q.map(k=>MUN[k]).join(', ')}</span>`:''}</div>${extra}</div>`};
+const wStage=(id,e)=>{const vid=wp.mode==='vid',ytl=`https://www.youtube.com/watch?v=${e.y}`;
+ return muBlock([id],`<div class="vtog"><button class="chip" data-wview="pic" aria-pressed="${!vid}">Picture</button>${CAN_EMBED?`<button class="chip" data-wview="vid" aria-pressed="${vid}">Video</button>`:`<a class="chip" style="display:inline-flex;align-items:center;text-decoration:none;color:inherit" href="${ytl}" target="_blank" rel="noopener">Video</a>`}</div>${vid?`<a class="small mut" style="display:block;text-align:center;margin-top:8px" href="${ytl}" target="_blank" rel="noopener">Video won’t play? Open it in YouTube</a>`:''}`,vid&&CAN_EMBED?`<div class="yt"><iframe src="https://www.youtube-nocookie.com/embed/${e.y}?rel=0&playsinline=1&modestbranding=1" title="${e.n} video" allow="encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div>`:'')};
 var MUN={chest:'Chest',shoulders:'Shoulders',biceps:'Biceps',triceps:'Triceps',forearms:'Forearms & grip',abs:'Abs',obliques:'Obliques',traps:'Traps',upperback:'Upper back & lats',lowerback:'Lower back',glutes:'Glutes',quads:'Quads',hamstrings:'Hamstrings',calves:'Calves'};
 var BODY2=(function(){
  var L=[[90,50],[88,64],[70,72],[54,78],[46,90],[42,108],[40,132],[38,160],[34,190],[31,222],[26,236],[28,252],[36,256],[41,240],[44,222],[52,190],[57,162],[60,134],[64,112],[67,134],[71,164],[67,194],[64,230],[68,268],[71,292],[69,322],[73,352],[78,378],[68,392],[70,398],[94,398],[95,386],[92,374],[93,340],[94,302],[94,290],[96,250],[100,214]];
@@ -877,8 +879,7 @@ function drawW(){const w=WK[wp.code],L=lvl(),lw=LV[L];
  if(wp.i>=w.x.length){player.innerHTML=`<div class="pl"><div style="flex:1;display:grid;align-content:center;gap:10px"><h2>Workout ${wp.code} done</h2><p class="mut" style="margin:0">${w.n} · ${L}</p><ul class="wl">${w.x.map(id=>{const g=wp.log[id]||{};return `<li><span>${exName(id)}</span><span>${g.w?g.w+' lb':''}${g.feel?' · '+g.feel:''}</span></li>`}).join('')}</ul></div><div class="pctl" style="grid-template-columns:1fr 1fr"><button class="btn ghost" data-wclose>Close</button><button class="btn" data-r="deep">Cool-down stretch</button></div></div>`;return}
  const id=w.x[wp.i],e=DEX[id],dn=wp.done[id]||[],g=wp.log[id]||{},wv=g.w!==undefined?g.w:nextW(id);
  player.innerHTML=`<div class="pl">${head}
- ${CAN_EMBED?`<div class="yt"><iframe src="https://www.youtube-nocookie.com/embed/${e.y}?rel=0&playsinline=1&modestbranding=1" title="${e.n} video" allow="encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div><a class="small mut" style="display:block;margin-top:6px" href="https://www.youtube.com/watch?v=${e.y}" target="_blank" rel="noopener">Video won’t play? Open it in YouTube</a>`:`<a class="vid" href="https://www.youtube.com/watch?v=${e.y}" target="_blank" rel="noopener"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>Watch video demo</a>`}
- <p class="mut small" style="margin:12px 0 0">Exercise ${wp.i+1} of ${w.x.length} · ${e.m}</p><h2 style="margin:2px 0 2px">${exName(id)}</h2><b>${exReps(id)}</b>${muBlock([id])}
+ <p class="mut small" style="margin:12px 0 0">Exercise ${wp.i+1} of ${w.x.length} · ${e.m}</p><h2 style="margin:2px 0 2px">${exName(id)}</h2><b>${exReps(id)}</b>${wStage(id,e)}
  <ul class="cues">${e.c.map(c=>`<li>${c}</li>`).join('')}</ul>
  <div class="sets">${Array.from({length:lw.sets},(_,j)=>`<button class="setb ${dn[j]?'y':''}" data-set="${j}">Set ${j+1}</button>`).join('')}</div>
  <div class="rt" id="rt">${wp.rest>0?'Rest '+tf(wp.rest):'Tap a set when you finish it'}</div>
@@ -937,6 +938,7 @@ document.addEventListener('click',ev=>{const b=ev.target.closest('button');if(!b
  if(fs&&ds.fdel!==undefined){const L=S.food[key(sel)]||[];L.splice(fs.edit,1);save();closeSheet();return toast('Deleted')}
  if(ds.wclose!==undefined)return closeW();
  if(wp&&ds.wnext!==undefined){const w=WK[wp.code];if(wp.i===w.x.length-1){wp.i++;finishW()}else wp.i++;wp.rest=0;return drawW()}
+ if(wp&&ds.wview){wp.mode=ds.wview;return drawW()}
  if(wp&&ds.wprev!==undefined){wp.i=Math.max(-1,wp.i-1);wp.rest=0;return drawW()}
  if(wp&&ds.set!=null){const id=WK[wp.code].x[wp.i],a=wp.done[id]=wp.done[id]||[],j=Number(ds.set);a[j]=!a[j];b.classList.toggle('y',!!a[j]);const all=a.filter(Boolean).length>=LV[lvl()].sets;wp.rest=a[j]&&!all?LV[lvl()].rest:0;const el=document.getElementById('rt');if(el)el.textContent=all?'All sets done. Tap Next':wp.rest?'Rest '+tf(wp.rest):'Tap a set when you finish it';return}
  if(wp&&ds.feel){const id=WK[wp.code].x[wp.i];(wp.log[id]=wp.log[id]||{}).feel=ds.feel;document.querySelectorAll('#feel .chip').forEach(c=>c.setAttribute('aria-pressed',c===b));if(wp.log[id].w===undefined){const v=parseFloat(document.getElementById('wt').value);if(!isNaN(v))wp.log[id].w=v}return}
