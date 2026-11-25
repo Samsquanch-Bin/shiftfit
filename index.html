@@ -17,7 +17,7 @@
    COLOUR white or near-black ground; day blue and night coral (same as Supershift), recovery violet, days-off crane yellow
    TYPE Figtree throughout
    LAYOUT one phone column (max 480px), centred on wider screens; bottom tab bar */
-:root{color-scheme:light dark;--bg:light-dark(#ffffff,#0e1014);--out:light-dark(#eceef1,#060708);--card:light-dark(#f3f4f6,#191c22);--ink:light-dark(#12151a,#eef0f3);--mut:light-dark(#5a616c,#9ba3ae);--line:light-dark(#e1e4e8,#2a2f37);--day:#2a7de1;--night:#e5484d;--rec:#7c5cd6;--off:#c98f00;--vest:#f5b700;--skin:light-dark(#c7ced8,#6b7482);--limb:light-dark(#2b3240,#cfd5dd)}
+:root{color-scheme:light dark;--bg:light-dark(#ffffff,#0e1014);--out:light-dark(#eceef1,#060708);--card:light-dark(#f3f4f6,#191c22);--ink:light-dark(#12151a,#eef0f3);--mut:light-dark(#5a616c,#9ba3ae);--line:light-dark(#e1e4e8,#2a2f37);--day:#2a7de1;--night:#e5484d;--rec:#7c5cd6;--off:#c98f00;--vest:#f5b700;--bsil:light-dark(#e3e6ea,#2b3038);--bo:light-dark(#cdd2d9,#3b414b);--bsec:light-dark(#f6b0b2,#8a3a3d);--skin:light-dark(#c7ced8,#6b7482);--limb:light-dark(#2b3240,#cfd5dd)}
 :root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
 *{box-sizing:border-box;min-width:0}
 html,body{height:100%}
@@ -190,6 +190,14 @@ h3{font-size:17px;margin:22px 0 10px;font-weight:700}
 .wl li{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-top:1px solid var(--line);font-size:15px}
 .wl li span:last-child{white-space:nowrap;color:var(--mut)}
 .wdot{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:13px;color:#fff;font-size:14px;margin-right:6px;vertical-align:1px}
+
+.bm{display:block;width:100%;max-width:300px;margin:6px auto 0}
+.bm .bsil{fill:var(--bsil);stroke:var(--bsil);stroke-width:2;stroke-linejoin:round}
+.bm .bo{fill:var(--bo)}.bm .bp{fill:#e5484d}.bm .bs{fill:var(--bsec)}
+.bm text{font-size:9px;fill:var(--mut);font-family:inherit}
+.mleg{display:flex;flex-wrap:wrap;gap:6px 14px;justify-content:center;font-size:14px;margin:4px 0 0}
+.mleg span{display:inline-flex;align-items:center;gap:6px}.mleg i{width:12px;height:12px;border-radius:6px;display:inline-block}
+.mcard{background:var(--card);border-radius:20px;padding:10px 12px 12px;margin-top:12px}
 @media (prefers-reduced-motion:reduce){.fg *{animation:none!important}}
 </style>
 </head>
@@ -278,6 +286,37 @@ stepup:{n:'Step-up',y:'1ylThQAB9UI',m:'Thighs, glutes',side:1,v:{Beginner:'Step-
 bentrow:{n:'Bent-over row',y:'6TSP1TRMUzs',m:'Upper back, biceps',c:['Hinge forward, back flat','Pull both dumbbells to your ribs','Squeeze your shoulder blades together']},
 lateral:{n:'Lateral raise',y:'XPPfnSEATJA',m:'Shoulders',r:{Beginner:'10–12',Intermediate:'12–15',Advanced:'12–15'},c:['Light weight, slight bend in the elbows','Raise out to shoulder height, no higher','Lower slowly']},
 farmer:{n:'Farmer carry',y:'D1r4dzFMIsA',m:'Grip, core, shoulders',u:'s',r:{Beginner:'30 s',Intermediate:'40 s',Advanced:'45 s'},c:['Heavy dumbbells at your sides','Stand tall, shoulders back','Walk slowly with small steps']}};
+const MUS={goblet:[['quads','glutes'],['abs','upperback']],rdl:[['hamstrings','glutes'],['lowerback','forearms']],lunge:[['quads','glutes'],['hamstrings','calves']],bridge:[['glutes'],['hamstrings','lowerback']],calf:[['calves'],[]],deadbug:[['abs'],['obliques']],
+floor:[['chest'],['triceps','shoulders']],row1:[['upperback'],['biceps','shoulders','forearms']],ohp:[['shoulders'],['triceps','traps','abs']],pushup:[['chest'],['triceps','shoulders','abs']],curl:[['biceps'],['forearms']],tri:[['triceps'],[]],plank:[['abs'],['obliques','shoulders','glutes']],
+ddl:[['glutes','hamstrings','quads'],['lowerback','forearms','traps']],stepup:[['quads','glutes'],['hamstrings','calves']],bentrow:[['upperback'],['biceps','lowerback','shoulders']],lateral:[['shoulders'],['traps']],farmer:[['forearms','traps'],['abs','obliques','shoulders']]};
+const muMap=ids=>{const m={};ids.forEach(id=>{MUS[id][1].forEach(k=>{m[k]=Math.max(m[k]||0,1)});MUS[id][0].forEach(k=>{m[k]=2})});return m};
+const muBlock=ids=>{const m=muMap(ids),p=Object.keys(MUN).filter(k=>m[k]===2),q=Object.keys(MUN).filter(k=>m[k]===1);
+ return `<div class="mcard">${body(m)}<div class="mleg"><span><i style="background:#e5484d"></i><b>Main:</b> ${p.map(k=>MUN[k]).join(', ')}</span>${q.length?`<span><i style="background:var(--bsec)"></i><b>Also:</b> ${q.map(k=>MUN[k]).join(', ')}</span>`:''}</div></div>`};
+const MUN={chest:'Chest',shoulders:'Shoulders',biceps:'Biceps',triceps:'Triceps',forearms:'Forearms & grip',abs:'Abs',obliques:'Obliques',traps:'Traps',upperback:'Upper back & lats',lowerback:'Lower back',glutes:'Glutes',quads:'Quads',hamstrings:'Hamstrings',calves:'Calves'};
+const SIL=(()=>{const L=[[45,27],[38,31],[28,34],[21,41],[19,58],[17,74],[15,92],[16,104],[23,105],[26,92],[28,76],[31,62],[34,54],[36,68],[37,82],[34,97],[32,113],[33,132],[36,150],[35,166],[37,190],[33,198],[34,201],[46,201],[46,192],[47,170],[47,152],[48,130],[50,111]];
+ const pts=o=>[...L,...L.slice().reverse().map(([x,y])=>[100-x,y])].map(([x,y])=>(x+o)+' '+y).join(' L');
+ return o=>`<path d="M${pts(o)} Z"/><circle cx="${50+o}" cy="15" r="10"/>`})();
+const BODY=[
+['sil',SIL(0)+SIL(120)],
+['shoulders','<ellipse cx="28" cy="41" rx="7" ry="7"/><ellipse cx="72" cy="41" rx="7" ry="7"/>'],
+['chest','<path d="M49 37 Q39 35 35 43 Q37 54 49 54 Z"/><path d="M51 37 Q61 35 65 43 Q63 54 51 54 Z"/>'],
+['biceps','<ellipse cx="25.5" cy="58" rx="4.3" ry="10" transform="rotate(10 25.5 58)"/><ellipse cx="74.5" cy="58" rx="4.3" ry="10" transform="rotate(-10 74.5 58)"/>'],
+['forearms','<ellipse cx="21" cy="85" rx="3.8" ry="11" transform="rotate(9 21 85)"/><ellipse cx="79" cy="85" rx="3.8" ry="11" transform="rotate(-9 79 85)"/>'],
+['abs','<rect x="43.5" y="57" width="13" height="31" rx="5"/>'],
+['obliques','<path d="M42 58 Q37 64 38 86 L42 88 Z"/><path d="M58 58 Q63 64 62 86 L58 88 Z"/>'],
+['quads','<path d="M35 104 Q32 126 37 146 L47 146 Q49 126 48.5 106 Z"/><path d="M65 104 Q68 126 63 146 L53 146 Q51 126 51.5 106 Z"/>'],
+['calves','<ellipse cx="41" cy="172" rx="4.6" ry="14"/><ellipse cx="59" cy="172" rx="4.6" ry="14"/>'],
+['traps','<path d="M170 27 L182 37 L170 54 L158 37 Z"/>'],
+['shoulders','<ellipse cx="148" cy="41" rx="7" ry="7"/><ellipse cx="192" cy="41" rx="7" ry="7"/>'],
+['upperback','<path d="M157 44 Q153 58 157 77 L168 80 L168 57 Z"/><path d="M183 44 Q187 58 183 77 L172 80 L172 57 Z"/>'],
+['triceps','<ellipse cx="145.5" cy="58" rx="4.3" ry="10" transform="rotate(10 145.5 58)"/><ellipse cx="194.5" cy="58" rx="4.3" ry="10" transform="rotate(-10 194.5 58)"/>'],
+['forearms','<ellipse cx="141" cy="85" rx="3.8" ry="11" transform="rotate(9 141 85)"/><ellipse cx="199" cy="85" rx="3.8" ry="11" transform="rotate(-9 199 85)"/>'],
+['lowerback','<rect x="161" y="79" width="18" height="12" rx="5"/>'],
+['glutes','<ellipse cx="162.5" cy="101" rx="8" ry="9"/><ellipse cx="177.5" cy="101" rx="8" ry="9"/>'],
+['hamstrings','<path d="M155 110 Q152 128 157 146 L167 146 Q169 128 168.5 111 Z"/><path d="M185 110 Q188 128 183 146 L173 146 Q171 128 171.5 111 Z"/>'],
+['calves','<ellipse cx="161" cy="171" rx="5.5" ry="14"/><ellipse cx="179" cy="171" rx="5.5" ry="14"/>']];
+const body=(mp,cls='')=>`<svg class="bm ${cls}" viewBox="0 0 220 214" role="img" aria-label="Muscles worked">${BODY.map(([id,g])=>`<g class="${id==='sil'?'bsil':mp[id]===2?'bp':mp[id]===1?'bs':'bo'}">${g}</g>`).join('')}<text x="50" y="212" text-anchor="middle">Front</text><text x="170" y="212" text-anchor="middle">Back</text></svg>`;
+
 const WK={A:{n:'Lower body & core',c:'#1f9d6b',x:['goblet','rdl','lunge','bridge','calf','deadbug']},B:{n:'Upper body',c:'#0e7490',x:['floor','row1','ohp','pushup','curl','tri','plank']},C:{n:'Full body',c:'#c2410c',x:['ddl','stepup','bentrow','pushup','lateral','farmer']}};
 const LV={Beginner:{sets:2,reps:'10–12',rest:75,eff:'Light: stop with 3–4 good reps left.',min:25},Intermediate:{sets:3,reps:'8–12',rest:60,eff:'Moderate: stop with 2–3 good reps left.',min:35},Advanced:{sets:4,reps:'8–10',rest:60,eff:'Hard: stop with 1–2 good reps left, lower over 3 seconds.',min:45}};
 const HABS=['Protein at every meal','Vegetables at 2 meals','No heavy food after midnight on nights','Snacks pre-portioned, not from the bag'];
@@ -349,7 +388,7 @@ function train(){const L=lvl(),up=[];let d=TODAY;for(let n=0;n<28;n++){const r=r
  <p class="mut small" style="margin:8px 0 0">${lw.sets} sets per exercise, rest ${lw.rest} s, about ${lw.min} min. ${lw.eff} ${L==='Beginner'?'Never two lifting days in a row.':'Up to two lifting days in a row.'}</p></div>
  ${nx?`<div class="card" style="border-left:6px solid ${WK[nx[1]].c}"><div class="mut small">Next workout · ${key(nx[0])===key(TODAY)?'today':nice(nx[0])}</div><b style="font-size:20px">Workout ${nx[1]}: ${WK[nx[1]].n}</b><div class="mut small" style="margin-top:2px">${WK[nx[1]].x.map(exName).join(' · ')}</div><button class="btn" style="margin-top:12px" data-r="wk:${nx[1]}">Start now</button></div>`:''}
  <h3 class="pad">Next 4 weeks</h3><div class="rot">${up.map(([d,r])=>`<div class="rc2"><span>${key(d)===key(TODAY)?'Today':nice(d)}${S.wdone[key(d)]?' ✓':''}</span><i style="background:${r==='rest'?'var(--card)':WK[r].c};color:${r==='rest'?'var(--ink)':'#fff'}">${r==='rest'?'Rest day: walk + stretch':r+' · '+WK[r].n}</i></div>`).join('')}</div>
- <h3 class="pad">The three workouts</h3>${Object.entries(WK).map(([k,w])=>`<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><b style="font-size:18px"><span class="wdot" style="background:${w.c}">${k}</span>${w.n}</b><button class="btn ghost" data-r="wk:${k}">Start</button></div><ul class="wl">${w.x.map(id=>`<li><span>${exName(id)}</span><span>${exReps(id)}</span></li>`).join('')}</ul></div>`).join('')}
+ <h3 class="pad">The three workouts</h3>${Object.entries(WK).map(([k,w])=>`<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><b style="font-size:18px"><span class="wdot" style="background:${w.c}">${k}</span>${w.n}</b><button class="btn ghost" data-r="wk:${k}">Start</button></div>${muBlock(w.x)}<ul class="wl">${w.x.map(id=>`<li><span>${exName(id)}</span><span>${exReps(id)}</span></li>`).join('')}</ul></div>`).join('')}
  <div class="card"><b>How to progress</b><ul style="margin:8px 0 0;padding-left:20px"><li>Log the weight you used and how each exercise felt.</li><li>Felt easy? Next time the app suggests going up 5 lb.</li><li>When Intermediate feels easy on every exercise for 2 weeks, move up a level.</li></ul></div>
  <p class="note">Workouts land on regular days off only, never on the recovery day after nights. Each one starts with a 5-minute warm-up and ends with the deep stretch.</p>`;
 }
@@ -399,12 +438,12 @@ function openW(code,item){if(pl){clearInterval(tick);pl=null}wp={code,i:-1,item,
 function closeW(){clearInterval(wtick);wp=null;player.classList.remove('open');player.innerHTML='';VIEWS[view]()}
 function drawW(){const w=WK[wp.code],L=lvl(),lw=LV[L];
  const head=`<div style="display:flex;justify-content:space-between;align-items:center"><b><span class="wdot" style="background:${w.c}">${wp.code}</span>${w.n} · ${L}</b><button class="ib" data-wclose aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div><div class="segs">${[-1,...w.x.map((_,j)=>j)].map(j=>`<i class="${j<=wp.i?'d':''}"></i>`).join('')}</div>`;
- if(wp.i<0){player.innerHTML=`<div class="pl">${head}<h2>Warm-up</h2><p class="mut" style="margin:0">5 minutes, no weights</p><ul class="cues"><li>March in place, 1 min</li><li>Arm circles, 10 each way</li><li>10 bodyweight squats</li><li>10 hip hinges (hands on hips, push hips back)</li><li>5 push-ups against a counter</li></ul><div class="card" style="margin:16px 0 0"><b>${L}: ${lw.sets} sets each, rest ${lw.rest} s</b><div class="mut small">${lw.eff}</div></div><div class="pctl" style="grid-template-columns:1fr"><button class="btn" data-wnext>Start workout</button></div></div>`;return}
+ if(wp.i<0){player.innerHTML=`<div class="pl">${head}<p class="mut small" style="margin:0">Today’s workout works</p>${muBlock(w.x)}<h2>Warm-up</h2><p class="mut" style="margin:0">5 minutes, no weights</p><ul class="cues"><li>March in place, 1 min</li><li>Arm circles, 10 each way</li><li>10 bodyweight squats</li><li>10 hip hinges (hands on hips, push hips back)</li><li>5 push-ups against a counter</li></ul><div class="card" style="margin:16px 0 0"><b>${L}: ${lw.sets} sets each, rest ${lw.rest} s</b><div class="mut small">${lw.eff}</div></div><div class="pctl" style="grid-template-columns:1fr"><button class="btn" data-wnext>Start workout</button></div></div>`;return}
  if(wp.i>=w.x.length){player.innerHTML=`<div class="pl"><div style="flex:1;display:grid;align-content:center;gap:10px"><h2>Workout ${wp.code} done</h2><p class="mut" style="margin:0">${w.n} · ${L}</p><ul class="wl">${w.x.map(id=>{const g=wp.log[id]||{};return `<li><span>${exName(id)}</span><span>${g.w?g.w+' lb':''}${g.feel?' · '+g.feel:''}</span></li>`}).join('')}</ul></div><div class="pctl" style="grid-template-columns:1fr 1fr"><button class="btn ghost" data-wclose>Close</button><button class="btn" data-r="deep">Cool-down stretch</button></div></div>`;return}
  const id=w.x[wp.i],e=DEX[id],dn=wp.done[id]||[],g=wp.log[id]||{},wv=g.w!==undefined?g.w:nextW(id);
  player.innerHTML=`<div class="pl">${head}
  ${CAN_EMBED?`<div class="yt"><iframe src="https://www.youtube-nocookie.com/embed/${e.y}?rel=0&playsinline=1&modestbranding=1" title="${e.n} video" allow="encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div><a class="small mut" style="display:block;margin-top:6px" href="https://www.youtube.com/watch?v=${e.y}" target="_blank" rel="noopener">Video won’t play? Open it in YouTube</a>`:`<a class="vid" href="https://www.youtube.com/watch?v=${e.y}" target="_blank" rel="noopener"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>Watch video demo</a>`}
- <p class="mut small" style="margin:12px 0 0">Exercise ${wp.i+1} of ${w.x.length} · ${e.m}</p><h2 style="margin:2px 0 2px">${exName(id)}</h2><b>${exReps(id)}</b>
+ <p class="mut small" style="margin:12px 0 0">Exercise ${wp.i+1} of ${w.x.length} · ${e.m}</p><h2 style="margin:2px 0 2px">${exName(id)}</h2><b>${exReps(id)}</b>${muBlock([id])}
  <ul class="cues">${e.c.map(c=>`<li>${c}</li>`).join('')}</ul>
  <div class="sets">${Array.from({length:lw.sets},(_,j)=>`<button class="setb ${dn[j]?'y':''}" data-set="${j}">Set ${j+1}</button>`).join('')}</div>
  <div class="rt" id="rt">${wp.rest>0?'Rest '+tf(wp.rest):'Tap a set when you finish it'}</div>
