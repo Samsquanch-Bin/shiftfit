@@ -438,7 +438,8 @@ function nextBlock(from){let d=from;if(code(d)==='O'){while(code(d)==='O')d=add(
 S.food=S.food||{};S.recent=S.recent||[];
 const NET=CAN_EMBED,sheet=document.getElementById('sheet');let fs=null,stream=null,scanT=null;
 const isShift=t=>t==='day'||t==='night'||t==='firstnight';
-const MEALS=t=>isShift(t)?['Before shift','On shift','After shift','Snacks']:['Breakfast','Lunch','Dinner','Snacks'];
+const MEALS=t=>['Breakfast','Lunch','Dinner','Snacks'];
+{const MV={'Before shift':'Breakfast','On shift':'Lunch','After shift':'Dinner'};let ch=0;Object.values(S.food).forEach(L=>L.forEach(e=>{if(MV[e.meal]){e.meal=MV[e.meal];ch=1}}));if(ch)save()}
 const fmtN=n=>Math.round(n||0).toLocaleString();
 const kc=e=>(e.f.per.kcal||0)*e.g/100;
 const tot=L=>L.reduce((a,e)=>{const r=e.g/100,q=e.f.per;a.kcal+=(q.kcal||0)*r;a.p+=(q.p||0)*r;a.c+=(q.c||0)*r;a.f+=(q.f||0)*r;return a},{kcal:0,p:0,c:0,f:0});
@@ -447,8 +448,7 @@ function goal(){const s=S.set,kg=(+s.wt||0)*0.4536,cm=((+s.hft||0)*12+(+s.hin||0
  const bmr=10*kg+6.25*cm-5*age+(s.sex==='Female'?-161:5),tdee=bmr*1.375,pace=parseFloat(s.pace)||1,floor=s.sex==='Female'?1200:1500,raw=tdee-pace*500;
  return {kcal:Math.max(floor,Math.round(raw/10)*10),tdee:Math.round(tdee),floored:raw<floor}}
 const protG=()=>Math.round((+S.set.gwt||+S.set.wt||0)*0.7);
-function defMeal(){const t=typeOf(sel),h=new Date().getHours(),M=MEALS(t);
- if(t==='day')return h<7?M[0]:h<19?M[1]:M[2];if(isShift(t))return h>=12&&h<19?M[0]:(h>=19||h<7)?M[1]:M[2];return h<11?M[0]:h<16?M[1]:h<21?M[2]:M[3]}
+function defMeal(){const h=new Date().getHours(),M=MEALS();return h>=4&&h<11?M[0]:h>=11&&h<16?M[1]:h>=16&&h<22?M[2]:M[3]}
 const gOf=(f,amt,unit)=>unit==='serving'&&f.serving?amt*f.serving.g:unit==='oz'?amt*28.35:unit==='item'?100:amt;
 const amtLabel=e=>e.unit==='item'?'':e.unit==='serving'?(e.amt+' × '+(e.f.serving?e.f.serving.label:'serving')):(e.amt+' '+e.unit);
 const pickName=v=>typeof v==='string'?v:v&&typeof v==='object'?(v.en||v.fr||Object.values(v)[0]||''):'';
