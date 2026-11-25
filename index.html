@@ -306,6 +306,9 @@ h3{font-size:17px;margin:22px 0 10px;font-weight:700}
 .tipcard ul{margin:6px 0 0;padding-left:20px}
 .tipcard li{margin:3px 0}
 .ib.sm svg{width:18px;height:18px}
+.rtools{margin-top:10px}
+.rtools .btn{flex:1}
+.backl{border:0;background:none;color:var(--day);font-weight:700;font-size:16px;padding:8px 0;min-height:44px}
 @media (prefers-reduced-motion:reduce){.fg *{animation:none!important}}
 </style>
 </head>
@@ -682,9 +685,9 @@ async function spSurprise(){const type={b:'breakfast',l:'main course',d:'main co
 
 function recipes(){const q=rq.toLowerCase(),list=RCP.filter(r=>flt(r,rf)&&(!q||(r.n+' '+r.ing.join(' ')).toLowerCase().includes(q)));if(!NET)rsrc='own';
  const seg=NET?`<div class="seg seg3"><button data-rsrc="own" aria-pressed="${rsrc==='own'}">ShiftFit<small>${RCP.length} · calories</small></button><button data-rsrc="lib" aria-pressed="${rsrc==='lib'}">Photo library<small>${lib?lib.length:'~600'} · photos</small></button><button data-rsrc="sp" aria-pressed="${rsrc==='sp'}">Healthy search<small>photos + calories</small></button></div>`:'';
- if(rsrc!=='own'){main.innerHTML=`<div class="pad"><h2>Recipes</h2><button class="btn surprise" data-surp>Surprise me</button>${seg}</div>`+(rsrc==='lib'?libHTML():spHTML());return}
+ if(rsrc!=='own'){main.innerHTML=`<div class="pad"><h2>Recipes</h2><button class="btn surprise" data-surp>Surprise me</button><div class="row rtools"><button class="btn ghost" data-go="plan">Meal planner</button><button class="btn ghost" data-go="grocery">Grocery list${groCount()?' ('+groCount()+')':''}</button></div>${seg}</div>`+(rsrc==='lib'?libHTML():spHTML());return}
  main.innerHTML=`<div class="pad"><h2>Recipes</h2><p class="mut" style="margin:0">${RCP.length} easy, healthy meals with calories worked out</p>
- <button class="btn surprise" data-surp><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4z" fill="none"/><circle cx="8.5" cy="8.5" r="1.6"/><circle cx="15.5" cy="15.5" r="1.6"/><circle cx="15.5" cy="8.5" r="1.6"/><circle cx="8.5" cy="15.5" r="1.6"/><circle cx="12" cy="12" r="1.6"/></svg>Surprise me</button>${seg}
+ <button class="btn surprise" data-surp><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4z" fill="none"/><circle cx="8.5" cy="8.5" r="1.6"/><circle cx="15.5" cy="15.5" r="1.6"/><circle cx="15.5" cy="8.5" r="1.6"/><circle cx="8.5" cy="15.5" r="1.6"/><circle cx="12" cy="12" r="1.6"/></svg>Surprise me</button><div class="row rtools"><button class="btn ghost" data-go="plan">Meal planner</button><button class="btn ghost" data-go="grocery">Grocery list${groCount()?' ('+groCount()+')':''}</button></div>${seg}
  <form class="srow" id="rsearch" style="margin-top:14px"><input class="fin" id="rq" type="search" enterkeyhint="search" placeholder="Search recipes or ingredients" value="${esc(rq)}"><button class="btn ghost">Find</button></form></div>
  <div class="strip rfil">${RF.map(([k,l])=>`<button class="chip" data-rf="${k}" aria-pressed="${k===rf}">${l}</button>`).join('')}</div>
  <p class="pad mut small" style="margin:0 0 6px">${list.length} recipe${list.length===1?'':'s'}${rq?' for “'+esc(rq)+'”':''}</p>
@@ -961,8 +964,8 @@ function me(){const x=xpInfo(),q=questsFor(monday(TODAY)),st=weightStats(),r=wee
  <div><b>${r.cal===null?'–':fmtN(r.cal)}</b><span>avg calories${r.budget?' (budget '+fmtN(r.budget)+')':''}</span></div><div><b>${r.prot}${arrow(r.prot,p.prot,true)}</b><span>protein-goal days</span></div>
  <div><b>${r.water.toFixed(1)}</b><span>avg glasses of water</span></div><div><b>${r.wchg===null?'–':(r.wchg>0?'+':'')+r.wchg.toFixed(1)+' lb'}</b><span>weight change</span></div></div>
  <p class="small" style="margin:10px 0 0">${reportLine(r,G)}</p></div>
- <h3 class="pad">Planning and tools</h3>
- <div class="pad tools"><button class="btn" data-go="plan">Meal planner & grocery list</button><button class="btn ghost" data-go="setup">Edit my answers</button></div>
+ <h3 class="pad">Settings and tools</h3>
+ <div class="pad tools"><button class="btn ghost" data-go="setup">Edit my answers</button></div>
  <details class="card" id="remcard"><summary style="font-weight:700;cursor:pointer">Reminders in your phone’s calendar</summary>
  <p class="small">ShiftFit can’t buzz your phone when it’s closed, but your calendar can. This makes a calendar file with your next 4 weeks of plan items (stretch breaks, cooler packing, wind-down, workouts) as events that alert you on time.</p>
  <label class="tog"><input type="checkbox" id="icsN" checked>Also add move nudges every ${nIv()} min on shift</label>
@@ -1018,11 +1021,14 @@ function groHTML(days){const it=groItems(days);if(!it.length)return '<p class="p
  ${AISLES.map(a=>a[0]).filter(a=>by[a]).map(a=>`<p class="slab">${a}</p><ul class="ingl">${by[a].map(x=>`<li><button class="ingb${S.gro[x.line.toLowerCase()]?' done':''}" data-gro="${esc(x.line.toLowerCase())}">${esc(x.line)}<span class="mut small" style="display:block">${esc(x.uses.join(', '))}</span></button></li>`).join('')}</ul>`).join('')}
  <div class="row" style="margin-top:12px"><button class="btn ghost" data-grocopy>Copy list</button><button class="btn ghost" data-groclear>Clear ticks</button></div></div>`}
 function plan(){const days=Array.from({length:7},(_,i)=>add(TODAY,i)),G=goal();
- main.innerHTML=`<div class="pad"><h2>Meal planner</h2><p class="mut" style="margin:0">Plan the next 7 days from ShiftFit recipes. The grocery list builds itself.</p></div>
+ main.innerHTML=`<div class="pad"><button class="backl" data-go="recipes">‹ Recipes</button><h2>Meal planner</h2><p class="mut" style="margin:0">Plan the next 7 days from ShiftFit recipes. Tap + on a day to add one.</p><button class="btn" style="margin-top:12px;width:100%" data-go="grocery">Grocery list${groCount()?' · '+groCount()+' items left':''}</button></div>
  ${days.map(d=>{const k=key(d),P=S.plan[k]||[],cal=P.reduce((a,x)=>a+((RCP.find(r=>r.id===x.r)||{}).cal||0),0),t=typeOf(d);
  return `<div class="card"><div class="mhd"><b>${k===key(TODAY)?'Today':nice(d)} <span class="small" style="color:${T[t].c}">${T[t].n}</span></b><span class="mut small" style="white-space:nowrap">${cal?fmtN(cal)+(G?' / '+fmtN(G.kcal):'')+' cal':''}</span><button class="ib sm" data-padd="${k}" aria-label="Add a recipe">+</button></div>
- ${P.map((x,i)=>{const r=RCP.find(z=>z.id===x.r);return r?`<div class="prow"><button class="pb" style="flex:1" data-rcp="${r.id}"><b>${r.n}</b><span class="mut small" style="display:block">${x.m} · ${r.cal} cal · ${r.pro} g protein</span></button><button class="ib sm" data-plog="${k}|${i}" aria-label="Log it">✓</button><button class="ib sm" data-pdel="${k}|${i}" aria-label="Remove">×</button></div>`:''}).join('')||'<div class="mut small" style="padding:6px 0">Nothing planned</div>'}</div>`}).join('')}
- <h3 class="pad">Grocery list</h3>${groHTML(days)}`}
+ ${P.map((x,i)=>{const r=RCP.find(z=>z.id===x.r);return r?`<div class="prow"><button class="pb" style="flex:1" data-rcp="${r.id}"><b>${r.n}</b><span class="mut small" style="display:block">${x.m} · ${r.cal} cal · ${r.pro} g protein</span></button><button class="ib sm" data-plog="${k}|${i}" aria-label="Log it">✓</button><button class="ib sm" data-pdel="${k}|${i}" aria-label="Remove">×</button></div>`:''}).join('')||'<div class="mut small" style="padding:6px 0">Nothing planned</div>'}</div>`}).join('')}`}
+function groCount(){const it=groItems(Array.from({length:7},(_,i)=>add(TODAY,i)));return it.filter(x=>!S.gro[x.line.toLowerCase()]).length}
+function grocery(){const days=Array.from({length:7},(_,i)=>add(TODAY,i)),n=Object.values(S.plan).length?days.reduce((a,d)=>a+(S.plan[key(d)]||[]).length,0):0;
+ main.innerHTML=`<div class="pad"><button class="backl" data-go="recipes">‹ Recipes</button><h2>Grocery list</h2><p class="mut" style="margin:0 0 12px">${n?'For the '+n+' recipe'+(n>1?'s':'')+' in your plan over the next 7 days.':'Built from your meal plan.'}</p><button class="btn ghost" style="width:100%" data-go="plan">${n?'Edit meal plan':'Plan your meals'}</button></div>
+ <div style="margin-top:12px">${groHTML(days)}</div>`}
 function planPicker(k,meal){rv={type:'pk',k,meal:meal||'Dinner',q:''};drawRV()}
 function pkHTML(){const ml={Breakfast:'b',Lunch:'l',Dinner:'d',Snacks:'s'}[rv.meal],q=rv.q.toLowerCase(),L=RCP.filter(r=>r.m===ml&&(!q||(r.n+' '+r.ing.join(' ')).toLowerCase().includes(q)));
  return `<h2 style="margin:4px 0 0">Add to ${nice(unkey(rv.k))}</h2><div class="chips" style="margin:12px 0">${['Breakfast','Lunch','Dinner','Snacks'].map(m=>`<button class="chip" data-pkm="${m}" aria-pressed="${m===rv.meal}">${m}</button>`).join('')}</div>
@@ -1049,8 +1055,8 @@ function saveCustom(){const v=id=>(document.getElementById(id)||{}).value||'',n=
  const f={src:'custom',code:fs.code||('c'+Date.now()),name:n,brand:v('cb').trim(),per:{kcal:k*m,p:(+v('cp')||0)*m,c:(+v('cc')||0)*m,f:(+v('cf')||0)*m},serving:sv,svOnly:!(g>0),ok:true};
  S.custom=[f,...S.custom.filter(x=>x.code!==f.code)];save();toast('Saved to My foods');setFood(f);drawSheet()}
 
-const VIEWS={today,train,stretch,food,recipes,schedule,setup,me,plan};let view='today';
-function go(v){if(!VIEWS[v])v='today';view=v;if(location.hash.slice(1)!==v)history.replaceState(null,'','#'+v);document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('on',b.dataset.go===v));VIEWS[v]();window.scrollTo(0,0)}
+const VIEWS={today,train,stretch,food,recipes,schedule,setup,me,plan,grocery};let view='today';
+function go(v){if(!VIEWS[v])v='today';view=v;if(location.hash.slice(1)!==v)history.replaceState(null,'','#'+v);document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('on',b.dataset.go===({plan:'recipes',grocery:'recipes'}[v]||v)));VIEWS[v]();window.scrollTo(0,0)}
 let wp=null,wtick=null;
 const sugg=id=>{const l=S.wt[id],sec=DEX[id].u==='s';if(!l)return 'First time: start light. Pick a weight where the last 2–3 reps are hard but your form stays clean.';
  if(!l.w)return l.feel==='Easy'?(sec?'Felt easy last time: hold 10 s longer.':'Felt easy last time: add a few reps or a dumbbell.'):'Last time: '+(l.feel||'no rating')+'.';
@@ -1104,7 +1110,7 @@ document.addEventListener('click',ev=>{const b=ev.target.closest('button');if(!b
  if(rv&&ds.pam){rv.meal=ds.pam;return drawRV()}
  if(rv&&ds.paadd!==undefined){(S.plan[rv.k]=S.plan[rv.k]||[]).push({r:rv.id,m:rv.meal});save();const d=unkey(rv.k);closeRV();return toast('Planned for '+(key(d)===key(TODAY)?'today':nice(d)))}
  if(ds.gro!==undefined){S.gro[ds.gro]=!S.gro[ds.gro];if(!S.gro[ds.gro])delete S.gro[ds.gro];save();b.classList.toggle('done',!!S.gro[ds.gro]);return}
- if(ds.groclear!==undefined){S.gro={};save();return plan()}
+ if(ds.groclear!==undefined){S.gro={};save();return VIEWS[view]()}
  if(ds.grocopy!==undefined){const days=Array.from({length:7},(_,i)=>add(TODAY,i)),it=groItems(days).filter(x=>!S.gro[x.line.toLowerCase()]),by={};it.forEach(x=>{(by[aisleOf(x.line)]=by[aisleOf(x.line)]||[]).push(x.line)});const txt=AISLES.map(a=>a[0]).filter(a=>by[a]).map(a=>a+':\n'+by[a].map(l=>'- '+l).join('\n')).join('\n\n');
   try{navigator.clipboard.writeText('ShiftFit grocery list\n\n'+txt).then(()=>toast('Grocery list copied'),()=>toast('Couldn’t copy'))}catch(e){toast('Couldn’t copy')}return}
  if(ds.wdel){S.weights=S.weights.filter(w=>w.d!==ds.wdel);save();return me()}
