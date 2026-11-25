@@ -200,6 +200,31 @@ h3{font-size:17px;margin:22px 0 10px;font-weight:700}
 .mleg{display:flex;flex-wrap:wrap;gap:6px 14px;justify-content:center;font-size:14px;margin:4px 0 0}
 .mleg span{display:inline-flex;align-items:center;gap:6px}.mleg i{width:12px;height:12px;border-radius:6px;display:inline-block}
 .mcard{background:var(--card);border-radius:20px;padding:10px 12px 12px;margin-top:12px}
+
+#sheet{position:fixed;inset:0;z-index:11;display:none;justify-content:center;background:var(--out)}
+#sheet.open{display:flex}
+.kgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));text-align:center;gap:6px}
+.kbig{font-size:26px;font-weight:800;line-height:1.1;font-variant-numeric:tabular-nums}
+.kbar{height:10px;border-radius:5px;background:var(--line);overflow:hidden;margin-top:12px}
+.kbar i{display:block;height:100%;border-radius:5px}
+.kbar.sm{height:6px;margin-top:4px}
+.macros{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:14px}
+.mhd{display:flex;align-items:center;gap:10px}
+.mhd b{flex:1;font-size:17px}
+.ib.sm{width:40px;height:40px;font-size:22px;font-weight:700;background:var(--bg)}
+.fi{display:flex;justify-content:space-between;align-items:center;gap:10px;width:100%;border:0;background:none;text-align:left;padding:10px 0;border-top:1px solid var(--line)}
+.fi>span:first-child{display:grid}
+.fi>span:last-child{font-weight:700;white-space:nowrap}
+.srow{display:flex;gap:8px}
+.fin{flex:1;width:100%;font:inherit;font-size:16px;padding:12px 14px;border-radius:14px;border:1.5px solid var(--line);background:var(--bg);color:var(--ink);min-width:0}
+.res{display:flex;justify-content:space-between;align-items:center;gap:10px;width:100%;border:0;border-bottom:1px solid var(--line);background:none;text-align:left;padding:10px 0}
+.res>span:first-child{display:grid}
+.scanbox{position:relative;border-radius:18px;overflow:hidden;background:#000;aspect-ratio:4/3;margin-top:4px}
+.scanbox video{width:100%;height:100%;object-fit:cover;display:block}
+.scanline{position:absolute;left:10%;right:10%;top:50%;height:2px;background:#e5484d;box-shadow:0 0 10px #e5484d}
+.nut{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));text-align:center;background:var(--card);border-radius:16px;padding:12px 6px;margin-top:12px}
+.nut b{display:block;font-size:22px;font-variant-numeric:tabular-nums}
+.slab{font-weight:700;margin:16px 0 4px}
 @media (prefers-reduced-motion:reduce){.fg *{animation:none!important}}
 </style>
 </head>
@@ -216,6 +241,7 @@ h3{font-size:17px;margin:22px 0 10px;font-weight:700}
   <button data-go="schedule"><svg viewBox="0 0 24 24"><path d="M3 20h18M6 20V8l6-4 6 4v12M10 20v-6h4v6"/></svg>Shifts</button>
 </nav>
 <div id="player"></div>
+<div id="sheet"></div>
 <div id="toast" role="status"></div>
 <script>
 {
@@ -335,7 +361,7 @@ function body(mp,cls){cls=cls||'';
 const WK={A:{n:'Lower body & core',c:'#1f9d6b',x:['goblet','rdl','lunge','bridge','calf','deadbug']},B:{n:'Upper body',c:'#0e7490',x:['floor','row1','ohp','pushup','curl','tri','plank']},C:{n:'Full body',c:'#c2410c',x:['ddl','stepup','bentrow','pushup','lateral','farmer']}};
 const LV={Beginner:{sets:2,reps:'10–12',rest:75,eff:'Light: stop with 3–4 good reps left.',min:25},Intermediate:{sets:3,reps:'8–12',rest:60,eff:'Moderate: stop with 2–3 good reps left.',min:35},Advanced:{sets:4,reps:'8–10',rest:60,eff:'Hard: stop with 1–2 good reps left, lower over 3 seconds.',min:45}};
 const HABS=['Protein at every meal','Vegetables at 2 meals','No heavy food after midnight on nights','Snacks pre-portioned, not from the bag'];
-const DEF={goals:['Flexibility','Lose weight','Move more'],equip:['Dumbbells','Yoga mat'],dbw:'',level:'Beginner',job:'Crane operator',work:'Mostly seated',pause:'Short pauses between lifts',rot:'2-2-3 (Panama), days and nights alternate',hours:'7:00 – 19:00',start:'2026-11-02',cal:true,dbed:'21:45',dwake:'05:15',nsleep:'08:30',nwake:'15:00',tight:['Neck','Low back','Hips'],reach:'Shins',inj:'',diet:['No restrictions'],dislike:'',cook:'Basic',track:'Habit checks',nudge:'75',style:'Friendly'};
+const DEF={goals:['Flexibility','Lose weight','Move more'],equip:['Dumbbells','Yoga mat'],dbw:'',level:'Beginner',job:'Crane operator',work:'Mostly seated',pause:'Short pauses between lifts',rot:'2-2-3 (Panama), days and nights alternate',hours:'7:00 – 19:00',start:'2026-11-02',cal:true,dbed:'21:45',dwake:'05:15',nsleep:'08:30',nwake:'15:00',tight:['Neck','Low back','Hips'],reach:'Shins',inj:'',diet:['No restrictions'],dislike:'',cook:'Basic',track:'Habit checks',nudge:'75',style:'Friendly',sex:'',age:'',hft:'',hin:'',wt:'',gwt:'',pace:'1 lb/week',kcal:'',usda:''};
 const Q=[
 {t:'What are your goals?',h:'Pick all that apply.',f:[['goals','m',['Flexibility','Lose weight','Move more','Build strength','Sleep better','Less back pain','More energy']]]},
 {t:'Equipment and experience',h:'Day-off workouts are built around dumbbells.',f:[['equip','m',['None','Yoga mat','Resistance bands','Dumbbells','Kettlebell','Foam roller','Pull-up bar','Treadmill or bike','Gym access'],'What do you have?'],['dbw','t','Dumbbell weights you have (e.g. 10, 15, 25 lb)'],['level','s',['Beginner','Intermediate','Advanced'],'Strength training experience']]},
@@ -343,6 +369,7 @@ const Q=[
 {t:'Your shift schedule',h:'The app works out every future shift from this.',f:[['rot','s',['2-2-3 (Panama), days and nights alternate','4 on, 4 off','5 days, 2 off','Custom'],'Rotation'],['hours','s',['7:00 – 19:00','6:00 – 18:00','8:00 – 20:00'],'Shift hours'],['start','d','First night shift of a 28-day cycle'],['cal','b','Read shifts from my phone calendar (Supershift)']]},
 {t:'When do you sleep?',f:[['dbed','tm','Bedtime on day shifts'],['dwake','tm','Wake-up on day shifts'],['nsleep','tm','Sleep after night shifts'],['nwake','tm','Wake-up after night shifts']]},
 {t:'Your body',h:'Stretches focus on your tight spots.',f:[['tight','m',['Neck','Shoulders','Upper back','Low back','Hips','Hamstrings','Knees','Calves'],'Tight or sore spots'],['reach','s',['Knees','Shins','Toes','Floor'],'Bending forward, your hands reach your'],['inj','x','Injuries or moves to avoid']]},
+{t:'Calorie budget',h:'Used to work out a daily calorie budget for steady weight loss. Leave blank to skip.',f:[['sex','s',['Male','Female'],'Sex'],['age','n','Age'],['hft','n','Height: feet'],['hin','n','Height: inches'],['wt','n','Current weight (lb)'],['gwt','n','Goal weight (lb)'],['pace','s',['0.5 lb/week','1 lb/week','1.5 lb/week'],'How fast do you want to lose?'],['kcal','n','Or set your own daily budget (calories, optional)']]},
 {t:'Eating',f:[['diet','m',['No restrictions','Vegetarian','Halal','Dairy-free','Gluten-free','Low carb'],'Eating style'],['dislike','t','Foods you won’t eat'],['cook','s',['Basic','Comfortable','Love it'],'Cooking skill'],['track','s',['Gentle nudges','Habit checks','Photo log','Full calorie tracking'],'How much tracking?']]},
 {t:'Reminders and motivation',f:[['nudge','s',['60','75','90','120'],'Move nudge on shift, every … minutes'],['style','s',['Friendly','Strict coach','Game-like streaks and XP'],'Coaching style']]}];
 let S={};try{S=JSON.parse(localStorage.getItem('shiftfit')||'{}')||{}}catch(e){S={}}
@@ -359,7 +386,7 @@ function rotFor(d){const L=lvl(),tgt=key(d);if(ROT[tgt+L]!==undefined)return ROT
   ROT[key(day)+L]=r;if(key(day)===tgt){res=r;break}day=add(day,1)}
  return res}
 const save=()=>{try{localStorage.setItem('shiftfit',JSON.stringify(S))}catch(e){}};
-const TODAY=d12(new Date());let sel=TODAY,vm=new Date(TODAY.getFullYear(),TODAY.getMonth(),1,12),pl=null,tick=null;
+const TODAY=d12(new Date());let sel=(new Date().getHours()<8&&PAT[(idx(TODAY)+27)%28]==='N')?add(TODAY,-1):TODAY,vm=new Date(TODAY.getFullYear(),TODAY.getMonth(),1,12),pl=null,tick=null;
 const main=document.getElementById('main'),player=document.getElementById('player'),toastEl=document.getElementById('toast');
 const toast=m=>{toastEl.textContent=m;toastEl.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>toastEl.classList.remove('on'),2200)};
 const fig=(a,id)=>{const e=id?EX[id]:null,g=k=>e?e.t.filter(x=>x[0]===k).map(x=>`<ellipse class="tgt" cx="${x[1]}" cy="${x[2]}" rx="${x[3]}" ry="${x[4]}"/>`).join(''):'';
@@ -408,14 +435,99 @@ function train(){const L=lvl(),up=[];let d=TODAY;for(let n=0;n<28;n++){const r=r
  <p class="note">Workouts land on regular days off only, never on the recovery day after nights. Each one starts with a 5-minute warm-up and ends with the deep stretch.</p>`;
 }
 function nextBlock(from){let d=from;if(code(d)==='O'){while(code(d)==='O')d=add(d,1)}else{while(code(add(d,-1))===code(d)&&key(d)!==key(from))d=add(d,-1)}const c=code(d);let n=0,e=d;while(code(e)===c){n++;e=add(e,1)}return{d,c,n}}
+S.food=S.food||{};S.recent=S.recent||[];
+const NET=CAN_EMBED,sheet=document.getElementById('sheet');let fs=null,stream=null,scanT=null;
+const isShift=t=>t==='day'||t==='night'||t==='firstnight';
+const MEALS=t=>isShift(t)?['Before shift','On shift','After shift','Snacks']:['Breakfast','Lunch','Dinner','Snacks'];
+const fmtN=n=>Math.round(n||0).toLocaleString();
+const kc=e=>(e.f.per.kcal||0)*e.g/100;
+const tot=L=>L.reduce((a,e)=>{const r=e.g/100,q=e.f.per;a.kcal+=(q.kcal||0)*r;a.p+=(q.p||0)*r;a.c+=(q.c||0)*r;a.f+=(q.f||0)*r;return a},{kcal:0,p:0,c:0,f:0});
+function goal(){const s=S.set,kg=(+s.wt||0)*0.4536,cm=((+s.hft||0)*12+(+s.hin||0))*2.54,age=+s.age||0;
+ if(+s.kcal>0)return {kcal:+s.kcal};if(!kg||!cm||!age||!s.sex)return null;
+ const bmr=10*kg+6.25*cm-5*age+(s.sex==='Female'?-161:5),tdee=bmr*1.375,pace=parseFloat(s.pace)||1,floor=s.sex==='Female'?1200:1500,raw=tdee-pace*500;
+ return {kcal:Math.max(floor,Math.round(raw/10)*10),tdee:Math.round(tdee),floored:raw<floor}}
+const protG=()=>Math.round((+S.set.gwt||+S.set.wt||0)*0.7);
+function defMeal(){const t=typeOf(sel),h=new Date().getHours(),M=MEALS(t);
+ if(t==='day')return h<7?M[0]:h<19?M[1]:M[2];if(isShift(t))return h>=12&&h<19?M[0]:(h>=19||h<7)?M[1]:M[2];return h<11?M[0]:h<16?M[1]:h<21?M[2]:M[3]}
+const gOf=(f,amt,unit)=>unit==='serving'&&f.serving?amt*f.serving.g:unit==='oz'?amt*28.35:unit==='item'?100:amt;
+const amtLabel=e=>e.unit==='item'?'':e.unit==='serving'?(e.amt+' × '+(e.f.serving?e.f.serving.label:'serving')):(e.amt+' '+e.unit);
+const pickName=v=>typeof v==='string'?v:v&&typeof v==='object'?(v.en||v.fr||Object.values(v)[0]||''):'';
+function offNorm(p){if(!p)return null;const name=pickName(p.product_name)||pickName(p.product_name_en)||pickName(p.generic_name);if(!name)return null;
+ const n=p.nutriments||{},num=v=>v===undefined||v===null||v===''?null:+v;let kcal=num(n['energy-kcal_100g']);if(kcal===null&&num(n['energy_100g'])!==null)kcal=num(n['energy_100g'])/4.184;
+ const sq=+p.serving_quantity;return {src:'off',code:String(p.code||''),name:String(name),brand:String(Array.isArray(p.brands)?p.brands.join(', '):(p.brands||'')),
+ per:{kcal,p:num(n.proteins_100g),c:num(n.carbohydrates_100g),f:num(n.fat_100g)},serving:sq>0?{g:sq,label:String(p.serving_size||sq+' g')}:null,ok:kcal!==null}}
+const OFF_F='code,product_name,product_name_en,generic_name,brands,nutriments,serving_size,serving_quantity';
+async function offSearch(q){
+ try{const r=await fetch('https://search.openfoodfacts.org/search?q='+encodeURIComponent(q)+'&page_size=20&langs=en&fields='+OFF_F);if(r.ok){const j=await r.json(),a=(j.hits||j.products||[]).map(offNorm).filter(Boolean);if(a.length)return a}}catch(e){}
+ try{const r=await fetch('https://world.openfoodfacts.org/cgi/search.pl?search_terms='+encodeURIComponent(q)+'&search_simple=1&action=process&json=1&page_size=20&sort_by=unique_scans_n&fields='+OFF_F);if(r.ok){const j=await r.json();return (j.products||[]).map(offNorm).filter(Boolean)}}catch(e){}
+ return []}
+async function offProduct(code){const tries=[code];if(code.length===12)tries.push('0'+code);if(code.length===13&&code[0]==='0')tries.push(code.slice(1));
+ for(const c of tries){try{const r=await fetch('https://world.openfoodfacts.org/api/v2/product/'+encodeURIComponent(c)+'.json?fields='+OFF_F);if(r.ok){const j=await r.json();if(j.status===1&&j.product){const f=offNorm(Object.assign({code:c},j.product));if(f)return f}}}catch(e){}}return null}
+function usdaNorm(f){const fn=f.foodNutrients||[],u=x=>String(x.unitName||'').toUpperCase(),val=(num,nm)=>{const x=fn.find(x=>String(x.nutrientNumber)===num||String(x.nutrientName||'').startsWith(nm));return x?+x.value:null};
+ const e=fn.find(x=>u(x)==='KCAL'&&(String(x.nutrientNumber)==='208'||/^Energy/.test(x.nutrientName||'')));const kcal=e?+e.value:null;
+ const d=String(f.description||'');return {src:'usda',code:'fdc'+f.fdcId,name:d.charAt(0)+d.slice(1).toLowerCase(),brand:'USDA',per:{kcal,p:val('203','Protein'),c:val('205','Carbohydrate'),f:val('204','Total lipid')},serving:null,ok:kcal!==null}}
+async function usdaSearch(q){try{const r=await fetch('https://api.nal.usda.gov/fdc/v1/foods/search?api_key='+encodeURIComponent(S.set.usda||'DEMO_KEY'),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({query:q,dataType:['Foundation','SR Legacy'],pageSize:15})});
+ if(!r.ok)return {list:[],err:r.status};const j=await r.json();return {list:(j.foods||[]).map(usdaNorm).filter(x=>x.ok)}}catch(e){return {list:[],err:'net'}}}
+function openSheet(meal,view){fs={meal,view,q:'',list:[],usda:[],off:[],msg:'',loading:false,food:null,amt:1,unit:'g',edit:null};drawSheet();sheet.classList.add('open');if(view==='scan')startScan()}
+function closeSheet(){stopScan();fs=null;sheet.classList.remove('open');sheet.innerHTML='';VIEWS[view]()}
+function setFood(f,amt,unit){fs.food=f;fs.amt=amt!==undefined?amt:(f.serving?1:100);fs.unit=unit||(f.serving?'serving':'g');fs.view='detail'}
+function nutOf(){const f=fs.food,g=gOf(f,+fs.amt||0,fs.unit),r=g/100,q=f.per;return [(q.kcal||0)*r,(q.p||0)*r,(q.c||0)*r,(q.f||0)*r]}
+function nutHTML(){const n=nutOf();return ['Calories','Protein','Carbs','Fat'].map((l,i)=>`<div><b>${fmtN(n[i])}${i?' g':''}</b><span class="mut small">${l}</span></div>`).join('')}
+const resRow=(x,i)=>`<button class="res" data-fpick="${i}"><span><b>${esc(x.name)}</b><span class="mut small">${esc(x.brand||'')}${x.serving?' · '+esc(x.serving.label):''}</span></span><span class="small" style="white-space:nowrap;text-align:right">${x.ok?'<b>'+fmtN(x.serving?x.per.kcal*x.serving.g/100:x.per.kcal)+' cal</b><br><span class="mut">'+(x.serving?'per serving':'per 100 g')+'</span>':'<span class="mut">tap for details</span>'}</span></button>`;
+function drawSheet(){if(!fs)return;const M=MEALS(typeOf(sel));let h=`<div class="pl"><div style="display:flex;justify-content:space-between;align-items:center"><b style="font-size:18px">${fs.edit!==null?'Edit food':'Add food'}</b><button class="ib" data-fclose aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+ <div class="chips" id="fmeals" style="margin:10px 0 12px">${M.map(m=>`<button class="chip" data-fmeal="${m}" aria-pressed="${m===fs.meal}">${m}</button>`).join('')}</div>`;
+ if(!NET&&fs.view!=='quick'&&fs.view!=='detail'){h+=`<div class="card" style="margin:0"><b>Search and barcode scanning work in the installed app</b><div class="mut small" style="margin-top:4px">Open samsquanch-bin.github.io/shiftfit on your phone. This preview can’t reach the food databases, but Quick add works.</div></div>`;fs.view='quick'}
+ if(fs.view==='detail'){const f=fs.food;h+=`<h2 style="margin:4px 0 0">${esc(f.name)}</h2><p class="mut" style="margin:2px 0 0">${esc(f.brand||'')}${f.src==='off'?' · Open Food Facts':f.src==='usda'?' · USDA':''}</p>
+  ${f.ok===false?`<div class="card" style="margin:12px 0 0"><b>No nutrition info for this product yet.</b><div class="mut small">Check the label and use Quick add instead.</div><button class="btn ghost" style="margin-top:8px" data-fview="quick">Quick add</button></div>`:`
+  <p class="slab">Amount</p><div class="srow"><input class="fin" id="famt" type="number" inputmode="decimal" min="0" step="any" value="${esc(fs.amt)}"><select class="fin" id="funit">${f.serving?`<option value="serving"${fs.unit==='serving'?' selected':''}>serving (${esc(f.serving.label)})</option>`:''}${f.src==='quick'?'<option value="item" selected>entry</option>':`<option value="g"${fs.unit==='g'?' selected':''}>grams</option><option value="oz"${fs.unit==='oz'?' selected':''}>ounces</option>`}</select></div>
+  <div class="nut" id="dnut">${nutHTML()}</div>
+  <div class="pctl" style="grid-template-columns:${fs.edit!==null?'1fr 1.4fr':'1fr'}">${fs.edit!==null?'<button class="btn ghost" data-fdel>Delete</button>':''}<button class="btn" data-fsave>${fs.edit!==null?'Save':'Add to '+esc(fs.meal)}</button></div>`}`}
+ else if(fs.view==='scan'){h+=`<div class="scanbox"><video id="vid" playsinline muted></video><div class="scanline"></div></div><p class="mut small" id="smsg" style="margin:8px 0 12px">${esc(fs.msg||'Point the camera at the barcode.')}</p>
+  <form class="srow" id="bcform"><input class="fin" id="bc" inputmode="numeric" placeholder="Or type the barcode number"><button class="btn">Look up</button></form><div class="row" style="margin-top:12px"><button class="btn ghost" data-fview="search">Search by name</button><button class="btn ghost" data-fview="quick">Quick add</button></div>`}
+ else if(fs.view==='quick'){h+=`<form id="qform"><p class="slab">Quick add</p><input class="fin" id="qn" placeholder="What did you eat? (optional)"><div class="srow" style="margin-top:8px"><input class="fin" id="qk" type="number" inputmode="numeric" placeholder="Calories" required><input class="fin" id="qp" type="number" inputmode="numeric" placeholder="Protein g"></div><div class="pctl" style="grid-template-columns:1fr"><button class="btn">Add to ${esc(fs.meal)}</button></div></form>${NET?'<button class="btn ghost" data-fview="search" style="margin-top:10px">Search the database instead</button>':''}`}
+ else{const rec=!fs.q;fs.list=rec?S.recent:[...fs.usda,...fs.off];
+  h+=`<form class="srow" id="fsearch"><input class="fin" id="fq" type="search" enterkeyhint="search" placeholder="Search foods, e.g. chicken breast" value="${esc(fs.q)}"><button class="btn">Search</button></form>
+  <div class="row" style="margin-top:10px"><button class="btn ghost" data-fview="scan">Scan barcode</button><button class="btn ghost" data-fview="quick">Quick add</button></div>
+  ${fs.loading?'<p class="mut">Searching…</p>':''}${fs.msg?`<p class="mut small">${esc(fs.msg)}</p>`:''}
+  ${rec?(S.recent.length?`<p class="slab">Recent foods</p>${S.recent.map(resRow).join('')}`:'<p class="mut small" style="margin-top:14px">Foods you add show up here for quick re-logging.</p>'):
+  (fs.loading?'':`${fs.usda.length?`<p class="slab">Basic foods (USDA)</p>${fs.usda.map((x,i)=>resRow(x,i)).join('')}`:''}${fs.uerr===429?'<p class="mut small">USDA search limit reached. Add a free key under Food database settings.</p>':''}
+  ${fs.off.length?`<p class="slab">Products (Open Food Facts)</p>${fs.off.map((x,i)=>resRow(x,i+fs.usda.length)).join('')}`:''}${!fs.usda.length&&!fs.off.length?'<p class="mut">No matches. Try fewer words, or Quick add.</p>':''}`)}`}
+ sheet.innerHTML=h+'</div>';
+ if(fs.view==='search'&&!fs.q){const q=document.getElementById('fq');if(q)q.focus()}}
+async function doSearch(q){fs.q=q;fs.loading=true;fs.msg='';drawSheet();const [u,o]=await Promise.all([usdaSearch(q),offSearch(q)]);if(!fs||fs.q!==q)return;fs.loading=false;fs.usda=u.list;fs.uerr=u.err;fs.off=o;
+ if(!u.list.length&&!o.length&&u.err==='net')fs.msg='Couldn’t reach the food databases. Check your connection.';drawSheet()}
+async function pick(i){const f=fs.list[i];if(!f)return;if(f.src==='off'&&!f.ok&&f.code){fs.msg='Loading product…';drawSheet();const full=await offProduct(f.code);if(!fs)return;fs.msg='';setFood(full||f)}else setFood(f);drawSheet()}
+async function lookup(code){fs.msg='Looking up '+code+'…';const m=document.getElementById('smsg');if(m)m.textContent=fs.msg;stopScan();const f=await offProduct(code);if(!fs)return;
+ if(f){fs.msg='';setFood(f)}else{fs.view='search';fs.msg='Barcode '+code+' isn’t in Open Food Facts yet. Search by name, or Quick add from the label.'}drawSheet()}
+async function startScan(){const v=document.getElementById('vid'),msg=t=>{fs&&(fs.msg=t);const m=document.getElementById('smsg');if(m)m.textContent=t};
+ if(!('BarcodeDetector' in window)){msg('This browser can’t scan barcodes. Type the number under the barcode instead.');return}
+ try{const sup=await BarcodeDetector.getSupportedFormats(),fm=['ean_13','ean_8','upc_a','upc_e'].filter(x=>sup.includes(x));const det=new BarcodeDetector(fm.length?{formats:fm}:undefined);
+  stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}});if(!fs||fs.view!=='scan'){stopScan();return}v.srcObject=stream;await v.play();
+  const loop=async()=>{if(!stream)return;try{const c=await det.detect(v);if(c.length&&c[0].rawValue){lookup(String(c[0].rawValue).replace(/\D/g,''));return}}catch(e){}scanT=setTimeout(loop,250)};loop()}
+ catch(e){msg('Camera not available. Allow camera access for this site in Chrome, or type the barcode.')}}
+function stopScan(){clearTimeout(scanT);if(stream){stream.getTracks().forEach(t=>t.stop());stream=null}}
+function saveEntry(){const f=fs.food,amt=+fs.amt;if(!(amt>0))return toast('Enter an amount');const k=key(sel),L=S.food[k]=S.food[k]||[];
+ const ff={src:f.src,code:f.code||'',name:f.name,brand:f.brand||'',per:f.per,serving:f.serving||null,ok:true},e={f:ff,g:gOf(ff,amt,fs.unit),amt,unit:fs.unit,meal:fs.meal};
+ if(fs.edit!==null)L[fs.edit]=e;else L.push(e);
+ if(f.src!=='quick'){S.recent=[ff,...S.recent.filter(x=>(x.code||x.name)!==(ff.code||ff.name))].slice(0,40)}
+ save();const n=f.name,ed=fs.edit!==null;closeSheet();toast((ed?'Updated ':'Added ')+n)}
+function logHTML(t){const k=key(sel),L=S.food[k]||[],G=goal(),T2=tot(L),pg=protG(),left=G?G.kcal-T2.kcal:0;
+ return `<div class="pad"><h2>Food</h2><p class="mut" style="margin:0">${key(sel)===key(TODAY)?'Today · ':''}${nice(sel)} · <b style="color:${T[t].c}">${T[t].n}</b></p></div>
+ <div class="card">${G?`<div class="kgrid"><div><div class="kbig">${fmtN(T2.kcal)}</div><div class="mut small">eaten</div></div><div><div class="kbig" style="color:${left<0?'var(--night)':'#1f9d6b'}">${fmtN(Math.abs(left))}</div><div class="mut small">${left<0?'over':'left'}</div></div><div><div class="kbig">${fmtN(G.kcal)}</div><div class="mut small">budget</div></div></div><div class="kbar"><i style="width:${Math.min(100,T2.kcal/G.kcal*100)}%;background:${left<0?'var(--night)':'#1f9d6b'}"></i></div>`
+  :`<b style="font-size:20px">${fmtN(T2.kcal)} calories eaten</b><div class="mut small">Set your calorie budget to see what’s left each day.</div><button class="btn ghost" style="margin-top:10px" data-goal>Set my budget</button>`}
+ <div class="macros">${[['Protein',T2.p,pg],['Carbs',T2.c,0],['Fat',T2.f,0]].map(([n,v,g])=>`<div><div class="small"><b>${n}</b> ${Math.round(v)}${g?' / '+g:''} g</div>${g?`<div class="kbar sm"><i style="width:${Math.min(100,v/g*100)}%;background:var(--day)"></i></div>`:''}</div>`).join('')}</div></div>
+ <div class="row pad" style="margin-top:12px"><button class="btn" data-fadd="">Search food</button><button class="btn ghost" data-fscan>Scan barcode</button></div>
+ ${MEALS(t).map(m=>{const it=L.map((e,i)=>[e,i]).filter(([e])=>e.meal===m),s=tot(it.map(x=>x[0]));return `<div class="card"><div class="mhd"><b>${m}</b><span class="mut">${fmtN(s.kcal)} cal</span><button class="ib sm" data-fadd="${m}" aria-label="Add to ${m}">+</button></div>${it.map(([e,i])=>`<button class="fi" data-fedit="${i}"><span><b>${esc(e.f.name)}</b><span class="mut small">${esc(amtLabel(e))}${e.f.brand&&e.f.src==='off'?' · '+esc(e.f.brand):''}</span></span><span>${fmtN(kc(e))}</span></button>`).join('')}</div>`}).join('')}
+ ${G&&G.floored?'<p class="note">Your budget is held at a safe minimum. Losing faster than this isn’t recommended without a doctor.</p>':G&&G.tdee?`<p class="note">Budget: about ${fmtN(G.tdee)} calories burned a day, minus ${esc(S.set.pace)} of loss. <button class="btn ghost" style="min-height:36px;margin-left:4px" data-goal>Edit</button></p>`:''}`}
 function food(){
  const t=typeOf(sel),k=key(sel),h=S.hab[k]||{},w=S.water[k]||0,b=nextBlock(sel);
- main.innerHTML=`<div class="pad"><h2>Eating</h2><p class="mut" style="margin:0">${nice(sel)} · <b style="color:${T[t].c}">${T[t].n}</b></p></div>
- <h3 class="pad">Meal timing</h3><ul class="plan">${FOOD[t].map(x=>{const[a,p]=fmt(x[0]);return `<li class="pi" style="grid-template-columns:64px minmax(0,1fr)"><div class="tm">${a}<small>${p}</small></div><div class="pb"><b>${x[1]}</b><span>${x[2]}</span></div></li>`}).join('')}</ul>
+ main.innerHTML=logHTML(t)+`<h3 class="pad" style="margin-top:28px">Meal timing for a ${T[t].n.toLowerCase()}</h3><ul class="plan">${FOOD[t].map(x=>{const[a,p]=fmt(x[0]);return `<li class="pi" style="grid-template-columns:64px minmax(0,1fr)"><div class="tm">${a}<small>${p}</small></div><div class="pb"><b>${x[1]}</b><span>${x[2]}</span></div></li>`}).join('')}</ul>
  <div class="card"><b>Caffeine cutoff: ${CAF[t]}</b><div class="mut small">About 6 hours before you plan to sleep</div></div>
  <div class="card"><b>Today’s habits</b>${HABS.map((x,i)=>`<div class="hab"><button class="ck ${h[i]?'y':''}" data-hab="${i}" aria-label="${x}">${ck}</button><span>${x}</span></div>`).join('')}<div class="hab"><span class="mut small">Water ${w}/8 glasses · tap glasses on Today</span></div></div>
  <div class="card"><b>Pack for: ${b.n} ${b.c==='D'?'day':'night'} shift${b.n>1?'s':''} from ${nice(b.d)}</b><ul style="margin:8px 0 0;padding-left:20px"><li>${b.n} cooler meals: protein + veg + some carbs</li><li>${b.n*2} snack packs, pre-portioned (fruit, yogurt, nuts)</li><li>2 water bottles per shift</li>${b.c==='N'?'<li>Something light for after midnight</li>':''}</ul></div>
- <div class="card"><b>Easy cooler meal ideas</b><div class="mut small" style="margin-top:4px">Matched to “${esc(S.set.cook)}” cooking skill</div><ul style="margin:8px 0 0;padding-left:20px"><li>Chicken, rice and roasted veg bowl</li><li>Turkey chili with beans (batch of 4)</li><li>Egg muffins with spinach and cheese</li><li>Tuna or chickpea salad wraps</li></ul></div>`;
+ <div class="card"><b>Easy cooler meal ideas</b><div class="mut small" style="margin-top:4px">Matched to “${esc(S.set.cook)}” cooking skill</div><ul style="margin:8px 0 0;padding-left:20px"><li>Chicken, rice and roasted veg bowl</li><li>Turkey chili with beans (batch of 4)</li><li>Egg muffins with spinach and cheese</li><li>Tuna or chickpea salad wraps</li></ul></div>
+ <details class="card"><summary style="font-weight:700;cursor:pointer">Food database settings</summary><p class="mut small">Basic foods come from USDA FoodData Central. The shared demo key allows only a few searches an hour; a free personal key (api.data.gov) allows 1,000.</p><label class="lb" for="f-usda" style="font-weight:700">USDA API key</label><input class="fin" id="f-usda" data-in="usda" value="${esc(S.set.usda||'')}" placeholder="DEMO_KEY" autocomplete="off"></details>
+ <p class="note">Food data: Open Food Facts (ODbL) and USDA FoodData Central. Your food log stays on this phone.</p>`;
 }
 function schedule(){
  const y=vm.getFullYear(),m=vm.getMonth(),first=new Date(y,m,1,12).getDay(),days=new Date(y,m+1,0).getDate();
@@ -437,7 +549,7 @@ function setup(){
  ${q.f.map(([k,kind,o,lab])=>{const v=s[k];
   if(kind==='m'||kind==='s')return `${lab?`<label class="lb">${lab}</label>`:'<div style="height:16px"></div>'}<div class="chips">${o.map(x=>`<button class="chip" data-k="${k}" data-v="${esc(x)}" data-kind="${kind}" aria-pressed="${kind==='m'?v.includes(x):v===x}">${esc(x)}</button>`).join('')}</div>`;
   if(kind==='b')return `<label class="tog"><input type="checkbox" id="f-${k}" data-in="${k}" ${v?'checked':''}>${o}</label>`;
-  const typ={t:'text',d:'date',tm:'time'}[kind];
+  const typ={t:'text',d:'date',tm:'time',n:'number'}[kind];
   return `<label class="lb" for="f-${k}">${o}</label>${kind==='x'?`<textarea id="f-${k}" data-in="${k}">${esc(v)}</textarea>`:`<input id="f-${k}" type="${typ}" data-in="${k}" value="${esc(v)}">`}`}).join('')}</div>
  <div class="qnav"><button class="btn ghost" data-q="-1" ${i===0?'disabled style="opacity:.4"':''}>Back</button><button class="btn" data-q="1">Next</button></div>`;
 }
@@ -482,6 +594,16 @@ function drawP(){const r=pl.r;if(pl.fin){player.innerHTML=`<div class="pl"><div 
  <div class="pt" id="pt">${tf(pl.left)}</div><ul class="cues">${e.c.map(c=>`<li>${c}</li>`).join('')}</ul>
  <div class="pctl"><button class="btn ghost" data-prev ${pl.i===0?'disabled style="opacity:.4"':''}>Back</button><button class="btn" data-pause>${pl.run?'Pause':'Resume'}</button><button class="btn ghost" data-skip>Skip</button></div></div>`}
 document.addEventListener('click',ev=>{const b=ev.target.closest('button');if(!b)return;const ds=b.dataset;
+ if(ds.fclose!==undefined)return closeSheet();
+ if(ds.fadd!==undefined)return openSheet(ds.fadd||defMeal(),'search');
+ if(ds.fscan!==undefined)return openSheet(defMeal(),'scan');
+ if(ds.goal!==undefined){S.qs=Q.findIndex(q=>q.t==='Calorie budget');save();return go('setup')}
+ if(ds.fedit!==undefined){const e=(S.food[key(sel)]||[])[+ds.fedit];if(!e)return;openSheet(e.meal,'detail');setFood(e.f,e.amt,e.unit);fs.edit=+ds.fedit;return drawSheet()}
+ if(fs&&ds.fmeal){fs.meal=ds.fmeal;document.querySelectorAll('#fmeals .chip').forEach(c=>c.setAttribute('aria-pressed',c===b));const sb=document.querySelector('[data-fsave]');if(sb&&fs.edit===null)sb.textContent='Add to '+fs.meal;return}
+ if(fs&&ds.fview){stopScan();fs.view=ds.fview;fs.msg='';drawSheet();if(ds.fview==='scan')startScan();return}
+ if(fs&&ds.fpick!==undefined)return pick(+ds.fpick);
+ if(fs&&ds.fsave!==undefined)return saveEntry();
+ if(fs&&ds.fdel!==undefined){const L=S.food[key(sel)]||[];L.splice(fs.edit,1);save();closeSheet();return toast('Deleted')}
  if(ds.wclose!==undefined)return closeW();
  if(wp&&ds.wnext!==undefined){const w=WK[wp.code];if(wp.i===w.x.length-1){wp.i++;finishW()}else wp.i++;wp.rest=0;return drawW()}
  if(wp&&ds.wprev!==undefined){wp.i=Math.max(-1,wp.i-1);wp.rest=0;return drawW()}
@@ -505,7 +627,11 @@ document.addEventListener('click',ev=>{const b=ev.target.closest('button');if(!b
  if(ds.q){S.qs=Math.max(0,Math.min(Q.length,S.qs+Number(ds.q)));save();return setup()}
  if(ds.done!==undefined){S.qs=0;S.onb=true;save();go('today');return toast('Plan built from your answers')}
 });
-document.addEventListener('input',ev=>{if(wp&&ev.target.dataset&&ev.target.dataset.wt){const v=parseFloat(ev.target.value);(wp.log[ev.target.dataset.wt]=wp.log[ev.target.dataset.wt]||{}).w=isNaN(v)?0:v;return}const k=ev.target.dataset&&ev.target.dataset.in;if(!k)return;S.set[k]=ev.target.type==='checkbox'?ev.target.checked:ev.target.value;save()});
+document.addEventListener('submit',ev=>{ev.preventDefault();if(!fs)return;const id=ev.target.id,v=x=>(document.getElementById(x)||{}).value||'';
+ if(id==='fsearch'){const q=v('fq').trim();if(q)doSearch(q)}
+ else if(id==='bcform'){const c=v('bc').replace(/\D/g,'');if(c)lookup(c)}
+ else if(id==='qform'){const k=+v('qk');if(!(k>0))return;setFood({src:'quick',name:v('qn').trim()||'Quick add',brand:'',per:{kcal:k,p:+v('qp')||0,c:0,f:0},serving:null},1,'item');saveEntry()}});
+document.addEventListener('input',ev=>{if(fs&&(ev.target.id==='famt'||ev.target.id==='funit')){fs[ev.target.id==='famt'?'amt':'unit']=ev.target.value;if(ev.target.id==='funit'){fs.amt=fs.unit==='serving'?1:fs.unit==='oz'?3.5:100;const a=document.getElementById('famt');if(a)a.value=fs.amt}const d=document.getElementById('dnut');if(d)d.innerHTML=nutHTML();return}if(wp&&ev.target.dataset&&ev.target.dataset.wt){const v=parseFloat(ev.target.value);(wp.log[ev.target.dataset.wt]=wp.log[ev.target.dataset.wt]||{}).w=isNaN(v)?0:v;return}const k=ev.target.dataset&&ev.target.dataset.in;if(!k)return;S.set[k]=ev.target.type==='checkbox'?ev.target.checked:ev.target.value;save()});
 window.addEventListener('hashchange',()=>{const h=location.hash.slice(1);if(h!==view)go(h)});
 go(location.hash.slice(1)||'today');
 }
