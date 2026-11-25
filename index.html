@@ -90,7 +90,7 @@ h3{font-size:17px;margin:22px 0 10px;font-weight:700}
 .leg span::before{content:"";display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;background:var(--c)}
 .blk{display:grid;grid-template-columns:8px minmax(0,1fr);gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}
 .blk:last-child{border:0}.blk i{border-radius:4px}
-.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(480px,100%);display:grid;grid-template-columns:repeat(5,1fr);background:var(--bg);border-top:1px solid var(--line);padding:6px 6px calc(8px + env(safe-area-inset-bottom,0px));z-index:5}
+.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(480px,100%);display:grid;grid-template-columns:repeat(6,1fr);background:var(--bg);border-top:1px solid var(--line);padding:6px 6px calc(8px + env(safe-area-inset-bottom,0px));z-index:5}
 .nav button{border:0;background:none;display:grid;justify-items:center;gap:2px;font-size:13px;font-weight:600;color:var(--mut);padding:4px 0;min-height:52px}
 .nav svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .nav button.on{color:var(--ink)}
@@ -236,6 +236,40 @@ h3{font-size:17px;margin:22px 0 10px;font-weight:700}
 .stage .bm{max-width:320px}
 .sidel{text-align:center;font-weight:700;color:var(--day);margin-top:2px}
 .sidel.flash{color:var(--night)}
+#rview{position:fixed;inset:0;z-index:12;display:none;justify-content:center;background:var(--out)}
+#rview.open{display:flex}
+.surprise{width:100%;min-height:56px;margin-top:14px;font-size:18px;background:#c2410c;color:#fff;display:flex;align-items:center;justify-content:center;gap:10px}
+.surprise svg{width:24px;height:24px;fill:#fff}
+.rfil{padding-top:12px}
+.rfil .chip{flex:none;scroll-snap-align:start}
+.rlist{display:grid;gap:10px;padding:0 16px}
+.rcard{display:grid;grid-template-columns:76px minmax(0,1fr) auto;gap:12px;align-items:center;width:100%;border:0;background:var(--card);border-radius:20px;padding:10px 14px 10px 10px;text-align:left}
+.rbody{display:grid;gap:2px}
+.rbody b{font-size:17px;line-height:1.25}
+.ink{color:var(--ink)}
+.rtags{display:flex;gap:6px;flex-wrap:wrap;margin-top:2px}
+.rtags i{font-style:normal;font-size:13px;font-weight:600;border-radius:6px;padding:0 6px;background:var(--bg);color:var(--mut)}
+.plate{width:76px;height:76px;display:block}
+.plate.big{width:min(220px,60vw);height:auto;margin:0 auto}
+.pl-o{fill:light-dark(#ffffff,#2b3038);stroke:light-dark(#e2e5ea,#3a404a)}
+.pl-i{fill:light-dark(#f6f7f9,#232830)}
+.pl-sh{fill:rgba(0,0,0,.08)}
+.rhero{background:var(--card);border-radius:24px;padding:16px 0;margin-top:8px}
+.heart{width:24px;height:24px;fill:none;stroke:var(--mut);stroke-width:2}
+.heart.on{fill:#e5484d;stroke:#e5484d}
+.rvtop{display:flex;justify-content:space-between;align-items:center}
+.fit{display:inline-block;font-size:13px;font-weight:700;border-radius:8px;padding:2px 8px;background:var(--card);margin:2px 4px 2px 0}
+.fit.ok{color:#1f9d6b}.fit.no{color:var(--night)}
+.ingl{list-style:none;padding:0;margin:0}
+.ingb{width:100%;text-align:left;border:0;border-bottom:1px solid var(--line);background:none;padding:10px 0 10px 32px;position:relative;font-size:16px}
+.ingb::before{content:"";position:absolute;left:0;top:11px;width:20px;height:20px;border-radius:6px;border:2px solid var(--line)}
+.ingb.done{color:var(--mut);text-decoration:line-through}
+.ingb.done::before{background:#1f9d6b;border-color:#1f9d6b}
+.stepl{padding-left:22px;margin:0}
+.stepl li{padding:6px 0 8px}
+.sres{display:block;width:100%;border:0;background:none;text-align:left;padding:0}
+.othumb{width:56px;height:56px;border-radius:12px;object-fit:cover;margin-right:10px;flex:none}
+.ohero{width:100%;border-radius:20px;display:block;margin-top:8px;aspect-ratio:4/3;object-fit:cover;background:var(--card)}
 @media (prefers-reduced-motion:reduce){.fg *{animation:none!important}}
 </style>
 </head>
@@ -249,10 +283,12 @@ h3{font-size:17px;margin:22px 0 10px;font-weight:700}
   <button data-go="train"><svg viewBox="0 0 24 24"><path d="M3 10v4M6 7v10M18 7v10M21 10v4M6 12h12"/></svg>Train</button>
   <button data-go="stretch"><svg viewBox="0 0 24 24"><circle cx="12" cy="4.5" r="2"/><path d="M5 9l7 1 7-1M12 10v5l-4 6M12 15l4 6"/></svg>Stretch</button>
   <button data-go="food"><svg viewBox="0 0 24 24"><path d="M7 3v8M5 3v5a2 2 0 004 0V3M7 11v10M17 21V3c-3 2-4 5-4 9h4"/></svg>Food</button>
+  <button data-go="recipes"><svg viewBox="0 0 24 24"><path d="M4 19V5a2 2 0 012-2h12v14H6a2 2 0 00-2 2zm0 0a2 2 0 002 2h12v-4M9 7h5M9 11h5"/></svg>Recipes</button>
   <button data-go="schedule"><svg viewBox="0 0 24 24"><path d="M3 20h18M6 20V8l6-4 6 4v12M10 20v-6h4v6"/></svg>Shifts</button>
 </nav>
 <div id="player"></div>
 <div id="sheet"></div>
+<div id="rview"></div>
 <div id="toast" role="status"></div>
 <script>
 {
@@ -451,6 +487,138 @@ function stretch(){
  <h3>${home?'Home moves':'Seated moves'}</h3><div class="lib">${Object.entries(EX).filter(([,e])=>!!e.home===home).map(([id,e])=>`<button class="lx" data-r="ex:${id}">${pic(id)}${e.n}</button>`).join('')}</div></div>
  <p class="note">${home?'Each move shows where you should feel it (red) and has a demo video. Moves marked for both sides tell you when to switch.':'Each move has a picture (red = where you should feel it, blue arrow = which way to move), a motion view, and a demo video.'}</p>`;
 }
+const RX=[
+['yogbowl','Greek yogurt berry bowl','b','dairy','fresh',5,1,290,24,1,0,'1 cup plain 0% Greek yogurt|1 cup mixed berries (fresh or thawed frozen)|2 tbsp granola|1 tsp honey','Spoon the yogurt into a bowl or container.|Top with berries and granola.|Drizzle with honey. For the cooler, pack the granola separately so it stays crunchy.'],
+['eggmuf','Egg muffins with veggies','b','eggs','fresh',30,6,170,13,1,1,'10 large eggs|1 cup chopped spinach|1 bell pepper, diced|½ onion, diced|½ cup shredded cheddar|Salt and pepper','Heat the oven to 350°F and grease a 12-cup muffin tin.|Divide the spinach, pepper, onion and cheese between the cups.|Whisk the eggs with salt and pepper and pour over the veggies.|Bake 20–22 minutes until set. Cool, then refrigerate up to 4 days. One serving is 2 muffins.'],
+['oats','Overnight protein oats','b','dairy','comfort',5,1,445,36,1,0,'½ cup large-flake oats|1 scoop vanilla protein powder|¾ cup 1% milk|1 tbsp chia seeds|½ cup berries','Stir the oats, protein powder, milk and chia together in a jar.|Refrigerate overnight (or at least 4 hours).|Top with berries in the morning. Eat cold or microwave 1 minute.'],
+['bburrito','Freezer breakfast burritos','b','eggs','mexican',25,6,435,26,1,1,'12 large eggs|8 oz lean turkey breakfast sausage|1 can black beans, drained|¾ cup shredded cheddar|6 large whole wheat tortillas|Salsa','Brown the sausage in a large pan, breaking it up. Add the beans.|Whisk the eggs, pour in and scramble until just set.|Divide onto tortillas, top with cheese and a spoon of salsa, and roll up tight.|Wrap each in foil. Freeze up to 2 months; microwave 2 minutes from frozen (unwrapped).'],
+['cctoast','Cottage cheese & peach toast','b','dairy','fresh',5,1,230,15,0,0,'1 slice whole grain bread|½ cup 2% cottage cheese|½ peach or ½ cup canned peaches, drained|Pinch of cinnamon','Toast the bread.|Spread with cottage cheese.|Top with sliced peaches and cinnamon.'],
+['scramble','Spinach scrambled eggs & toast','b','eggs','comfort',10,1,355,24,0,0,'3 large eggs|1 big handful spinach|1 tsp butter|1 slice whole grain toast|Salt and pepper','Melt the butter in a nonstick pan over medium heat.|Wilt the spinach for 30 seconds.|Add whisked eggs and stir gently until just set.|Season and serve with toast.'],
+['pbsmoothie','Peanut butter banana protein shake','b','dairy','comfort',5,1,425,38,1,0,'1 banana (frozen is best)|1 tbsp peanut butter|1 scoop chocolate or vanilla protein powder|1 cup 1% milk|Handful of ice','Blend everything until smooth.|Pour into a shaker or thermos for the drive in.'],
+['shakshuka','Shakshuka (eggs in tomato sauce)','b','eggs','mediterranean spicy',25,2,385,18,0,0,'4 large eggs|1 can (796 ml) diced tomatoes|1 bell pepper, sliced|1 onion, sliced|2 cloves garlic|1 tsp cumin, 1 tsp paprika, pinch chili flakes|1 tbsp olive oil|2 tbsp feta|2 slices whole grain toast','Cook the onion and pepper in oil 5 minutes. Add garlic and spices for 1 minute.|Pour in the tomatoes and simmer 8 minutes until thick.|Make 4 wells and crack in the eggs. Cover and cook 5–6 minutes.|Top with feta and serve with toast for dipping.'],
+['bowl','Chicken burrito bowls','l','chicken','mexican',25,4,425,44,1,1,'1½ lb chicken breast|1 tbsp taco seasoning|2 cups cooked rice|1 can black beans, drained|1 cup corn|1 cup salsa|Shredded lettuce|½ cup plain Greek yogurt (as sour cream)','Rub the chicken with taco seasoning and cook in a hot pan 6 minutes per side. Rest, then slice.|Warm the beans and corn together.|Divide rice, beans, corn and chicken between 4 containers.|Pack lettuce, salsa and yogurt on top or on the side.'],
+['chili','Turkey & bean chili','l','turkey','comfort spicy',40,6,340,30,1,1,'1½ lb lean ground turkey|1 onion and 1 bell pepper, diced|3 cloves garlic|2 cans kidney or black beans, drained|1 can (796 ml) crushed tomatoes|2 tbsp chili powder, 1 tsp cumin|1 cup broth','Brown the turkey with the onion and pepper in a big pot.|Add garlic and spices and cook 1 minute.|Add beans, tomatoes and broth. Simmer 25 minutes.|Portion into containers. Keeps 4 days in the fridge or 3 months frozen.'],
+['caesarwrap','Chicken Caesar wrap','l','chicken','fresh',10,1,440,42,1,0,'1 large whole wheat tortilla|4 oz cooked chicken breast, sliced|2 cups chopped romaine|2 tbsp light Caesar dressing|1 tbsp grated parmesan','Toss the romaine with dressing and parmesan.|Lay the chicken and salad down the middle of the tortilla.|Roll tightly, wrap in foil and cut in half.'],
+['tunapita','Tuna salad pita','l','fish','fresh',10,1,345,31,1,0,'1 can (120 g) tuna in water, drained|2 tbsp plain Greek yogurt|1 tsp mayo|1 celery stalk, diced|1 tsp mustard|1 whole wheat pita|Lettuce and tomato','Mix tuna, yogurt, mayo, celery and mustard.|Open the pita and line it with lettuce and tomato.|Fill with tuna salad. Pack cold.'],
+['chickpeasand','Smashed chickpea salad sandwich','l','veg','fresh',10,2,450,17,1,0,'1 can chickpeas, drained|¼ cup plain Greek yogurt|1 celery stalk, diced|1 tbsp mustard|Squeeze of lemon|4 slices whole grain bread|Lettuce','Mash the chickpeas with a fork, leaving some chunky.|Stir in yogurt, celery, mustard, lemon, salt and pepper.|Pile onto bread with lettuce. Makes 2 sandwiches.'],
+['teriyaki','Teriyaki chicken meal prep','l','chicken','asian',30,4,415,40,1,1,'1½ lb chicken breast, cubed|½ cup light teriyaki sauce|3 cups cooked rice|4 cups broccoli florets|1 tsp sesame seeds','Cook the chicken in a hot nonstick pan 6–7 minutes.|Pour in teriyaki and simmer 2 minutes until sticky.|Steam or microwave the broccoli 3 minutes.|Divide rice, broccoli and chicken into 4 containers. Sprinkle with sesame.'],
+['greekpasta','Greek chicken pasta salad','l','chicken','mediterranean fresh',25,4,455,36,1,1,'8 oz whole wheat pasta|1 lb cooked chicken breast, diced|1 cucumber, diced|1 cup cherry tomatoes, halved|¼ red onion, diced|½ cup crumbled feta|2 tbsp olive oil, 2 tbsp red wine vinegar, 1 tsp oregano','Cook the pasta, rinse under cold water and drain.|Whisk oil, vinegar and oregano with salt and pepper.|Toss everything together.|Keeps 4 days. Great cold from the cooler.'],
+['eggroll','Egg roll in a bowl','l','turkey','asian',20,4,230,22,1,1,'1 lb lean ground turkey or pork|1 bag (400 g) coleslaw mix|3 cloves garlic, 1 tbsp grated ginger|3 tbsp low-sodium soy sauce|1 tbsp sesame oil|2 green onions|Sriracha to taste','Brown the meat in a large pan.|Add garlic and ginger for 1 minute.|Add the coleslaw mix and soy sauce. Stir-fry 4–5 minutes until just tender.|Finish with sesame oil, green onion and sriracha. Add rice if you want it more filling.'],
+['lentilsoup','Hearty lentil soup','l','veg','comfort',40,6,230,13,1,1,'1½ cups dry green or brown lentils, rinsed|2 carrots, 2 celery stalks, 1 onion, diced|3 cloves garlic|1 can (796 ml) diced tomatoes|8 cups low-sodium broth|1 tbsp olive oil|1 tsp cumin, 1 tsp thyme|2 handfuls spinach','Soften the carrots, celery and onion in oil 6 minutes.|Add garlic and spices for 1 minute.|Add lentils, tomatoes and broth. Simmer 25–30 minutes until lentils are soft.|Stir in spinach. Season. Freezes well.'],
+['quesadilla','Black bean quesadilla','l','veg','mexican',15,1,370,18,0,0,'1 large whole wheat tortilla|½ cup black beans, mashed slightly|¼ cup light shredded cheese|¼ bell pepper, diced|2 tbsp salsa','Spread beans over half the tortilla. Add pepper and cheese.|Fold over and cook in a dry pan 3 minutes per side until crisp.|Cut into wedges and serve with salsa.'],
+['turkeywrap','Turkey hummus wrap','l','turkey','fresh mediterranean',5,1,360,26,1,0,'1 large whole wheat tortilla|4 oz sliced deli turkey|2 tbsp hummus|Spinach, cucumber and shredded carrot','Spread the hummus over the tortilla.|Layer turkey and veggies.|Roll tightly and wrap in foil.'],
+['cobbjar','Chicken Cobb salad jar','l','chicken','fresh',15,1,430,40,1,0,'4 oz cooked chicken, diced|1 hard-boiled egg|¼ avocado|1 slice cooked bacon, crumbled|½ cup cherry tomatoes|3 cups chopped romaine|2 tbsp light ranch','Pour the dressing into the bottom of a big jar.|Layer tomatoes, chicken, egg, bacon and avocado.|Pack the lettuce on top. Shake into a bowl when you eat.'],
+['fajitas','Sheet-pan chicken fajitas','d','chicken','mexican',30,4,445,44,1,1,'1½ lb chicken breast, sliced|3 bell peppers, sliced|1 onion, sliced|1 tbsp oil|2 tbsp fajita or taco seasoning|8 small whole wheat tortillas|Salsa and Greek yogurt','Heat the oven to 425°F.|Toss chicken, peppers and onion with oil and seasoning on a sheet pan.|Roast 18–20 minutes, stirring once.|Serve in warm tortillas with salsa and yogurt. Two fajitas per serving.'],
+['salmon','Salmon, potatoes & green beans','d','fish','fresh',30,1,500,35,0,0,'5 oz salmon fillet|6 oz baby potatoes, halved|1 big handful green beans|1 tsp olive oil|Lemon, garlic powder, salt and pepper','Heat the oven to 425°F. Toss potatoes with half the oil and roast 15 minutes.|Add the salmon and green beans to the pan, brush with the rest of the oil and season.|Roast 10–12 more minutes until the salmon flakes.|Squeeze lemon over everything.'],
+['beefbroc','Beef & broccoli stir-fry','d','beef','asian',25,4,465,32,1,1,'1¼ lb sirloin or flank steak, thinly sliced|5 cups broccoli florets|3 tbsp low-sodium soy sauce|1 tbsp honey|1 tbsp cornstarch mixed with ¼ cup water|2 cloves garlic, 1 tsp ginger|1 tbsp oil|3 cups cooked rice','Sear the beef in hot oil in batches, 2 minutes each. Remove.|Stir-fry broccoli with a splash of water 3 minutes.|Add garlic, ginger, soy, honey and cornstarch mix. Return beef and toss until glossy.|Serve over rice.'],
+['tacobowl','Turkey taco bowls','d','turkey','mexican',20,4,325,30,1,1,'1 lb lean ground turkey|1 packet low-sodium taco seasoning|1 can black beans, drained|Shredded lettuce, tomato, salsa|½ cup shredded cheese|Plain Greek yogurt','Brown the turkey and add taco seasoning with a splash of water.|Stir in beans and heat through.|Serve over lettuce with tomato, salsa, cheese and a spoon of yogurt.'],
+['chickenrice','One-pan chicken & rice','d','chicken','comfort',40,4,410,33,1,1,'1½ lb boneless skinless chicken thighs|1 cup long-grain rice|1 onion, diced|2 cloves garlic|2 cups low-sodium chicken broth|1 cup frozen peas|1 tbsp oil|1 tsp paprika, salt and pepper','Season the chicken and brown in oil 3 minutes per side. Remove.|Cook onion and garlic 3 minutes. Add rice and stir 1 minute.|Add broth, set the chicken on top, cover and simmer 18 minutes.|Stir in peas, cover 5 more minutes. Done.'],
+['shrimpnoodle','Shrimp stir-fry noodles','d','fish','asian spicy',20,4,350,28,1,0,'1 lb shrimp, peeled|6 oz whole wheat spaghetti or rice noodles|1 bag (500 g) stir-fry vegetables|3 tbsp low-sodium soy sauce|1 tbsp sweet chili sauce|1 tsp sesame oil|1 tbsp oil','Cook the noodles and drain.|Stir-fry the shrimp in oil 2–3 minutes until pink. Remove.|Stir-fry the vegetables 4 minutes.|Add noodles, shrimp and sauces. Toss and serve.'],
+['spaghetti','Spaghetti with lean meat sauce','d','beef','italian comfort',30,4,510,34,1,1,'8 oz whole wheat spaghetti|1 lb lean ground beef (90%)|1 jar (650 ml) marinara sauce|1 cup sliced mushrooms|½ onion, diced|2 tbsp parmesan','Brown the beef with onion and mushrooms. Drain any fat.|Add the marinara and simmer 10 minutes.|Cook the spaghetti.|Toss together and top with parmesan.'],
+['cod','Lemon garlic cod & rice','d','fish','fresh',20,1,365,34,0,0,'6 oz cod fillet|¾ cup cooked rice|1 bunch asparagus or green beans|1 tsp butter|1 clove garlic, lemon, parsley','Heat the oven to 400°F.|Put the cod and asparagus on a lined pan. Top cod with butter, garlic and lemon slices.|Bake 12–14 minutes until the fish flakes.|Serve over rice.'],
+['parm','Baked chicken parmesan','d','chicken','italian comfort',35,4,500,45,0,0,'4 chicken breasts (5 oz each)|½ cup panko|¼ cup grated parmesan|1 egg, beaten|1 cup marinara|½ cup shredded part-skim mozzarella|8 oz whole wheat spaghetti','Heat the oven to 425°F.|Dip chicken in egg, then the panko-parmesan mix. Bake on a rack 18 minutes.|Top with marinara and mozzarella and bake 5 more minutes.|Serve with a small portion of spaghetti or a big salad.'],
+['burgers','Turkey burgers & sweet potato fries','d','turkey','bbq comfort',35,4,440,29,0,0,'1 lb lean ground turkey|1 egg|¼ cup breadcrumbs|1 tsp garlic powder, 1 tsp Worcestershire|4 whole wheat buns|2 sweet potatoes, cut into fries|1 tbsp oil|Lettuce, tomato, mustard','Heat the oven to 425°F. Toss fries with oil and salt and bake 25 minutes, flipping once.|Mix turkey, egg, breadcrumbs and seasoning. Form 4 patties.|Grill or pan-fry 5 minutes per side until cooked through.|Build burgers with lettuce, tomato and mustard.'],
+['pork','Pork tenderloin with apples & Brussels sprouts','d','pork','comfort',35,4,300,33,1,0,'1¼ lb pork tenderloin|2 apples, cut into wedges|1 lb Brussels sprouts, halved|1½ tbsp olive oil|1 tsp thyme, salt and pepper|1 tbsp Dijon mustard','Heat the oven to 425°F.|Rub pork with mustard, thyme, salt and pepper.|Toss apples and sprouts with oil around the pork on a sheet pan.|Roast 22–25 minutes until the pork reaches 145°F. Rest 5 minutes and slice.'],
+['curry','Lighter chicken curry','d','chicken','spicy comfort',35,4,430,43,1,1,'1½ lb chicken breast, cubed|1 onion, diced|2 tbsp curry paste or 2 tbsp curry powder|1 can light coconut milk|1 can (398 ml) diced tomatoes|2 handfuls spinach|2 cups cooked rice','Cook the onion 5 minutes. Add curry paste for 1 minute.|Add chicken and cook 5 minutes.|Pour in coconut milk and tomatoes. Simmer 15 minutes.|Stir in spinach and serve over rice.'],
+['chickpeacurry','Chickpea & spinach curry','d','veg','spicy comfort',25,4,400,13,1,1,'2 cans chickpeas, drained|1 onion, diced|2 cloves garlic, 1 tbsp ginger|2 tbsp curry powder|1 can light coconut milk|1 can (398 ml) diced tomatoes|4 cups spinach|2 cups cooked rice','Soften the onion, garlic and ginger 5 minutes.|Add curry powder for 1 minute.|Add chickpeas, coconut milk and tomatoes. Simmer 15 minutes.|Stir in spinach. Serve over rice. Add Greek yogurt on top for extra protein.'],
+['pokebowl','Salmon rice bowl','d','fish','asian fresh',25,1,550,38,1,0,'5 oz salmon fillet|¾ cup cooked rice|½ cucumber, sliced|¼ cup shelled edamame|1 tbsp low-sodium soy sauce|1 tbsp light mayo mixed with 1 tsp sriracha|Sesame seeds','Bake the salmon at 400°F for 12 minutes, then flake it.|Layer rice, salmon, cucumber and edamame.|Drizzle soy and sriracha mayo. Sprinkle sesame seeds.'],
+['pulled','Slow cooker BBQ pulled chicken','d','chicken','bbq comfort',15,6,390,37,1,1,'2 lb chicken breast|1 cup BBQ sauce|½ onion, sliced|1 tsp smoked paprika|6 whole wheat buns|Coleslaw mix with a little light dressing','Put onion, chicken, paprika and BBQ sauce in the slow cooker.|Cook on low 6 hours or high 3 hours.|Shred with two forks right in the pot.|Serve on buns with coleslaw. Prep time is 15 minutes; the slow cooker does the rest.'],
+['peppers','Stuffed peppers','d','turkey','comfort mexican',45,4,330,27,1,1,'4 bell peppers, tops cut off|1 lb lean ground turkey|1 cup cooked rice|1 can (398 ml) diced tomatoes|1 tsp cumin, 1 tsp chili powder|½ cup shredded cheese','Heat the oven to 375°F.|Brown the turkey with spices. Stir in rice and tomatoes.|Stuff the peppers and set them in a baking dish with a splash of water.|Cover with foil and bake 30 minutes. Top with cheese and bake 5 more.'],
+['soup','Chicken noodle soup','d','chicken','comfort',35,6,255,31,1,1,'1½ lb chicken breast|2 carrots, 2 celery stalks, 1 onion, diced|8 cups low-sodium chicken broth|6 oz egg noodles|1 tsp thyme|Salt, pepper, parsley','Simmer the whole chicken breasts in the broth with the veggies and thyme for 20 minutes.|Lift out the chicken and shred it.|Add the noodles and cook 7 minutes.|Return the chicken. Season and serve.'],
+['meatballs','Greek turkey meatballs & tzatziki','d','turkey','mediterranean',30,4,430,32,1,1,'1 lb lean ground turkey|1 egg|¼ cup breadcrumbs|¼ cup crumbled feta|1 tsp oregano, 1 clove garlic|½ cup tzatziki|4 whole wheat pitas|Cucumber and tomato','Heat the oven to 400°F.|Mix turkey, egg, breadcrumbs, feta, oregano and garlic. Roll into 16 balls.|Bake 18–20 minutes.|Serve in pitas with tzatziki, cucumber and tomato.'],
+['pbapple','Apple & peanut butter','s','veg','fresh',2,1,190,4,1,0,'1 apple|1 tbsp peanut butter','Slice the apple.|Dip in peanut butter. Pack the peanut butter in a small container for the cooler.'],
+['bites','No-bake protein energy bites','s','veg','comfort',15,8,215,8,1,1,'1 cup large-flake oats|½ cup peanut butter|⅓ cup honey|1 scoop vanilla protein powder|¼ cup mini chocolate chips','Stir everything together in a bowl.|Chill 15 minutes, then roll into 16 balls.|Keep in the fridge up to a week. One serving is 2 bites.'],
+['snackbox','Hummus snack box','s','veg','fresh mediterranean',5,1,270,12,1,0,'¼ cup hummus|1 cup carrot, cucumber and pepper sticks|1 cheese string|A few whole grain crackers','Pack the hummus in a small container.|Fill the rest of the box with veggies, crackers and the cheese string.'],
+['ccbowl','Cottage cheese & pineapple','s','dairy','fresh',2,1,220,25,1,0,'1 cup 2% cottage cheese|½ cup pineapple chunks','Top the cottage cheese with pineapple. That’s it, and it’s one of the best protein snacks going.'],
+['hbeggs','Hard-boiled eggs (batch)','s','eggs','fresh',15,6,140,12,1,1,'12 large eggs|Everything bagel seasoning or salt and pepper','Put eggs in a pot, cover with cold water and bring to a boil.|Turn off the heat, cover and let sit 11 minutes.|Move to ice water for 5 minutes. Keeps a week in the fridge. One serving is 2 eggs.'],
+['rollups','Turkey & cheese roll-ups','s','turkey','fresh',5,1,200,22,1,0,'3 oz sliced deli turkey|1 oz cheddar or Swiss, cut in strips|Mustard','Spread a little mustard on each turkey slice.|Roll each around a strip of cheese. Pack in a container.'],
+['edamame','Spicy edamame','s','veg','asian spicy',5,1,190,17,1,0,'1 cup frozen shelled edamame|Pinch of chili flakes and salt|Squeeze of lime','Microwave the edamame 3 minutes.|Toss with chili flakes, salt and lime. Good warm or cold.'],
+['pudding','Chocolate protein pudding','s','dairy','comfort',3,1,170,29,1,0,'¾ cup plain 0% Greek yogurt|½ scoop chocolate protein powder|1 tsp cocoa powder|Splash of milk','Stir everything together until smooth.|Chill or eat right away. Tastes like dessert.']];
+
+const RCP=RX.map(a=>({id:a[0],n:a[1],m:a[2],p:a[3],st:a[4].split(' '),min:a[5],sv:a[6],cal:a[7],pro:a[8],cool:a[9],batch:a[10],ing:a[11].split('|'),steps:a[12].split('|')}));
+S.fav=S.fav||[];let rf='all',rq='',rv=null,sp={meal:'',prot:'any',style:'any',time:'any',cool:0},ores=null,omsg='';
+const rview=document.getElementById('rview');
+const MLAB={b:'Breakfast',l:'Lunch',d:'Dinner',s:'Snack'},MTOFOOD={b:'Breakfast',l:'Lunch',d:'Dinner',s:'Snacks'};
+const PLAB={chicken:'Chicken',beef:'Beef',pork:'Pork',turkey:'Turkey',fish:'Fish & seafood',eggs:'Eggs',dairy:'Yogurt & dairy',veg:'Vegetarian'};
+const STLAB={comfort:'Comfort food',fresh:'Fresh & light',spicy:'Spicy',mexican:'Mexican',asian:'Asian',italian:'Italian',bbq:'BBQ',mediterranean:'Mediterranean'};
+const RF=[['all','All'],['fav','Favourites'],['b','Breakfast'],['l','Lunch'],['d','Dinner'],['s','Snacks'],['cool','Cooler-friendly'],['veg','Vegetarian'],['quick','15 min or less'],['batch','Meal prep'],['hp','High protein']];
+const isVeg=r=>r.p==='veg'||r.p==='eggs'||r.p==='dairy';
+const flt=(r,f)=>f==='all'||(f==='fav'?S.fav.includes(r.id):'blds'.includes(f)&&f.length===1?r.m===f:f==='cool'?!!r.cool:f==='veg'?isVeg(r):f==='quick'?r.min<=15:f==='batch'?!!r.batch:f==='hp'?r.pro>=30:true);
+const PC={chicken:'#e9a23b',beef:'#9c3b2a',pork:'#dc8a78',turkey:'#c98b4e',fish:'#ef8a62',eggs:'#f2c230',dairy:'#f4f1ea',veg:'#5a9e4b'};
+function plate(r,big){let s=7;for(const ch of r.id)s=(s*31+ch.charCodeAt(0))%2147483646+1;const rnd=()=>(s=s*16807%2147483647)/2147483647;
+ const c=PC[r.p],gr=['#4caf50','#6abf4b','#2e8b57','#7cc36a'],gn=['#e8d3a2','#d9b77a','#f0e2c0','#c9a46a'];let g='';
+ const pa=rnd()*360,px=38+rnd()*8,py=42+rnd()*10;
+ for(let i=0;i<7;i++){const a=rnd()*6.28,d=6+rnd()*9;g+=`<circle cx="${(63+Math.cos(a)*d).toFixed(1)}" cy="${(40+Math.sin(a)*d).toFixed(1)}" r="${(4+rnd()*3).toFixed(1)}" fill="${gn[i%4]}"/>`}
+ for(let i=0;i<5;i++){const a=rnd()*6.28,d=4+rnd()*7;g+=`<ellipse cx="${(60+Math.cos(a)*d).toFixed(1)}" cy="${(66+Math.sin(a)*d).toFixed(1)}" rx="${(5+rnd()*3).toFixed(1)}" ry="${(2.6+rnd()*1.6).toFixed(1)}" transform="rotate(${(rnd()*180).toFixed(0)} ${(60+Math.cos(a)*d).toFixed(1)} ${(66+Math.sin(a)*d).toFixed(1)})" fill="${gr[i%4]}"/>`}
+ const prot=r.p==='eggs'?`<ellipse cx="${px}" cy="${py}" rx="15" ry="13" fill="#fff" stroke="#e6e1d6"/><circle cx="${px+1}" cy="${py-1}" r="6" fill="#f2b51d"/>`:r.p==='dairy'?`<circle cx="${px}" cy="${py}" r="16" fill="#f7f4ee" stroke="#e3ddd2"/><circle cx="${px-5}" cy="${py-4}" r="3.5" fill="#7b5ea7"/><circle cx="${px+4}" cy="${py+3}" r="3.5" fill="#c0392b"/><circle cx="${px+5}" cy="${py-6}" r="3" fill="#3b5ba5"/>`:r.p==='veg'?`<circle cx="${px}" cy="${py}" r="9" fill="#d9a441"/><circle cx="${px+8}" cy="${py+8}" r="7" fill="#c97b2b"/><circle cx="${px-7}" cy="${py+9}" r="6" fill="#e0b85a"/>`:`<ellipse cx="${px}" cy="${py}" rx="17" ry="12" transform="rotate(${pa.toFixed(0)} ${px} ${py})" fill="${c}"/><ellipse cx="${px-3}" cy="${py-3}" rx="8" ry="4" transform="rotate(${pa.toFixed(0)} ${px} ${py})" fill="#fff" opacity=".25"/>`;
+ return `<svg class="plate${big?' big':''}" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="52" r="47" class="pl-sh"/><circle cx="50" cy="50" r="46" class="pl-o"/><circle cx="50" cy="50" r="37" class="pl-i"/><g transform="translate(50 51) scale(1.32) translate(-51 -52)">${g}${prot}</g></svg>`}
+const heart=on=>`<svg class="heart${on?' on':''}" viewBox="0 0 24 24"><path d="M12 21s-7.5-4.6-9.5-9.4C1.2 8.4 3.3 5 6.7 5c2 0 3.6 1.1 5.3 3 1.7-1.9 3.3-3 5.3-3 3.4 0 5.5 3.4 4.2 6.6C19.5 16.4 12 21 12 21z"/></svg>`;
+const leftNow=()=>{const G=goal();return G?G.kcal-tot(S.food[key(sel)]||[]).kcal:null};
+const fitNote=r=>{const L=leftNow();if(L===null)return '';return L>=r.cal?`<span class="fit ok">Fits today: ${fmtN(L)} cal left</span>`:`<span class="fit no">${fmtN(r.cal-Math.max(L,0))} cal over today’s budget</span>`};
+const rcard=r=>`<button class="rcard" data-rcp="${r.id}">${plate(r)}<span class="rbody"><b>${r.n}</b><span class="mut small">${MLAB[r.m]} · ${r.min} min · <b class="ink">${r.cal} cal</b> · ${r.pro} g protein</span><span class="rtags">${r.cool?'<i>Cooler</i>':''}${r.batch?'<i>Meal prep</i>':''}${isVeg(r)?'<i>Vegetarian</i>':''}</span></span>${S.fav.includes(r.id)?heart(1):''}</button>`;
+function recipes(){const q=rq.toLowerCase(),list=RCP.filter(r=>flt(r,rf)&&(!q||(r.n+' '+r.ing.join(' ')).toLowerCase().includes(q)));
+ main.innerHTML=`<div class="pad"><h2>Recipes</h2><p class="mut" style="margin:0">${RCP.length} easy, healthy meals with calories worked out</p>
+ <button class="btn surprise" data-surp><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4z" fill="none"/><circle cx="8.5" cy="8.5" r="1.6"/><circle cx="15.5" cy="15.5" r="1.6"/><circle cx="15.5" cy="8.5" r="1.6"/><circle cx="8.5" cy="15.5" r="1.6"/><circle cx="12" cy="12" r="1.6"/></svg>Surprise me</button>
+ <form class="srow" id="rsearch" style="margin-top:14px"><input class="fin" id="rq" type="search" enterkeyhint="search" placeholder="Search recipes or ingredients" value="${esc(rq)}"><button class="btn ghost">Find</button></form></div>
+ <div class="strip rfil">${RF.map(([k,l])=>`<button class="chip" data-rf="${k}" aria-pressed="${k===rf}">${l}</button>`).join('')}</div>
+ <p class="pad mut small" style="margin:0 0 6px">${list.length} recipe${list.length===1?'':'s'}${rq?' for “'+esc(rq)+'”':''}</p>
+ <div class="rlist">${list.map(rcard).join('')||'<p class="pad mut">No recipes match. Try another filter.</p>'}</div>
+ ${NET?`<div class="card"><b>More recipes online</b><div class="mut small">Thousands more photo recipes from TheMealDB. These aren’t calorie-checked.</div><form class="srow" id="osearch" style="margin-top:10px"><input class="fin" id="oq" placeholder="Ingredient or dish, e.g. salmon"><button class="btn ghost">Search</button></form><div id="ores">${oresHTML()}</div></div>`:''}
+ <p class="note">Calories and protein are per serving and are estimates from typical ingredients.</p>`}
+function oresHTML(){if(omsg)return `<p class="mut small">${esc(omsg)}</p>`;if(!ores)return '';if(!ores.length)return '<p class="mut small">No online recipes found. Try one main ingredient.</p>';
+ return ores.slice(0,24).map(m=>`<button class="res" data-om="${esc(m.idMeal)}">${/^https:\/\/www\.themealdb\.com\//.test(m.strMealThumb||'')?`<img class="othumb" src="${esc(m.strMealThumb)}/small" alt="" loading="lazy">`:''}<span style="flex:1"><b>${esc(m.strMeal)}</b></span></button>`).join('')}
+const MDB='https://www.themealdb.com/api/json/v1/1/';
+async function mdb(path){try{const r=await fetch(MDB+path);if(!r.ok)return null;return await r.json()}catch(e){return null}}
+async function osearch(q){omsg='Searching…';ores=null;const o=document.getElementById('ores');if(o)o.innerHTML=oresHTML();
+ let j=await mdb('filter.php?i='+encodeURIComponent(q.trim().toLowerCase().replace(/\s+/g,'_')));let a=(j&&j.meals)||[];
+ if(!a.length){j=await mdb('search.php?s='+encodeURIComponent(q.trim()));a=(j&&j.meals)||[]}
+ omsg=j===null&&!a.length?'Couldn’t reach the online recipe site.':'';ores=a;const o2=document.getElementById('ores');if(o2)o2.innerHTML=oresHTML()}
+function openRV(){rview.classList.add('open')}
+function closeRV(){rview.classList.remove('open');rview.innerHTML='';rv=null;if(view==='recipes')recipes()}
+function showRecipe(id){const r=RCP.find(x=>x.id===id);if(!r)return;rv={type:'r',id,meal:MTOFOOD[r.m]};drawRV()}
+function drawRV(){if(!rv)return;let h='';
+ const top=(t,extra='')=>`<div class="rvtop"><button class="ib" data-rclose aria-label="Back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button><b>${t}</b>${extra||'<span style="width:44px"></span>'}</div>`;
+ const mealChips=()=>`<p class="slab">Log to</p><div class="chips" id="rmeals">${['Breakfast','Lunch','Dinner','Snacks'].map(m=>`<button class="chip" data-rmeal="${m}" aria-pressed="${m===rv.meal}">${m}</button>`).join('')}</div>`;
+ if(rv.type==='r'){const r=RCP.find(x=>x.id===rv.id),fv=S.fav.includes(r.id);
+  h=top('Recipe',`<button class="ib" data-rfav="${r.id}" aria-label="Favourite">${heart(fv)}</button>`)+`<div class="rhero">${plate(r,1)}</div>
+  <h2 style="margin:6px 0 2px">${r.n}</h2><p class="mut" style="margin:0">${MLAB[r.m]} · ${PLAB[r.p]} · ${r.st.map(x=>STLAB[x]).join(', ')}</p>
+  <div class="nut"><div><b>${r.cal}</b><span class="mut small">cal / serving</span></div><div><b>${r.pro} g</b><span class="mut small">protein</span></div><div><b>${r.min}</b><span class="mut small">minutes</span></div><div><b>${r.sv}</b><span class="mut small">serving${r.sv>1?'s':''}</span></div></div>
+  <div style="margin-top:8px">${fitNote(r)}${r.cool?' <span class="fit">Packs well for the cooler</span>':''}</div>
+  <p class="slab">Ingredients</p><ul class="ingl">${r.ing.map(x=>`<li><button class="ingb" data-ing>${esc(x)}</button></li>`).join('')}</ul>
+  <p class="slab">Steps</p><ol class="stepl">${r.steps.map(x=>`<li>${esc(x)}</li>`).join('')}</ol>
+  ${mealChips()}<div class="pctl" style="grid-template-columns:1fr"><button class="btn" data-rlog>Log 1 serving (${r.cal} cal)</button></div>`}
+ else if(rv.type==='o'){const m=rv.m,ing=[];for(let i=1;i<=20;i++){const a=(m['strIngredient'+i]||'').trim();if(a)ing.push(((m['strMeasure'+i]||'').trim()+' '+a).trim())}
+  const img=/^https:\/\/www\.themealdb\.com\//.test(m.strMealThumb||'')?`<img class="ohero" src="${esc(m.strMealThumb)}" alt="">`:'';
+  h=top('Online recipe')+img+`<h2 style="margin:10px 0 2px">${esc(m.strMeal)}</h2><p class="mut" style="margin:0">${esc([m.strCategory,m.strArea].filter(Boolean).join(' · '))}</p>
+  <div class="card" style="margin:12px 0 0"><b>Not calorie-checked</b><div class="mut small">Search the main ingredients in the Food tab, or Quick add an estimate when you log it.</div></div>
+  <p class="slab">Ingredients</p><ul class="ingl">${ing.map(x=>`<li><button class="ingb" data-ing>${esc(x)}</button></li>`).join('')}</ul>
+  <p class="slab">Steps</p><ol class="stepl">${String(m.strInstructions||'').split(/\r?\n+/).map(s=>s.replace(/^\s*(step\s*\d+[:.]?|\d+[.)])\s*/i,'').trim()).filter(s=>s.length>2).map(x=>`<li>${esc(x)}</li>`).join('')}</ol>
+  <div class="pctl" style="grid-template-columns:1fr"><button class="btn" data-oqlog>Log it with Quick add</button></div>`}
+ else if(rv.type==='s'){const G=(k,opts,lab)=>`<p class="slab">${lab}</p><div class="chips">${opts.map(([v,l])=>`<button class="chip" data-sp="${k}:${v}" aria-pressed="${String(sp[k])===String(v)}">${l}</button>`).join('')}</div>`;
+  h=top('Surprise me')+`<h2 style="margin:4px 0 0">What are you feeling?</h2><p class="mut" style="margin:2px 0 0">Pick what sounds good, or leave it on Anything.</p>
+  ${G('meal',[['b','Breakfast'],['l','Lunch'],['d','Dinner'],['s','Snack']],'Which meal?')}
+  ${G('prot',[['any','Anything'],['chicken','Chicken'],['beef','Beef'],['pork','Pork'],['turkey','Turkey'],['fish','Fish & seafood'],['eggs','Eggs'],['veg','Vegetarian']],'What protein?')}
+  ${G('style',[['any','Anything'],...Object.entries(STLAB)],'What kind of food?')}
+  ${G('time',[['any','I’ve got time'],['30','30 min or less'],['15','15 min or less']],'How much time?')}
+  ${G('cool',[[0,'Doesn’t matter'],[1,'Has to pack in the cooler']],'Taking it to work?')}
+  <div class="pctl" style="grid-template-columns:1fr"><button class="btn surprise" data-sgo style="margin:0">Surprise me</button></div>`}
+ else if(rv.type==='sr'){const r=RCP.find(x=>x.id===rv.id);
+  h=top('Your surprise')+`<p class="mut small" style="margin:0 0 6px">${esc(rv.note||'')}</p><button class="sres" data-rcp="${r.id}"><div class="rhero">${plate(r,1)}</div><h2 style="margin:6px 0 2px">${r.n}</h2><p class="mut" style="margin:0">${r.min} min · ${r.cal} cal · ${r.pro} g protein · serves ${r.sv}</p><div style="margin-top:8px">${fitNote(r)}</div></button>
+  <div class="pctl" style="grid-template-columns:1fr 1fr"><button class="btn ghost" data-sgo>Another one</button><button class="btn" data-rcp="${r.id}">Cook this</button></div>
+  <div class="row" style="margin-top:10px;justify-content:center"><button class="btn ghost" data-sback>Change answers</button>${NET?'<button class="btn ghost" data-sonline>Surprise me online</button>':''}</div>`}
+ rview.innerHTML=`<div class="pl">${h}</div>`;openRV();const pl0=rview.querySelector('.pl');if(pl0)pl0.scrollTop=0}
+function surprise(){const all=RCP.filter(r=>r.m===sp.meal||(sp.meal==='l'&&r.m==='d'&&r.cool));
+ const t=+sp.time||999,ok=(r,ign)=>(ign.has('prot')||sp.prot==='any'||(sp.prot==='veg'?isVeg(r):r.p===sp.prot))&&(ign.has('style')||sp.style==='any'||r.st.includes(sp.style))&&(ign.has('time')||r.min<=t)&&(ign.has('cool')||!+sp.cool||r.cool);
+ const tries=[[],['style'],['style','time'],['style','prot'],['style','prot','time'],['style','prot','time','cool']],names={style:'food style',prot:'protein',time:'time',cool:'cooler'};
+ for(const ig of tries){const set=new Set(ig);let c=all.filter(r=>ok(r,set));if(rv&&rv.id){const c2=c.filter(r=>r.id!==rv.id);if(c2.length)c=c2;else if(ig.length<5)continue}if(c.length){const r=c[Math.floor(Math.random()*c.length)];
+  const note=ig.length?'Nothing matched everything, so this one ignores your '+ig.map(x=>names[x]).join(' and ')+' choice.':(c.length>1?'1 of '+(c.length+(rv&&rv.id?1:0))+' matches. Tap Another one to shuffle.':'Your only exact match.');rv={type:'sr',id:r.id,note};return drawRV()}}
+ toast('No recipes for that meal yet')}
+async function osurprise(){const cat={chicken:'c=Chicken',beef:'c=Beef',pork:'c=Pork',fish:'c=Seafood',veg:'c=Vegetarian',eggs:'i=eggs'},area={mexican:['Mexican'],italian:['Italian'],asian:['Chinese','Japanese','Thai','Vietnamese'],mediterranean:['Greek','Turkish','Moroccan']};
+ toast('Finding an online recipe…');let path=sp.meal==='b'?'filter.php?c=Breakfast':area[sp.style]?'filter.php?a='+area[sp.style][Math.floor(Math.random()*area[sp.style].length)]:cat[sp.prot]?'filter.php?'+cat[sp.prot]:null;
+ let m=null;if(path){const j=await mdb(path),a=(j&&j.meals)||[];if(a.length){const p=a[Math.floor(Math.random()*a.length)],d=await mdb('lookup.php?i='+encodeURIComponent(p.idMeal));m=d&&d.meals&&d.meals[0]}}
+ if(!m){const j=await mdb('random.php');m=j&&j.meals&&j.meals[0]}
+ if(!m)return toast('Couldn’t reach the online recipe site');rv={type:'o',m};drawRV()}
+
 function train(){const L=lvl(),up=[];let d=TODAY;for(let n=0;n<28;n++){const r=rotFor(d);if(r)up.push([d,r]);d=add(d,1)}
  const nx=up.find(x=>x[1]!=='rest'),lw=LV[L];
  main.innerHTML=`<div class="pad"><h2>Workout</h2><p class="mut" style="margin:0">Dumbbell training on your days off${S.set.dbw?' · your dumbbells: '+esc(S.set.dbw):''}</p>
@@ -589,7 +757,7 @@ function setup(){
   return `<label class="lb" for="f-${k}">${o}</label>${kind==='x'?`<textarea id="f-${k}" data-in="${k}">${esc(v)}</textarea>`:`<input id="f-${k}" type="${typ}" data-in="${k}" value="${esc(v)}">`}`}).join('')}${q.t==='Calorie budget'?`<div class="card" id="bprev" style="margin:20px 0 0">${bprevHTML()}</div>`:''}</div>
  <div class="qnav"><button class="btn ghost" data-q="-1" ${i===0?'disabled style="opacity:.4"':''}>Back</button><button class="btn" data-q="1">Next</button></div>`;
 }
-const VIEWS={today,train,stretch,food,schedule,setup};let view='today';
+const VIEWS={today,train,stretch,food,recipes,schedule,setup};let view='today';
 function go(v){if(!VIEWS[v])v='today';view=v;if(location.hash.slice(1)!==v)history.replaceState(null,'','#'+v);document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('on',b.dataset.go===v));VIEWS[v]();window.scrollTo(0,0)}
 let wp=null,wtick=null;
 const sugg=id=>{const l=S.wt[id],sec=DEX[id].u==='s';if(!l)return 'First time: start light. Pick a weight where the last 2–3 reps are hard but your form stays clean.';
@@ -631,6 +799,20 @@ function drawP(){const r=pl.r;if(pl.fin){player.innerHTML=`<div class="pl"><div 
  <div class="pt" id="pt">${tf(pl.left)}</div>${e.sides?`<div class="sidel" id="psd">${sideLbl()}</div>`:''}<ul class="cues">${e.c.map(c=>`<li>${c}</li>`).join('')}</ul>
  <div class="pctl"><button class="btn ghost" data-prev ${pl.i===0?'disabled style="opacity:.4"':''}>Back</button><button class="btn" data-pause>${pl.run?'Pause':'Resume'}</button><button class="btn ghost" data-skip>Skip</button></div></div>`}
 document.addEventListener('click',ev=>{const b=ev.target.closest('button');if(!b)return;const ds=b.dataset;
+ if(ds.rclose!==undefined)return closeRV();
+ if(ds.rf){rf=ds.rf;return recipes()}
+ if(ds.surp!==undefined){if(!sp.meal)sp.meal={Breakfast:'b',Lunch:'l',Dinner:'d',Snacks:'s'}[defMeal()];rv={type:'s'};return drawRV()}
+ if(ds.sp){const [k,v]=ds.sp.split(':');sp[k]=v;b.parentNode.querySelectorAll('.chip').forEach(c=>c.setAttribute('aria-pressed',c===b));return}
+ if(ds.sgo!==undefined)return surprise();
+ if(ds.sback!==undefined){rv={type:'s'};return drawRV()}
+ if(ds.sonline!==undefined)return osurprise();
+ if(ds.rcp)return showRecipe(ds.rcp);
+ if(ds.om){toast('Loading recipe…');return mdb('lookup.php?i='+encodeURIComponent(ds.om)).then(j=>{const m=j&&j.meals&&j.meals[0];if(!m)return toast('Couldn’t load that recipe');rv={type:'o',m};drawRV()})}
+ if(ds.rfav){const i=S.fav.indexOf(ds.rfav);if(i<0)S.fav.push(ds.rfav);else S.fav.splice(i,1);save();b.innerHTML=heart(i<0);return toast(i<0?'Saved to favourites':'Removed from favourites')}
+ if(ds.ing!==undefined){b.classList.toggle('done');return}
+ if(ds.rmeal&&rv){rv.meal=ds.rmeal;document.querySelectorAll('#rmeals .chip').forEach(c=>c.setAttribute('aria-pressed',c===b));return}
+ if(ds.rlog!==undefined&&rv){const r=RCP.find(x=>x.id===rv.id),k=key(sel);(S.food[k]=S.food[k]||[]).push({f:{src:'recipe',code:'r:'+r.id,name:r.n,brand:'ShiftFit recipe',per:{kcal:r.cal,p:r.pro,c:null,f:null},serving:null,ok:true},g:100,amt:1,unit:'item',meal:rv.meal});save();const L=leftNow();closeRV();return toast('Logged '+r.n+(L!==null?' · '+fmtN(L)+' cal left':''))}
+ if(ds.oqlog!==undefined&&rv){const n=rv.m.strMeal;closeRV();go('food');openSheet(defMeal(),'quick');const q=document.getElementById('qn');if(q)q.value=n;return}
  if(ds.fclose!==undefined)return closeSheet();
  if(ds.fadd!==undefined)return openSheet(ds.fadd||defMeal(),'search');
  if(ds.fscan!==undefined)return openSheet(defMeal(),'scan');
@@ -665,7 +847,7 @@ document.addEventListener('click',ev=>{const b=ev.target.closest('button');if(!b
  if(ds.q){S.qs=Math.max(0,Math.min(Q.length,S.qs+Number(ds.q)));save();return setup()}
  if(ds.done!==undefined){S.qs=0;S.onb=true;save();go('today');return toast('Plan built from your answers')}
 });
-document.addEventListener('submit',ev=>{ev.preventDefault();if(!fs)return;const id=ev.target.id,v=x=>(document.getElementById(x)||{}).value||'';
+document.addEventListener('submit',ev=>{ev.preventDefault();if(ev.target.id==='rsearch'){rq=(document.getElementById('rq')||{}).value||'';return recipes()}if(ev.target.id==='osearch'){const q=((document.getElementById('oq')||{}).value||'').trim();if(q)osearch(q);return}if(!fs)return;const id=ev.target.id,v=x=>(document.getElementById(x)||{}).value||'';
  if(id==='fsearch'){const q=v('fq').trim();if(q)doSearch(q)}
  else if(id==='bcform'){const c=v('bc').replace(/\D/g,'');if(c)lookup(c)}
  else if(id==='qform'){const k=+v('qk');if(!(k>0))return;setFood({src:'quick',name:v('qn').trim()||'Quick add',brand:'',per:{kcal:k,p:+v('qp')||0,c:0,f:0},serving:null},1,'item');saveEntry()}});
