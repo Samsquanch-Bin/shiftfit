@@ -446,11 +446,13 @@ const MEALS=t=>['Breakfast','Lunch','Dinner','Snacks'];
 const fmtN=n=>Math.round(n||0).toLocaleString();
 const kc=e=>(e.f.per.kcal||0)*e.g/100;
 const tot=L=>L.reduce((a,e)=>{const r=e.g/100,q=e.f.per;a.kcal+=(q.kcal||0)*r;a.p+=(q.p||0)*r;a.c+=(q.c||0)*r;a.f+=(q.f||0)*r;return a},{kcal:0,p:0,c:0,f:0});
-function goal(){const s=S.set,kg=(+s.wt||0)*0.4536,cm=((+s.hft||0)*12+(+s.hin||0))*2.54,age=+s.age||0;
+const heightCm=s=>{const f=parseFloat(s.hft)||0,i=parseFloat(s.hin)||0;return f>8?f+i*2.54:(f*12+i)*2.54};
+const goalMissing=()=>{const s=S.set,m=[];if(!s.sex)m.push('sex');if(!(+s.age>0))m.push('age');if(!(heightCm(s)>0))m.push('height');if(!(+s.wt>0))m.push('current weight');return m};
+function goal(){const s=S.set,kg=(+s.wt||0)*0.4536,cm=heightCm(s),age=+s.age||0;
  if(+s.kcal>0)return {kcal:+s.kcal};if(!kg||!cm||!age||!s.sex)return null;
  const bmr=10*kg+6.25*cm-5*age+(s.sex==='Female'?-161:5),tdee=bmr*1.375,pace=parseFloat(s.pace)||1,floor=s.sex==='Female'?1200:1500,raw=tdee-pace*500;
  return {kcal:Math.max(floor,Math.round(raw/10)*10),tdee:Math.round(tdee),floored:raw<floor}}
-function bprevHTML(){const G=goal();if(!G)return '<b>Your daily budget</b><div class="mut small">Fill in sex, age, height and weight to see it.</div>';
+function bprevHTML(){const G=goal();if(!G)return '<b>Your daily budget</b><div class="mut small">Still needed: '+goalMissing().join(', ')+'.</div>';
  const wk=G.tdee?Math.max(0,(G.tdee-G.kcal)*7/3500):0;
  return `<div class="mut small">Your daily calorie budget</div><div class="kxl" style="font-size:44px;margin:4px 0">${fmtN(G.kcal)}</div><div class="mut small">${G.tdee?`You burn about ${fmtN(G.tdee)} calories a day. Eating ${fmtN(G.kcal)} means losing about ${wk.toFixed(1)} lb a week.`:'Your own number.'}${G.floored?' Held at a safe minimum.':''}${protG()?` Protein goal: ${protG()} g a day.`:''}</div>`}
 const protG=()=>Math.round((+S.set.gwt||+S.set.wt||0)*0.7);
@@ -523,7 +525,7 @@ function logHTML(t){const k=key(sel),L=S.food[k]||[],G=goal(),T2=tot(L),pg=protG
  <div class="card">${G?`<div style="text-align:center"><div class="kxl" style="color:${left<0?'var(--night)':'#1f9d6b'}">${fmtN(Math.abs(left))}</div><div class="mut">${left<0?'calories over budget':'calories left today'}</div></div>
  <div class="eq"><span><b>${fmtN(G.kcal)}</b> budget</span><span>−</span><span><b>${fmtN(T2.kcal)}</b> food</span><span>=</span><span><b>${left<0?'−':''}${fmtN(Math.abs(left))}</b> left</span></div>
  <div class="kbar"><i style="width:${Math.min(100,T2.kcal/G.kcal*100)}%;background:${left<0?'var(--night)':'#1f9d6b'}"></i></div>`
-  :`<b style="font-size:20px">${fmtN(T2.kcal)} calories eaten</b><div class="mut small">Set your calorie budget to see what’s left each day.</div><button class="btn ghost" style="margin-top:10px" data-goal>Set my budget</button>`}
+  :`<b style="font-size:20px">${fmtN(T2.kcal)} calories eaten</b><div class="mut small">${goalMissing().length<4?'To show your daily calorie allowance, add your '+goalMissing().join(', ').replace(/, ([^,]*)$/,' and $1')+'.':'Set your calorie budget to see your daily allowance and what’s left.'}</div><button class="btn" style="margin-top:10px" data-goal>${goalMissing().length<4?'Finish my budget':'Set my budget'}</button>`}
  <div class="macros">${[['Protein',T2.p,pg],['Carbs',T2.c,0],['Fat',T2.f,0]].map(([n,v,g])=>`<div><div class="small"><b>${n}</b> ${Math.round(v)}${g?' / '+g:''} g</div>${g?`<div class="kbar sm"><i style="width:${Math.min(100,v/g*100)}%;background:var(--day)"></i></div>`:''}</div>`).join('')}</div></div>
  <div class="row pad" style="margin-top:12px"><button class="btn" data-fadd="">Search food</button><button class="btn ghost" data-fscan>Scan barcode</button></div>
  ${MEALS(t).map(m=>{const it=L.map((e,i)=>[e,i]).filter(([e])=>e.meal===m),s=tot(it.map(x=>x[0]));return `<div class="card"><div class="mhd"><b>${m}</b><span class="mut">${fmtN(s.kcal)} cal</span><button class="ib sm" data-fadd="${m}" aria-label="Add to ${m}">+</button></div>${it.map(([e,i])=>`<button class="fi" data-fedit="${i}"><span><b>${esc(e.f.name)}</b><span class="mut small">${esc(amtLabel(e))}${e.f.brand&&e.f.src==='off'?' · '+esc(e.f.brand):''}</span></span><span>${fmtN(kc(e))}</span></button>`).join('')}</div>`}).join('')}
