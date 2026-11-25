@@ -225,6 +225,9 @@ h3{font-size:17px;margin:22px 0 10px;font-weight:700}
 .nut{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));text-align:center;background:var(--card);border-radius:16px;padding:12px 6px;margin-top:12px}
 .nut b{display:block;font-size:22px;font-variant-numeric:tabular-nums}
 .slab{font-weight:700;margin:16px 0 4px}
+.kxl{font-size:56px;font-weight:800;line-height:1;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.eq{display:flex;justify-content:center;align-items:baseline;gap:8px;flex-wrap:wrap;margin-top:12px;font-size:15px;color:var(--mut)}
+.eq b{color:var(--ink);font-size:18px;font-variant-numeric:tabular-nums}
 @media (prefers-reduced-motion:reduce){.fg *{animation:none!important}}
 </style>
 </head>
@@ -410,7 +413,7 @@ function today(){
  main.innerHTML=`<div class="strip" aria-label="Next 14 days">${strip}</div>
  <section class="hero" style="background:${ty.c}"><div><p class="small" style="margin:0 0 4px">${key(sel)===key(TODAY)?'Today · ':''}${nice(sel)}</p><h2>${ty.n}</h2><p>${ty.s}</p></div>
  <div class="ring"><svg viewBox="0 0 84 84"><circle cx="42" cy="42" r="34" stroke="rgba(255,255,255,.3)" stroke-width="9" fill="none"/><circle cx="42" cy="42" r="34" stroke="#fff" stroke-width="9" fill="none" stroke-linecap="round" stroke-dasharray="${circ}" stroke-dashoffset="${circ*(1-n/items.length)}"/></svg><b>${n}/${items.length}</b></div>
- <div class="stats"><span>${mv} min moved</span><span>${w}/8 water</span><span>${game?'Streak 6 days · '+(n*10)+' XP':'Caffeine cutoff '+CAF[t]}</span></div></section>
+ <div class="stats"><span>${mv} min moved</span><span>${w}/8 water</span>${goal()?`<span>${fmtN(goal().kcal-tot(S.food[k]||[]).kcal)} cal left</span>`:''}<span>${game?'Streak 6 days · '+(n*10)+' XP':'Caffeine cutoff '+CAF[t]}</span></div></section>
  ${shift?`<div class="card nudge"><div><b>Move nudges every ${nIv()} min on shift</b><div class="mut small">${key(sel)===key(TODAY)?'Next nudge at '+nextNudge():'Starts at '+(t==='day'?'7:00 AM':'7:00 PM')} · seated stretches you can do in the cab</div></div><div class="row"><button class="btn" data-r="${['cabN','cabH','cabL'][new Date().getHours()%3]}">Stretch now · 2 min</button><button class="btn ghost" data-snooze>Snooze 15</button></div></div>`:''}
  <h3 class="pad">Plan for the day</h3><ul class="plan">${items.map((x,i)=>{const[a,b]=fmt(x[0]);return `<li class="pi ${dn[i]?'y':''}"><div class="tm">${a}<small>${b}</small></div><button class="pb" ${x[4]?`data-r="${x[4]}" data-item="${i}"`:`data-tg="${i}"`}><b>${x[1]}</b><span><i class="tag tg-${x[3]}">${{s:'Stretch',m:'Move',f:'Food',w:'Work',z:'Sleep',g:'Workout'}[x[3]]}</i>${x[2].replace('{n}',nIv())}</span></button><button class="ck ${dn[i]?'y':''}" data-tg="${i}" aria-label="Mark done">${ck}</button></li>`}).join('')}</ul>
  <div class="card"><b>Water</b> <span class="mut small">· tap a glass</span><div class="cups" style="margin-top:10px">${Array.from({length:8},(_,i)=>`<button class="cup ${i<w?'y':''}" data-w="${i+1}" aria-label="${i+1} glasses"></button>`).join('')}</div></div>
@@ -447,6 +450,9 @@ function goal(){const s=S.set,kg=(+s.wt||0)*0.4536,cm=((+s.hft||0)*12+(+s.hin||0
  if(+s.kcal>0)return {kcal:+s.kcal};if(!kg||!cm||!age||!s.sex)return null;
  const bmr=10*kg+6.25*cm-5*age+(s.sex==='Female'?-161:5),tdee=bmr*1.375,pace=parseFloat(s.pace)||1,floor=s.sex==='Female'?1200:1500,raw=tdee-pace*500;
  return {kcal:Math.max(floor,Math.round(raw/10)*10),tdee:Math.round(tdee),floored:raw<floor}}
+function bprevHTML(){const G=goal();if(!G)return '<b>Your daily budget</b><div class="mut small">Fill in sex, age, height and weight to see it.</div>';
+ const wk=G.tdee?Math.max(0,(G.tdee-G.kcal)*7/3500):0;
+ return `<div class="mut small">Your daily calorie budget</div><div class="kxl" style="font-size:44px;margin:4px 0">${fmtN(G.kcal)}</div><div class="mut small">${G.tdee?`You burn about ${fmtN(G.tdee)} calories a day. Eating ${fmtN(G.kcal)} means losing about ${wk.toFixed(1)} lb a week.`:'Your own number.'}${G.floored?' Held at a safe minimum.':''}${protG()?` Protein goal: ${protG()} g a day.`:''}</div>`}
 const protG=()=>Math.round((+S.set.gwt||+S.set.wt||0)*0.7);
 function defMeal(){const h=new Date().getHours(),M=MEALS();return h>=4&&h<11?M[0]:h>=11&&h<16?M[1]:h>=16&&h<22?M[2]:M[3]}
 const gOf=(f,amt,unit)=>unit==='serving'&&f.serving?amt*f.serving.g:unit==='oz'?amt*28.35:unit==='item'?100:amt;
@@ -511,10 +517,12 @@ function saveEntry(){const f=fs.food,amt=+fs.amt;if(!(amt>0))return toast('Enter
  const ff={src:f.src,code:f.code||'',name:f.name,brand:f.brand||'',per:f.per,serving:f.serving||null,ok:true},e={f:ff,g:gOf(ff,amt,fs.unit),amt,unit:fs.unit,meal:fs.meal};
  if(fs.edit!==null)L[fs.edit]=e;else L.push(e);
  if(f.src!=='quick'){S.recent=[ff,...S.recent.filter(x=>(x.code||x.name)!==(ff.code||ff.name))].slice(0,40)}
- save();const n=f.name,ed=fs.edit!==null;closeSheet();toast((ed?'Updated ':'Added ')+n)}
+ save();const n=f.name,ed=fs.edit!==null,G=goal();closeSheet();toast((ed?'Updated ':'Added ')+n+(G?' · '+fmtN(G.kcal-tot(S.food[k]).kcal)+' cal left':''))}
 function logHTML(t){const k=key(sel),L=S.food[k]||[],G=goal(),T2=tot(L),pg=protG(),left=G?G.kcal-T2.kcal:0;
  return `<div class="pad"><h2>Food</h2><p class="mut" style="margin:0">${key(sel)===key(TODAY)?'Today · ':''}${nice(sel)} · <b style="color:${T[t].c}">${T[t].n}</b></p></div>
- <div class="card">${G?`<div class="kgrid"><div><div class="kbig">${fmtN(T2.kcal)}</div><div class="mut small">eaten</div></div><div><div class="kbig" style="color:${left<0?'var(--night)':'#1f9d6b'}">${fmtN(Math.abs(left))}</div><div class="mut small">${left<0?'over':'left'}</div></div><div><div class="kbig">${fmtN(G.kcal)}</div><div class="mut small">budget</div></div></div><div class="kbar"><i style="width:${Math.min(100,T2.kcal/G.kcal*100)}%;background:${left<0?'var(--night)':'#1f9d6b'}"></i></div>`
+ <div class="card">${G?`<div style="text-align:center"><div class="kxl" style="color:${left<0?'var(--night)':'#1f9d6b'}">${fmtN(Math.abs(left))}</div><div class="mut">${left<0?'calories over budget':'calories left today'}</div></div>
+ <div class="eq"><span><b>${fmtN(G.kcal)}</b> budget</span><span>−</span><span><b>${fmtN(T2.kcal)}</b> food</span><span>=</span><span><b>${left<0?'−':''}${fmtN(Math.abs(left))}</b> left</span></div>
+ <div class="kbar"><i style="width:${Math.min(100,T2.kcal/G.kcal*100)}%;background:${left<0?'var(--night)':'#1f9d6b'}"></i></div>`
   :`<b style="font-size:20px">${fmtN(T2.kcal)} calories eaten</b><div class="mut small">Set your calorie budget to see what’s left each day.</div><button class="btn ghost" style="margin-top:10px" data-goal>Set my budget</button>`}
  <div class="macros">${[['Protein',T2.p,pg],['Carbs',T2.c,0],['Fat',T2.f,0]].map(([n,v,g])=>`<div><div class="small"><b>${n}</b> ${Math.round(v)}${g?' / '+g:''} g</div>${g?`<div class="kbar sm"><i style="width:${Math.min(100,v/g*100)}%;background:var(--day)"></i></div>`:''}</div>`).join('')}</div></div>
  <div class="row pad" style="margin-top:12px"><button class="btn" data-fadd="">Search food</button><button class="btn ghost" data-fscan>Scan barcode</button></div>
@@ -544,14 +552,14 @@ function schedule(){
 }
 function setup(){
  const i=Math.min(S.qs,Q.length),s=S.set;
- if(i===Q.length){main.innerHTML=`<div class="bar"><i style="width:100%"></i></div><div class="pad q"><h2>Your plan is ready</h2><p class="mut">Goals: ${s.goals.map(esc).join(', ')}. Equipment: ${s.equip.map(esc).join(', ')}. ${esc(s.job)}, ${esc(s.work.toLowerCase())}. Move nudges every ${esc(s.nudge)} min. Tight spots: ${s.tight.map(esc).join(', ')||'none'}.${s.inj?' Avoiding: '+esc(s.inj)+'.':''}</p></div><div class="qnav"><button class="btn ghost" data-q="-1">Back</button><button class="btn" data-done>Build my plan</button></div>`;return}
+ if(i===Q.length){main.innerHTML=`<div class="bar"><i style="width:100%"></i></div><div class="pad q"><h2>Your plan is ready</h2>${goal()?`<div class="card" style="margin:12px 0">${bprevHTML()}</div>`:''}<p class="mut">Goals: ${s.goals.map(esc).join(', ')}. Equipment: ${s.equip.map(esc).join(', ')}. ${esc(s.job)}, ${esc(s.work.toLowerCase())}. Move nudges every ${esc(s.nudge)} min. Tight spots: ${s.tight.map(esc).join(', ')||'none'}.${s.inj?' Avoiding: '+esc(s.inj)+'.':''}</p></div><div class="qnav"><button class="btn ghost" data-q="-1">Back</button><button class="btn" data-done>Build my plan</button></div>`;return}
  const q=Q[i];
  main.innerHTML=`<div class="bar"><i style="width:${i/Q.length*100}%"></i></div><div class="pad q"><p class="mut small" style="margin:12px 0 0">Question ${i+1} of ${Q.length}</p><h2>${q.t}</h2>${q.h?`<p class="mut" style="margin:0">${q.h}</p>`:''}
  ${q.f.map(([k,kind,o,lab])=>{const v=s[k];
   if(kind==='m'||kind==='s')return `${lab?`<label class="lb">${lab}</label>`:'<div style="height:16px"></div>'}<div class="chips">${o.map(x=>`<button class="chip" data-k="${k}" data-v="${esc(x)}" data-kind="${kind}" aria-pressed="${kind==='m'?v.includes(x):v===x}">${esc(x)}</button>`).join('')}</div>`;
   if(kind==='b')return `<label class="tog"><input type="checkbox" id="f-${k}" data-in="${k}" ${v?'checked':''}>${o}</label>`;
   const typ={t:'text',d:'date',tm:'time',n:'number'}[kind];
-  return `<label class="lb" for="f-${k}">${o}</label>${kind==='x'?`<textarea id="f-${k}" data-in="${k}">${esc(v)}</textarea>`:`<input id="f-${k}" type="${typ}" data-in="${k}" value="${esc(v)}">`}`}).join('')}</div>
+  return `<label class="lb" for="f-${k}">${o}</label>${kind==='x'?`<textarea id="f-${k}" data-in="${k}">${esc(v)}</textarea>`:`<input id="f-${k}" type="${typ}" data-in="${k}" value="${esc(v)}">`}`}).join('')}${q.t==='Calorie budget'?`<div class="card" id="bprev" style="margin:20px 0 0">${bprevHTML()}</div>`:''}</div>
  <div class="qnav"><button class="btn ghost" data-q="-1" ${i===0?'disabled style="opacity:.4"':''}>Back</button><button class="btn" data-q="1">Next</button></div>`;
 }
 const VIEWS={today,train,stretch,food,schedule,setup};let view='today';
@@ -632,7 +640,7 @@ document.addEventListener('submit',ev=>{ev.preventDefault();if(!fs)return;const 
  if(id==='fsearch'){const q=v('fq').trim();if(q)doSearch(q)}
  else if(id==='bcform'){const c=v('bc').replace(/\D/g,'');if(c)lookup(c)}
  else if(id==='qform'){const k=+v('qk');if(!(k>0))return;setFood({src:'quick',name:v('qn').trim()||'Quick add',brand:'',per:{kcal:k,p:+v('qp')||0,c:0,f:0},serving:null},1,'item');saveEntry()}});
-document.addEventListener('input',ev=>{if(fs&&(ev.target.id==='famt'||ev.target.id==='funit')){fs[ev.target.id==='famt'?'amt':'unit']=ev.target.value;if(ev.target.id==='funit'){fs.amt=fs.unit==='serving'?1:fs.unit==='oz'?3.5:100;const a=document.getElementById('famt');if(a)a.value=fs.amt}const d=document.getElementById('dnut');if(d)d.innerHTML=nutHTML();return}if(wp&&ev.target.dataset&&ev.target.dataset.wt){const v=parseFloat(ev.target.value);(wp.log[ev.target.dataset.wt]=wp.log[ev.target.dataset.wt]||{}).w=isNaN(v)?0:v;return}const k=ev.target.dataset&&ev.target.dataset.in;if(!k)return;S.set[k]=ev.target.type==='checkbox'?ev.target.checked:ev.target.value;save()});
+document.addEventListener('input',ev=>{if(fs&&(ev.target.id==='famt'||ev.target.id==='funit')){fs[ev.target.id==='famt'?'amt':'unit']=ev.target.value;if(ev.target.id==='funit'){fs.amt=fs.unit==='serving'?1:fs.unit==='oz'?3.5:100;const a=document.getElementById('famt');if(a)a.value=fs.amt}const d=document.getElementById('dnut');if(d)d.innerHTML=nutHTML();return}if(wp&&ev.target.dataset&&ev.target.dataset.wt){const v=parseFloat(ev.target.value);(wp.log[ev.target.dataset.wt]=wp.log[ev.target.dataset.wt]||{}).w=isNaN(v)?0:v;return}const k=ev.target.dataset&&ev.target.dataset.in;if(!k)return;S.set[k]=ev.target.type==='checkbox'?ev.target.checked:ev.target.value;save();const bp=document.getElementById('bprev');if(bp)bp.innerHTML=bprevHTML()});
 window.addEventListener('hashchange',()=>{const h=location.hash.slice(1);if(h!==view)go(h)});
 go(location.hash.slice(1)||'today');
 }
