@@ -228,6 +228,14 @@ h3{font-size:17px;margin:22px 0 10px;font-weight:700}
 .kxl{font-size:56px;font-weight:800;line-height:1;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
 .eq{display:flex;justify-content:center;align-items:baseline;gap:8px;flex-wrap:wrap;margin-top:12px;font-size:15px;color:var(--mut)}
 .eq b{color:var(--ink);font-size:18px;font-variant-numeric:tabular-nums}
+.seg{display:grid;grid-template-columns:1fr 1fr;background:var(--card);border-radius:16px;padding:4px;margin:14px 0 4px}
+.seg button{min-height:48px;border:0;border-radius:12px;background:none;font-weight:700;font-size:16px;color:var(--mut)}
+.seg button[aria-pressed=true]{background:var(--ink);color:var(--bg)}
+.rc .bm{width:96px;height:96px;background:var(--bg);border-radius:14px;margin:0;padding:4px}
+.lx .bm{height:110px;margin:0 auto 4px;max-width:none}
+.stage .bm{max-width:320px}
+.sidel{text-align:center;font-weight:700;color:var(--day);margin-top:2px}
+.sidel.flash{color:var(--night)}
 @media (prefers-reduced-motion:reduce){.fg *{animation:none!important}}
 </style>
 </head>
@@ -277,12 +285,28 @@ ankle:{n:'Ankle pumps',a:'ankle',f:'Calves and shins',y:'6EPNA9owQJw',t:[['root'
 fold:{n:'Seated forward fold',a:'fold',f:'Your whole back',y:'oi4Dq7uZfEg',t:[['tor',100,128,13,8]],ar:'M150 50 Q164 86 150 122',c:['Feet hip-width apart','Let your chest drop toward your knees','Hang loose and breathe slowly']},
 breathe:{n:'Slow breathing',a:'breathe',f:'Belly rises as you breathe in',y:'yHe1q8xtncc',t:[['tor',100,120,12,9]],c:['In through the nose for 4','Out slowly for 6','Let your shoulders drop each time you breathe out']}};
 const R={
-wake:{n:'Wake-up mobility',w:'After waking',s:[['roll',40],['neck',50],['twist',60],['side',60],['reach',40],['ankle',30]]},
-cabN:{n:'Cab break: neck & shoulders',w:'On shift',s:[['tuck',30],['neck',40],['roll',25],['chest',30]]},
-cabH:{n:'Cab break: hips & low back',w:'On shift',s:[['fig4',50],['twist',40],['knee',30]]},
-cabL:{n:'Cab break: legs & circulation',w:'On shift',s:[['ankle',30],['knee',30],['roll',30]]},
-wind:{n:'Wind-down stretch',w:'Before sleep',s:[['fold',90],['fig4',120],['twist',60],['neck',60],['chest',45],['breathe',90]]},
-deep:{n:'Day-off deep stretch',w:'Days off',s:[['roll',60],['neck',90],['chest',90],['side',120],['twist',120],['fig4',180],['fold',180],['knee',60],['reach',60],['breathe',120]]}};
+wake:{n:'Morning mobility',w:'Every morning',p:'home',s:[['catcow',60],['wgs',60],['thread',60],['hipflex',60],['quad',60]]},
+daily:{n:'Daily full-body stretch',w:'Once a day',p:'home',s:[['catcow',60],['child',60],['hipflex',90],['hamstring',90],['fig4s',90],['stwist',60],['thread',60],['doorway',60],['calfw',60]]},
+wind:{n:'Wind-down stretch',w:'Before sleep',p:'home',s:[['child',90],['fig4s',120],['stwist',90],['hamstring',90],['breathe',90]]},
+deep:{n:'Day-off deep stretch',w:'Days off',p:'home',s:[['catcow',60],['child',90],['wgs',150],['hipflex',120],['quad',90],['hamstring',150],['fig4s',180],['stwist',120],['thread',90],['doorway',90],['cobra',80],['calfw',90],['neck',90],['breathe',120]]},
+cabN:{n:'Cab break: neck & shoulders',w:'On shift',p:'work',s:[['tuck',30],['neck',40],['roll',25],['chest',30]]},
+cabH:{n:'Cab break: hips & low back',w:'On shift',p:'work',s:[['fig4',50],['twist',40],['knee',30]]},
+cabL:{n:'Cab break: legs & circulation',w:'On shift',p:'work',s:[['ankle',30],['knee',30],['roll',30]]}};
+Object.assign(EX,{
+catcow:{home:1,n:'Cat-cow',y:'9be19kZMqm8',f:'Your whole spine',mu:[['lowerback','upperback'],['abs','traps']],c:['On hands and knees, hands under shoulders','Breathe in: drop your belly and lift your chest','Breathe out: round your back up like a cat']},
+child:{home:1,n:'Child’s pose',y:'_ZX_zTOBgp8',f:'Low back, lats and hips',mu:[['lowerback','upperback'],['shoulders','glutes']],c:['Kneel with big toes together, knees apart','Sit back toward your heels','Reach your arms forward and rest your forehead down']},
+hipflex:{home:1,sides:1,n:'Kneeling hip flexor stretch',y:'F55tzqJggAY',f:'Front of the hip on the kneeling side',mu:[['quads'],['abs','glutes']],c:['Kneel on one knee (pad under it), other foot forward','Tuck your tailbone under and squeeze the back glute','Shift forward gently until the front of the hip stretches']},
+hamstring:{home:1,sides:1,n:'Lying hamstring stretch',y:'Q4_TmIekeZ8',f:'Back of the thigh',mu:[['hamstrings'],['calves','lowerback']],c:['Lie on your back, towel around one foot','Straighten that leg up toward the ceiling','Keep your back and shoulders relaxed on the floor']},
+fig4s:{home:1,sides:1,n:'Lying figure-4',y:'_bmuT1qE9vI',f:'Outer hip and buttock',mu:[['glutes'],['lowerback']],c:['Lie on your back, knees bent','Cross one ankle over the other knee','Pull the bottom thigh toward your chest']},
+thread:{home:1,sides:1,n:'Thread the needle',y:'E55Q3yQ9azM',f:'Between the shoulder blades',mu:[['upperback','shoulders'],['obliques','traps']],c:['On hands and knees','Slide one arm under your body, palm up','Rest that shoulder and ear on the floor and breathe']},
+doorway:{home:1,sides:1,n:'Doorway chest stretch',y:'069o76BafTk',f:'Across the chest and front shoulder',mu:[['chest','shoulders'],['biceps']],c:['Forearm on the door frame, elbow at shoulder height','Step through gently with the same-side foot','Keep your shoulder down and your back straight']},
+quad:{home:1,sides:1,n:'Standing quad stretch',y:'Td-9CSgSFhs',f:'Front of the thigh',mu:[['quads'],[]],c:['Hold a wall or counter for balance','Pull one heel toward your butt','Knees together, hips tucked slightly']},
+calfw:{home:1,sides:1,n:'Wall calf stretch',y:'EFnLllHNbQQ',f:'Calf of the back leg',mu:[['calves'],[]],c:['Hands on a wall, one foot stepped back','Back leg straight, heel pressed down','Lean in until you feel the calf']},
+stwist:{home:1,sides:1,n:'Lying spinal twist',y:'2SCXbr33pRw',f:'Low back and sides',mu:[['lowerback','obliques'],['glutes','chest']],c:['Lie on your back, arms out wide','Let both knees drop to one side','Keep both shoulders on the floor']},
+wgs:{home:1,sides:1,n:'World’s greatest stretch',y:'juiTN7AItyQ',f:'Hips, hamstrings and upper back',mu:[['quads','glutes','upperback'],['hamstrings','obliques','shoulders']],c:['Deep lunge, both hands down inside the front foot','Drop the back knee if you need to','Rotate and reach the inside arm to the ceiling']},
+cobra:{home:1,n:'Cobra (press-up)',y:'deFCW2Vl-70',f:'Belly and low back',mu:[['abs'],['lowerback','chest']],c:['Lie face down, hands under your shoulders','Press your chest up, hips stay on the floor','Only go as high as feels comfortable']}});
+const muE=e=>{const m={};(e.mu[1]||[]).forEach(k=>m[k]=1);e.mu[0].forEach(k=>m[k]=2);return m};
+const pic=(id,mode)=>{const e=EX[id];return e.home?body(muE(e)):mode==='anim'?fig(e.a):fig(e.a,id)};
 const mins=r=>Math.max(1,Math.round(r.s.reduce((a,x)=>a+x[1],0)/60));
 const NIGHT=[['17:00','Main meal before shift','Biggest meal of the day','f'],['18:15','Pack cooler + 2 water bottles','Light snacks for overnight','f'],['19:00','Shift starts','Move nudges every {n} min','w'],['22:00','Cab break: neck & shoulders','2 min','s','cabN'],['00:30','Light snack only','No heavy meal after midnight','f'],['03:00','Cab break: legs & circulation','90 s, then a glass of water','s','cabL'],['05:00','Cab break: hips & low back','2 min','s','cabH'],['07:30','Home: no caffeine now','Sunglasses on the drive','w'],['08:00','Wind-down stretch','8 min','s','wind'],['08:30','Sleep','Dark room, phone on silent','z']];
 const PL={
@@ -290,7 +314,7 @@ day:[['05:15','Wake-up mobility','5 min, before coffee','s','wake'],['06:15','Pa
 firstnight:[['10:00','Sleep in','Bank extra sleep before nights','z'],['13:00','Day-off deep stretch','Full session while you’re fresh','s','deep'],['14:30','Walk','30 min outside','m'],...NIGHT],
 night:[['15:00','Wake-up mobility','5 min','s','wake'],['16:00','Walk','20 min, daylight helps','m'],...NIGHT],
 recovery:[['14:00','Wake up','Short sleep resets you to days','z'],['14:30','Gentle stretch','Wind-down routine, slow','s','wind'],['15:30','Easy walk','20 min, no hard workout','m'],['18:00','Dinner at a normal time','Helps your body clock reset','f'],['22:30','Bed on time','Back on a day rhythm','z']],
-off:[['08:00','Wake-up mobility','5 min','s','wake'],['09:30','Day-off deep stretch','25 min, your main session','s','deep'],['11:00','Long walk','45 min','m'],['14:00','Meal prep for next block','Cooler meals and snack packs','f'],['21:30','Wind-down stretch','8 min','s','wind']]};
+off:[['08:00','Wake-up mobility','5 min','s','wake'],['09:30','Day-off deep stretch','25 min on the floor, your main session','s','deep'],['11:00','Long walk','45 min','m'],['14:00','Meal prep for next block','Cooler meals and snack packs','f'],['21:30','Wind-down stretch','8 min','s','wind']]};
 const FOOD={
 day:[['05:30','Breakfast','Eggs, or Greek yogurt with fruit'],['10:00','Snack','Fruit and a small handful of nuts'],['12:30','Lunch','Protein + veg from the cooler'],['16:00','Snack','Veg sticks and hummus, or cheese'],['20:00','Dinner at home','Half the plate veg, keep it light']],
 firstnight:[['11:00','Brunch','A normal breakfast after sleeping in'],['17:00','Main meal','Biggest meal of the day, before work'],['22:30','Small meal','Protein + veg'],['00:30','Light snack','Fruit or yogurt, nothing heavy'],['07:45','Small bite before sleep','Toast and egg, or yogurt']],
@@ -420,11 +444,12 @@ function today(){
  <p class="note">Prototype: reminders, steps and streaks are simulated. Tap any day above to preview its plan.</p>`;
 }
 function stretch(){
- const t=S.set.tight;
- main.innerHTML=`<div class="pad"><h2>Stretch</h2><p class="mut" style="margin:0">Focus areas: ${t.length?t.map(x=>`<span class="fc">${esc(x)}</span>`).join(' '):'none set'}</p>
- <h3>Routines</h3>${Object.entries(R).map(([id,r])=>`<button class="rc" data-r="${id}">${fig(EX[r.s[0][0]].a)}<div><b>${r.n}</b><span>${mins(r)} min · ${r.w}</span><br><span>${r.s.map(x=>EX[x[0]].n).slice(0,3).join(', ')}${r.s.length>3?'…':''}</span></div></button>`).join('')}
- <h3>All moves</h3><div class="lib">${Object.entries(EX).map(([id,e])=>`<button class="lx" data-r="ex:${id}">${fig(e.a,id)}${e.n}</button>`).join('')}</div></div>
- <p class="note">Each move has a picture (red = where you should feel it, blue arrow = which way to move), a motion view, and a demo video.</p>`;
+ const t=S.set.tight,tab=S.stab||(isShift(typeOf(TODAY))?'work':'home'),home=tab==='home';
+ main.innerHTML=`<div class="pad"><h2>Stretch</h2><div class="seg" role="tablist"><button data-stab="work" aria-pressed="${!home}">At work</button><button data-stab="home" aria-pressed="${home}">At home</button></div>
+ <p class="mut small" style="margin:6px 0 0">${home?'Floor and standing stretches for mornings, once a day and before bed.':'Seated stretches you can do in the crane cab.'} Focus areas: ${t.length?t.map(x=>esc(x)).join(', '):'none set'}</p>
+ <h3>Routines</h3>${Object.entries(R).filter(([,r])=>r.p===tab).map(([id,r])=>`<button class="rc" data-r="${id}">${pic(r.s[0][0])}<div><b>${r.n}</b><span>${mins(r)} min · ${r.w}</span><br><span>${r.s.map(x=>EX[x[0]].n).slice(0,3).join(', ')}${r.s.length>3?'…':''}</span></div></button>`).join('')}
+ <h3>${home?'Home moves':'Seated moves'}</h3><div class="lib">${Object.entries(EX).filter(([,e])=>!!e.home===home).map(([id,e])=>`<button class="lx" data-r="ex:${id}">${pic(id)}${e.n}</button>`).join('')}</div></div>
+ <p class="note">${home?'Each move shows where you should feel it (red) and has a demo video. Moves marked for both sides tell you when to switch.':'Each move has a picture (red = where you should feel it, blue arrow = which way to move), a motion view, and a demo video.'}</p>`;
 }
 function train(){const L=lvl(),up=[];let d=TODAY;for(let n=0;n<28;n++){const r=rotFor(d);if(r)up.push([d,r]);d=add(d,1)}
  const nx=up.find(x=>x[1]!=='rest'),lw=LV[L];
@@ -592,17 +617,18 @@ function drawW(){const w=WK[wp.code],L=lvl(),lw=LV[L];
 function finishW(){const w=WK[wp.code];w.x.forEach(id=>{const g=wp.log[id];if(g&&(g.w||g.feel))S.wt[id]={w:g.w||0,feel:g.feel||'',d:wp.dk}});S.wdone[wp.dk]=wp.code;if(wp.item!=null)(S.done[wp.dk]=S.done[wp.dk]||{})[wp.item]=true;save()}
 function openR(id,item){if(id.startsWith('wk:'))return openW(id.slice(3),item);if(wp){clearInterval(wtick);wp=null}const r=id.startsWith('ex:')?{n:EX[id.slice(3)].n,s:[[id.slice(3),45]]}:R[id];pl={r,i:0,left:r.s[0][1],run:true,item,dk:key(sel),mode:'pic'};drawP();clearInterval(tick);tick=setInterval(step,1000);player.classList.add('open')}
 function closeP(){clearInterval(tick);pl=null;player.classList.remove('open');player.innerHTML='';VIEWS[view]()}
-function step(){if(!pl||!pl.run||pl.fin)return;pl.left--;if(pl.left<=0)nextEx();else{const e=document.getElementById('pt');if(e)e.textContent=tf(pl.left)}}
+const sideLbl=()=>{const tot=pl.r.s[pl.i][1];return pl.left>tot/2?'First side':'Switch to the other side'};
+function step(){if(!pl||!pl.run||pl.fin)return;pl.left--;if(pl.left<=0)nextEx();else{const e=document.getElementById('pt');if(e)e.textContent=tf(pl.left);const d=document.getElementById('psd');if(d){const v=sideLbl();if(d.textContent!==v){d.textContent=v;d.classList.add('flash')}}}}
 const tf=s=>Math.floor(s/60)+':'+String(s%60).padStart(2,'0');
 function nextEx(){if(pl.i<pl.r.s.length-1){pl.i++;pl.left=pl.r.s[pl.i][1];drawP()}else{pl.fin=true;if(pl.item!=null){(S.done[pl.dk]=S.done[pl.dk]||{})[pl.item]=true;save()}drawP()}}
 function drawP(){const r=pl.r;if(pl.fin){player.innerHTML=`<div class="pl"><div style="flex:1;display:grid;place-content:center;text-align:center;gap:8px"><div class="stage">${fig('breathe')}</div><h2>Nice work</h2><p class="mut">${r.n} done${pl.item!=null?' and ticked off your plan':''}.</p></div><button class="btn" data-close>Back</button></div>`;return}
  const[id]=r.s[pl.i],e=EX[id];
  player.innerHTML=`<div class="pl"><div style="display:flex;justify-content:space-between;align-items:center"><b>${r.n}</b><button class="ib" data-close aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
  <div class="segs">${r.s.map((x,j)=>`<i class="${j<=pl.i?'d':''}"></i>`).join('')}</div>
- <div class="stage">${pl.mode==='vid'&&CAN_EMBED?`<div class="yt"><iframe src="https://www.youtube-nocookie.com/embed/${e.y}?rel=0&playsinline=1&modestbranding=1" title="${e.n} video" allow="encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div>`:pl.mode==='anim'?fig(e.a):fig(e.a,id)}<div class="vtog"><button class="chip" data-view="pic" aria-pressed="${pl.mode==='pic'}">Picture</button><button class="chip" data-view="anim" aria-pressed="${pl.mode==='anim'}">Motion</button>${CAN_EMBED?`<button class="chip" data-view="vid" aria-pressed="${pl.mode==='vid'}">Video</button>`:''}</div></div>
+ <div class="stage">${pl.mode==='vid'&&CAN_EMBED?`<div class="yt"><iframe src="https://www.youtube-nocookie.com/embed/${e.y}?rel=0&playsinline=1&modestbranding=1" title="${e.n} video" allow="encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div>`:pic(id,pl.mode)}<div class="vtog"><button class="chip" data-view="pic" aria-pressed="${pl.mode!=='vid'&&pl.mode!=='anim'}">Picture</button>${e.home?'':`<button class="chip" data-view="anim" aria-pressed="${pl.mode==='anim'}">Motion</button>`}${CAN_EMBED?`<button class="chip" data-view="vid" aria-pressed="${pl.mode==='vid'}">Video</button>`:''}</div></div>
  <div class="feel"><i></i>Feel it here: ${e.f}</div>
  ${CAN_EMBED?`<a class="small mut" style="display:block;margin-top:6px" href="https://www.youtube.com/watch?v=${e.y}" target="_blank" rel="noopener">Video won’t play? Open it in YouTube</a>`:`<a class="vid" href="https://www.youtube.com/watch?v=${e.y}" target="_blank" rel="noopener"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>Watch video demo</a>`}<p class="mut small" style="margin:12px 0 0">Move ${pl.i+1} of ${r.s.length}</p><h2 style="margin:2px 0 0">${e.n}</h2>
- <div class="pt" id="pt">${tf(pl.left)}</div><ul class="cues">${e.c.map(c=>`<li>${c}</li>`).join('')}</ul>
+ <div class="pt" id="pt">${tf(pl.left)}</div>${e.sides?`<div class="sidel" id="psd">${sideLbl()}</div>`:''}<ul class="cues">${e.c.map(c=>`<li>${c}</li>`).join('')}</ul>
  <div class="pctl"><button class="btn ghost" data-prev ${pl.i===0?'disabled style="opacity:.4"':''}>Back</button><button class="btn" data-pause>${pl.run?'Pause':'Resume'}</button><button class="btn ghost" data-skip>Skip</button></div></div>`}
 document.addEventListener('click',ev=>{const b=ev.target.closest('button');if(!b)return;const ds=b.dataset;
  if(ds.fclose!==undefined)return closeSheet();
@@ -621,6 +647,7 @@ document.addEventListener('click',ev=>{const b=ev.target.closest('button');if(!b
  if(wp&&ds.set!=null){const id=WK[wp.code].x[wp.i],a=wp.done[id]=wp.done[id]||[],j=Number(ds.set);a[j]=!a[j];b.classList.toggle('y',!!a[j]);const all=a.filter(Boolean).length>=LV[lvl()].sets;wp.rest=a[j]&&!all?LV[lvl()].rest:0;const el=document.getElementById('rt');if(el)el.textContent=all?'All sets done. Tap Next':wp.rest?'Rest '+tf(wp.rest):'Tap a set when you finish it';return}
  if(wp&&ds.feel){const id=WK[wp.code].x[wp.i];(wp.log[id]=wp.log[id]||{}).feel=ds.feel;document.querySelectorAll('#feel .chip').forEach(c=>c.setAttribute('aria-pressed',c===b));if(wp.log[id].w===undefined){const v=parseFloat(document.getElementById('wt').value);if(!isNaN(v))wp.log[id].w=v}return}
  if(ds.lv){S.set.level=ds.lv;save();return train()}
+ if(ds.stab){S.stab=ds.stab;save();return stretch()}
  if(ds.go)return go(ds.go);
  if(ds.close!==undefined)return closeP();
  if(ds.pause!==undefined){pl.run=!pl.run;b.textContent=pl.run?'Pause':'Resume';return}
