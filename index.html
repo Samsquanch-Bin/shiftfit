@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ShiftFit</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#2a7de1">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* VOICE everyday: a coach that fits a crane operator's 12-hour rotation
+   IDEA a shipped Android app whose whole day re-plans around the shift calendar
+   PICTURE the day card in shift colour with a progress ring, and a seated figure in a hi-vis vest demoing each stretch
+   COLOUR white or near-black ground; day blue and night coral (same as Supershift), recovery violet, days-off crane yellow
+   TYPE Figtree throughout
+   LAYOUT one phone column (max 480px), centred on wider screens; bottom tab bar */
+:root{color-scheme:light dark;--bg:light-dark(#ffffff,#0e1014);--out:light-dark(#eceef1,#060708);--card:light-dark(#f3f4f6,#191c22);--ink:light-dark(#12151a,#eef0f3);--mut:light-dark(#5a616c,#9ba3ae);--line:light-dark(#e1e4e8,#2a2f37);--day:#2a7de1;--night:#e5484d;--rec:#7c5cd6;--off:#c98f00;--vest:#f5b700;--skin:light-dark(#c7ced8,#6b7482);--limb:light-dark(#2b3240,#cfd5dd)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+html,body{height:100%}
+body{margin:0;background:var(--out);color:var(--ink);font:16px/1.5 Figtree,system-ui,sans-serif;overflow-x:clip}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid var(--day);outline-offset:2px}
+.app{max-width:480px;margin:0 auto;min-height:100%;background:var(--bg);position:relative;padding-bottom:96px}
+.top{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 6px}
+.top h1{font-size:22px;font-weight:800;letter-spacing:-.02em;margin:0}
+.ib{width:44px;height:44px;border-radius:22px;border:0;background:var(--card);display:grid;place-items:center}
+.ib svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.pad{padding:0 16px}
+h2{font-size:28px;line-height:1.1;letter-spacing:-.02em;margin:10px 0 4px;font-weight:800}
+h3{font-size:17px;margin:22px 0 10px;font-weight:700}
+.mut{color:var(--mut)}
+.small{font-size:13px}
+.strip{display:flex;gap:8px;overflow-x:auto;padding:8px 16px 12px;scroll-snap-type:x mandatory;scrollbar-width:none}
+.dc{flex:none;scroll-snap-align:start;width:52px;border:1px solid var(--line);background:var(--bg);border-radius:16px;padding:8px 0 10px;display:grid;justify-items:center;gap:2px}
+.dc span{font-size:13px;color:var(--mut)}.dc b{font-size:18px}
+.dc i{font-style:normal;font-size:13px;font-weight:700;color:#fff;border-radius:8px;padding:0 7px;min-width:24px;text-align:center}
+.dc.on{border-color:var(--ink);border-width:2px}
+.hero{margin:0 16px;border-radius:24px;padding:20px;color:#fff;display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center}
+.hero h2{margin:0;font-size:30px;color:#fff}
+.hero p{margin:4px 0 0;opacity:.92}
+.ring{width:84px;height:84px;position:relative}
+.ring svg{width:84px;height:84px;transform:rotate(-90deg)}
+.ring b{position:absolute;inset:0;display:grid;place-items:center;font-size:18px}
+.stats{grid-column:1/-1;display:flex;gap:18px;flex-wrap:wrap;font-size:14px;opacity:.95}
+.card{background:var(--card);border-radius:20px;padding:16px;margin:12px 16px 0}
+.nudge{display:grid;gap:10px}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.btn{min-height:44px;border-radius:22px;border:0;padding:0 18px;font-weight:700;background:var(--ink);color:var(--bg)}
+.btn.ghost{background:transparent;border:1.5px solid var(--line);color:var(--ink)}
+.plan{list-style:none;margin:0;padding:0 16px}
+.pi{display:grid;grid-template-columns:64px minmax(0,1fr) 44px;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+.tm{font-size:20px;font-weight:800;white-space:nowrap;line-height:1}
+.tm small{display:block;font-size:13px;font-weight:600;color:var(--mut);margin-top:3px}
+.pb{border:0;background:none;text-align:left;padding:4px 0}
+.pb b{display:block;font-weight:700}
+.pb span{font-size:14px;color:var(--mut)}
+.tag{display:inline-block;font-size:13px;font-weight:700;border-radius:6px;padding:0 6px;margin-right:6px;color:#fff}
+.tg-s{background:var(--day)}.tg-m{background:#1f9d6b}.tg-f{background:var(--off)}.tg-w{background:var(--limb);color:var(--bg)}.tg-z{background:var(--rec)}
+.ck{width:44px;height:44px;border-radius:22px;border:2px solid var(--line);background:none;display:grid;place-items:center}
+.ck svg{width:20px;height:20px;stroke:#fff;stroke-width:3;fill:none;opacity:0}
+.ck.y{background:#1f9d6b;border-color:#1f9d6b}.ck.y svg{opacity:1}
+.pi.y .pb b{text-decoration:line-through;color:var(--mut)}
+.cups{display:flex;gap:6px;flex-wrap:wrap}
+.cup{width:36px;height:44px;border:2px solid var(--day);border-radius:4px 4px 10px 10px;background:none;position:relative;overflow:hidden}
+.cup.y::after{content:"";position:absolute;left:0;right:0;bottom:0;height:75%;background:var(--day)}
+.rc{display:grid;grid-template-columns:96px minmax(0,1fr);gap:12px;align-items:center;border:0;text-align:left;width:100%;background:var(--card);border-radius:20px;padding:10px 14px 10px 10px;margin-bottom:10px}
+.rc .fg{width:96px;height:96px;background:var(--bg);border-radius:14px}
+.rc b{font-size:17px;display:block}.rc span{font-size:14px;color:var(--mut)}
+.lib{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
+.lx{border:0;background:var(--card);border-radius:18px;padding:8px 8px 12px;text-align:center;font-weight:600;font-size:14px}
+.lx .fg{width:100%;height:110px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{min-height:40px;border-radius:20px;border:1.5px solid var(--line);background:var(--bg);padding:0 14px;font-weight:600;font-size:15px}
+.chip[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.fc{display:inline-flex;align-items:center;border-radius:14px;padding:2px 10px;font-size:14px;font-weight:700;background:var(--card)}
+.hab{display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--line)}
+.hab:last-child{border:0}
+.cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;padding:0 16px}
+.cal .wd{text-align:center;font-size:13px;color:var(--mut);padding:4px 0}
+.cc{border:0;border-radius:12px;min-height:58px;padding:6px 2px;background:var(--card);display:grid;align-content:start;justify-items:center;gap:3px}
+.cc b{font-size:15px}.cc i{font-style:normal;font-size:13px;font-weight:700;color:#fff;border-radius:6px;padding:0 4px}
+.cc.now{outline:2px solid var(--ink)}
+.cc.blank{background:none}
+.mh{display:flex;align-items:center;justify-content:space-between;padding:0 16px 10px}
+.leg{display:flex;gap:12px;flex-wrap:wrap;padding:12px 16px;font-size:13px}
+.leg span::before{content:"";display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;background:var(--c)}
+.blk{display:grid;grid-template-columns:8px minmax(0,1fr);gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}
+.blk:last-child{border:0}.blk i{border-radius:4px}
+.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(480px,100%);display:grid;grid-template-columns:repeat(4,1fr);background:var(--bg);border-top:1px solid var(--line);padding:6px 6px calc(8px + env(safe-area-inset-bottom,0px));z-index:5}
+.nav button{border:0;background:none;display:grid;justify-items:center;gap:2px;font-size:13px;font-weight:600;color:var(--mut);padding:4px 0;min-height:52px}
+.nav svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.nav button.on{color:var(--ink)}
+.nav button.on svg{background:var(--card);border-radius:12px;width:56px;padding:0 16px;box-sizing:content-box;margin:0 -16px}
+.q label.lb{display:block;font-weight:700;margin:18px 0 8px}
+.q input[type=text],.q input[type=date],.q input[type=time],.q textarea{width:100%;font:inherit;font-size:16px;padding:12px 14px;border-radius:14px;border:1.5px solid var(--line);background:var(--bg);color:var(--ink)}
+.q textarea{min-height:80px}
+.tog{display:flex;align-items:center;gap:12px;margin-top:18px;font-weight:600}
+.tog input{width:24px;height:24px;accent-color:var(--day)}
+.bar{height:6px;border-radius:3px;background:var(--card);overflow:hidden;margin:6px 16px 0}
+.bar i{display:block;height:100%;background:var(--ink)}
+.qnav{display:flex;justify-content:space-between;gap:10px;padding:24px 16px}
+#player{position:fixed;inset:0;z-index:10;display:none;justify-content:center;background:var(--out)}
+#player.open{display:flex}
+.pl{width:min(480px,100%);height:100%;overflow:auto;background:var(--bg);display:flex;flex-direction:column;padding:12px 16px 20px}
+.segs{display:flex;gap:4px;margin:10px 0}
+.segs i{flex:1;height:5px;border-radius:3px;background:var(--line)}
+.segs i.d{background:var(--ink)}
+.stage{background:var(--card);border-radius:24px;display:grid;place-items:center;padding:10px}
+.stage .fg{width:min(100%,300px);height:auto;aspect-ratio:200/210}
+.pt{font-size:56px;font-weight:800;text-align:center;line-height:1;margin:14px 0 4px;font-variant-numeric:tabular-nums}
+.cues{margin:8px 0 0;padding-left:20px}
+.pctl{display:grid;grid-template-columns:1fr 1.4fr 1fr;gap:8px;margin-top:auto;padding-top:16px}
+#toast{position:fixed;left:50%;bottom:92px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:14px;font-weight:600;font-size:15px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:20;max-width:90%}
+#toast.on{opacity:1}
+.note{font-size:13px;color:var(--mut);padding:16px}
+/* figure */
+.fg .seat{fill:var(--line)}
+.fg .lim{stroke:var(--limb);stroke-width:11;stroke-linecap:round;fill:none}
+.fg .ft{stroke:var(--limb);stroke-width:9;stroke-linecap:round}
+.fg .vest{fill:var(--vest)}.fg .strp{stroke:#e9edf2;stroke-width:4}
+.fg .hdc{fill:var(--skin)}.fg .hat{fill:var(--vest)}
+.fg g{transform-box:view-box}
+.tor{transform-origin:100px 142px}.hd{transform-origin:100px 76px}
+.aL{transform-origin:86px 86px}.aR{transform-origin:114px 86px}
+.lL{transform-origin:92px 144px}.lR{transform-origin:108px 144px}
+.sR{transform-origin:120px 160px}.fL{transform-origin:82px 194px}.fR{transform-origin:118px 194px}
+.a-tilt .hd{animation:tilt 5s ease-in-out infinite}
+.a-tuck .hd{animation:tuck 2.4s ease-in-out infinite}
+.a-shrug .aL,.a-shrug .aR,.a-shrug .hd{animation:shrug 2.4s ease-in-out infinite}
+.a-twist .tor{animation:twist 4s ease-in-out infinite}.a-twist .hd{animation:look 4s ease-in-out infinite}
+.a-side .tor{animation:side 4s ease-in-out infinite}.a-side .aR{animation:up 4s ease-in-out infinite}
+.a-chest .aL{transform:rotate(150deg);animation:chL 3s ease-in-out infinite}.a-chest .aR{transform:rotate(-150deg);animation:chR 3s ease-in-out infinite}
+.a-reach .aL{animation:rL 3.5s ease-in-out infinite}.a-reach .aR{animation:rR 3.5s ease-in-out infinite}
+.a-fig4 .sR{animation:f4 4s ease-in-out infinite}.a-fig4 .tor{animation:lean 4s ease-in-out infinite}
+.a-knee .lL{animation:kn 2.4s ease-in-out infinite}.a-knee .lR{animation:kn 2.4s ease-in-out 1.2s infinite}
+.a-ankle .fL,.a-ankle .fR{animation:ank 1.6s ease-in-out infinite}
+.a-fold .tor{animation:fold 5s ease-in-out infinite}
+.a-breathe .tor{animation:br 6s ease-in-out infinite}
+@keyframes tilt{0%,100%{transform:rotate(0)}25%{transform:rotate(-22deg)}75%{transform:rotate(22deg)}}
+@keyframes tuck{0%,100%{transform:none}50%{transform:translateY(4px) scale(.94)}}
+@keyframes shrug{0%,100%{transform:none}50%{transform:translateY(-8px)}}
+@keyframes twist{0%,100%{transform:none}50%{transform:scaleX(.72)}}
+@keyframes look{0%,100%{transform:none}50%{transform:translateX(10px) scaleX(.85)}}
+@keyframes side{0%,100%{transform:none}50%{transform:rotate(-16deg)}}
+@keyframes up{0%,100%{transform:none}50%{transform:rotate(-165deg)}}
+@keyframes chL{0%,100%{transform:rotate(140deg)}50%{transform:rotate(160deg)}}
+@keyframes chR{0%,100%{transform:rotate(-140deg)}50%{transform:rotate(-160deg)}}
+@keyframes rL{0%,100%{transform:none}50%{transform:rotate(172deg)}}
+@keyframes rR{0%,100%{transform:none}50%{transform:rotate(-172deg)}}
+@keyframes f4{0%,100%{transform:none}30%,70%{transform:rotate(68deg) translateY(-6px)}}
+@keyframes lean{0%,30%,100%{transform:none}55%{transform:scaleY(.9)}}
+@keyframes kn{0%,100%{transform:none}50%{transform:translateY(-16px)}}
+@keyframes ank{0%,100%{transform:rotate(0)}50%{transform:rotate(-28deg)}}
+@keyframes fold{0%,100%{transform:none}50%{transform:scale(.96,.68)}}
+@keyframes br{0%,100%{transform:none}50%{transform:scale(1.05)}}
+.fg .tgt{fill:var(--night);opacity:.55}
+.fg .arw{fill:none;stroke:var(--day);stroke-width:3.5;stroke-linecap:round}.fg .ahp{fill:var(--day)}
+.p-tilt .hd{transform:rotate(22deg)}.p-tuck .hd{transform:translateY(3px) scale(.95)}
+.p-shrug .aL,.p-shrug .aR,.p-shrug .hd{transform:translateY(-7px)}
+.p-twist .tor{transform:scaleX(.74)}.p-twist .hd{transform:translateX(10px) scaleX(.86)}
+.p-side .tor{transform:rotate(-16deg)}.p-side .aR{transform:rotate(-165deg)}
+.p-chest .aL{transform:rotate(152deg)}.p-chest .aR{transform:rotate(-152deg)}
+.p-reach .aL{transform:rotate(172deg)}.p-reach .aR{transform:rotate(-172deg)}
+.p-fig4 .sR{transform:rotate(68deg) translateY(-6px)}.p-fig4 .tor{transform:scaleY(.92)}
+.p-knee .lL{transform:translateY(-16px)}
+.p-ankle .fL,.p-ankle .fR{transform:rotate(-28deg)}
+.p-fold .tor{transform:scale(.96,.68)}
+.p-breathe .tor{transform:scale(1.05)}
+.feel{display:flex;align-items:center;gap:8px;font-size:14px;margin-top:8px}.feel i{width:14px;height:14px;border-radius:7px;background:var(--night);opacity:.7}
+.vid{display:flex;align-items:center;justify-content:center;gap:8px;min-height:48px;border-radius:24px;background:var(--day);color:#fff;font-weight:700;text-decoration:none;margin-top:12px}
+.vid svg{width:20px;height:20px;fill:#fff}
+.yt{width:100%;aspect-ratio:16/9;border-radius:16px;overflow:hidden;background:#000}.yt iframe{width:100%;height:100%;border:0;display:block}
+.vtog{display:flex;gap:6px;justify-content:center;margin-top:10px}
+@media (prefers-reduced-motion:reduce){.fg *{animation:none!important}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top"><h1>ShiftFit</h1><button class="ib" data-go="setup" aria-label="Setup questionnaire"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4.5-6 8-6s7 2 8 6"/></svg></button></header>
+  <main id="main"></main>
+</div>
+<nav class="nav" id="nav">
+  <button data-go="today"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="3"/><path d="M4 10h16M9 3v4M15 3v4"/></svg>Today</button>
+  <button data-go="stretch"><svg viewBox="0 0 24 24"><circle cx="12" cy="4.5" r="2"/><path d="M5 9l7 1 7-1M12 10v5l-4 6M12 15l4 6"/></svg>Stretch</button>
+  <button data-go="food"><svg viewBox="0 0 24 24"><path d="M7 3v8M5 3v5a2 2 0 004 0V3M7 11v10M17 21V3c-3 2-4 5-4 9h4"/></svg>Food</button>
+  <button data-go="schedule"><svg viewBox="0 0 24 24"><path d="M3 20h18M6 20V8l6-4 6 4v12M10 20v-6h4v6"/></svg>Shifts</button>
+</nav>
+<div id="player"></div>
+<div id="toast" role="status"></div>
+<script>
+{
+const PAT='NNOODDDOONNOOODDOONNNOODDOOO'.split('');
+const START=new Date(2026,10,2,12),DAY=864e5;
+const d12=d=>new Date(d.getFullYear(),d.getMonth(),d.getDate(),12);
+const idx=d=>{const i=Math.round((d12(d)-START)/DAY);return ((i%28)+28)%28};
+const code=d=>PAT[idx(d)];
+const typeOf=d=>{const c=code(d),p=PAT[(idx(d)+27)%28];return c==='D'?'day':c==='N'?(p==='N'?'night':'firstnight'):(p==='N'?'recovery':'off')};
+const key=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+const unkey=k=>{const[y,m,dd]=k.split('-').map(Number);return new Date(y,m-1,dd,12)};
+const add=(d,n)=>new Date(d.getFullYear(),d.getMonth(),d.getDate()+n,12);
+const WD=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],MO=['January','February','March','April','May','June','July','August','September','October','November','December'];
+const nice=d=>WD[d.getDay()]+' '+MO[d.getMonth()].slice(0,3)+' '+d.getDate();
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt=t=>{let[h,m]=t.split(':').map(Number);const ap=h<12?'AM':'PM';h=h%12||12;return[h+':'+String(m).padStart(2,'0'),ap]};
+const T={day:{n:'Day shift',s:'Crane shift 7 AM – 7 PM',c:'var(--day)',l:'D'},firstnight:{n:'First night shift',s:'Sleep in, then 7 PM – 7 AM',c:'var(--night)',l:'N'},night:{n:'Night shift',s:'Crane shift 7 PM – 7 AM',c:'var(--night)',l:'N'},recovery:{n:'Recovery day',s:'Sleep first, then go gentle',c:'var(--rec)',l:'R'},off:{n:'Day off',s:'Your big day for stretching and walking',c:'var(--off)',l:'Off'}};
+const CAN_EMBED=/github\.io$|^localhost$|^127\./.test(location.hostname);
+const EX={
+neck:{n:'Neck side tilt',a:'tilt',f:'Side of your neck',y:'7K7k2c5P9cw',t:[['root',91,76,5,9]],ar:'M120 40 Q132 52 126 66',c:['Sit tall, shoulders down','Ear toward shoulder, hold 10 s each side','Keep the other shoulder relaxed']},
+tuck:{n:'Chin tuck',a:'tuck',f:'Back of your neck',y:'da1CNvbD56s',t:[['hd',100,72,7,4]],c:['Look straight ahead','Slide your chin straight back','Hold 3 s, repeat 8 times']},
+roll:{n:'Shoulder rolls',a:'shrug',f:'Top of your shoulders',y:'XbzY45Z5DE8',t:[['tor',89,84,7,4],['tor',111,84,7,4]],ar:'M140 96 Q150 76 138 66',c:['Lift shoulders to your ears','Roll them back and down','Slow circles, 10 times']},
+twist:{n:'Seated twist',a:'twist',f:'Mid and low back',y:'7GzDGqJ41IQ',t:[['tor',100,110,13,12]],ar:'M74 100 Q100 122 126 100',c:['Sit tall, feet flat','Turn your chest to one side, hand on the seat back','Breathe out and turn a little further']},
+side:{n:'Seated side bend',a:'side',f:'Along your ribs and waist',y:'f-7Eeu4xeZc',t:[['tor',115,110,5,16]],ar:'M146 80 Q140 44 104 30',c:['Reach one arm overhead','Lean the other way, long through the ribs','Hold 15 s each side']},
+chest:{n:'Chest opener',a:'chest',f:'Across your chest',y:'FO0adb9RZCI',t:[['tor',100,93,12,6]],c:['Hands behind your head, elbows wide','Squeeze shoulder blades together','Lift the chest without arching your low back']},
+reach:{n:'Overhead reach',a:'reach',f:'Sides and shoulders',y:'aJBEW7a4ADc',t:[['tor',86,100,4,12],['tor',114,100,4,12]],ar:'M160 70 V26',c:['Both arms straight up','Grow tall through the spine','Lower slowly, repeat 5 times']},
+fig4:{n:'Seated figure-4',a:'fig4',f:'Outer hip and buttock',y:'ujCk9xfP6sM',t:[['root',118,140,10,6]],ar:'M146 92 Q142 116 128 124',c:['Ankle on the opposite knee','Sit tall and hinge forward a little','Feel it in the outer hip, then switch sides']},
+knee:{n:'Seated knee raises',a:'knee',f:'Front of your hip',y:'1m72e65YZtM',t:[['root',90,138,6,6]],ar:'M62 182 V146',c:['Hold the seat edge','Lift one knee, lower slowly','Alternate, 10 each side']},
+ankle:{n:'Ankle pumps',a:'ankle',f:'Calves and shins',y:'6EPNA9owQJw',t:[['root',81,178,5,11],['root',119,178,5,11]],ar:'M52 200 Q46 186 56 176',c:['Heels down, toes up','Then toes down, heels up','Keeps blood moving on long sits']},
+fold:{n:'Seated forward fold',a:'fold',f:'Your whole back',y:'oi4Dq7uZfEg',t:[['tor',100,128,13,8]],ar:'M150 50 Q164 86 150 122',c:['Feet hip-width apart','Let your chest drop toward your knees','Hang loose and breathe slowly']},
+breathe:{n:'Slow breathing',a:'breathe',f:'Belly rises as you breathe in',y:'yHe1q8xtncc',t:[['tor',100,120,12,9]],c:['In through the nose for 4','Out slowly for 6','Let your shoulders drop each time you breathe out']}};
+const R={
+wake:{n:'Wake-up mobility',w:'After waking',s:[['roll',40],['neck',50],['twist',60],['side',60],['reach',40],['ankle',30]]},
+cabN:{n:'Cab break: neck & shoulders',w:'On shift',s:[['tuck',30],['neck',40],['roll',25],['chest',30]]},
+cabH:{n:'Cab break: hips & low back',w:'On shift',s:[['fig4',50],['twist',40],['knee',30]]},
+cabL:{n:'Cab break: legs & circulation',w:'On shift',s:[['ankle',30],['knee',30],['roll',30]]},
+wind:{n:'Wind-down stretch',w:'Before sleep',s:[['fold',90],['fig4',120],['twist',60],['neck',60],['chest',45],['breathe',90]]},
+deep:{n:'Day-off deep stretch',w:'Days off',s:[['roll',60],['neck',90],['chest',90],['side',120],['twist',120],['fig4',180],['fold',180],['knee',60],['reach',60],['breathe',120]]}};
+const mins=r=>Math.max(1,Math.round(r.s.reduce((a,x)=>a+x[1],0)/60));
+const NIGHT=[['17:00','Main meal before shift','Biggest meal of the day','f'],['18:15','Pack cooler + 2 water bottles','Light snacks for overnight','f'],['19:00','Shift starts','Move nudges every {n} min','w'],['22:00','Cab break: neck & shoulders','2 min','s','cabN'],['00:30','Light snack only','No heavy meal after midnight','f'],['03:00','Cab break: legs & circulation','90 s, then a glass of water','s','cabL'],['05:00','Cab break: hips & low back','2 min','s','cabH'],['07:30','Home: no caffeine now','Sunglasses on the drive','w'],['08:00','Wind-down stretch','8 min','s','wind'],['08:30','Sleep','Dark room, phone on silent','z']];
+const PL={
+day:[['05:15','Wake-up mobility','5 min, before coffee','s','wake'],['06:15','Pack cooler + 2 water bottles','From your meal prep','f'],['07:00','Shift starts','Move nudges every {n} min','w'],['09:30','Cab break: neck & shoulders','2 min','s','cabN'],['12:30','Lunch from the cooler','Protein and veg first','f'],['15:00','Cab break: hips & low back','2 min · caffeine cutoff','s','cabH'],['19:30','Walk after you get home','15 min, easy pace','m'],['21:00','Wind-down stretch','8 min','s','wind'],['21:45','Lights out','Phone on charge, away from bed','z']],
+firstnight:[['10:00','Sleep in','Bank extra sleep before nights','z'],['13:00','Day-off deep stretch','Full session while you’re fresh','s','deep'],['14:30','Walk','30 min outside','m'],...NIGHT],
+night:[['15:00','Wake-up mobility','5 min','s','wake'],['16:00','Walk','20 min, daylight helps','m'],...NIGHT],
+recovery:[['14:00','Wake up','Short sleep resets you to days','z'],['14:30','Gentle stretch','Wind-down routine, slow','s','wind'],['15:30','Easy walk','20 min, no hard workout','m'],['18:00','Dinner at a normal time','Helps your body clock reset','f'],['22:30','Bed on time','Back on a day rhythm','z']],
+off:[['08:00','Wake-up mobility','5 min','s','wake'],['09:30','Day-off deep stretch','25 min, your main session','s','deep'],['11:00','Long walk','45 min','m'],['14:00','Meal prep for next block','Cooler meals and snack packs','f'],['21:30','Wind-down stretch','8 min','s','wind']]};
+const FOOD={
+day:[['05:30','Breakfast','Eggs, or Greek yogurt with fruit'],['10:00','Snack','Fruit and a small handful of nuts'],['12:30','Lunch','Protein + veg from the cooler'],['16:00','Snack','Veg sticks and hummus, or cheese'],['20:00','Dinner at home','Half the plate veg, keep it light']],
+firstnight:[['11:00','Brunch','A normal breakfast after sleeping in'],['17:00','Main meal','Biggest meal of the day, before work'],['22:30','Small meal','Protein + veg'],['00:30','Light snack','Fruit or yogurt, nothing heavy'],['07:45','Small bite before sleep','Toast and egg, or yogurt']],
+recovery:[['14:00','First meal','Balanced: protein, carbs, veg'],['18:00','Dinner','At a normal time to reset'],['20:30','Kitchen closed','Skip late snacking tonight']],
+off:[['08:30','Breakfast','Protein first'],['12:30','Lunch','Whatever you prepped'],['15:30','Snack','Fruit + protein'],['18:30','Dinner','Cook extra for the cooler']]};
+FOOD.night=FOOD.firstnight.slice(1).map((x,i)=>i===0?['17:00','Main meal','Biggest meal of the day, before work']:x);
+const CAF={day:'3:00 PM',firstnight:'2:30 AM',night:'2:30 AM',recovery:'2:00 PM',off:'2:00 PM'};
+const HABS=['Protein at every meal','Vegetables at 2 meals','No heavy food after midnight on nights','Snacks pre-portioned, not from the bag'];
+const DEF={goals:['Flexibility','Lose weight','Move more'],equip:['None'],job:'Crane operator',work:'Mostly seated',pause:'Short pauses between lifts',rot:'2-2-3 (Panama), days and nights alternate',hours:'7:00 – 19:00',start:'2026-11-02',cal:true,dbed:'21:45',dwake:'05:15',nsleep:'08:30',nwake:'15:00',tight:['Neck','Low back','Hips'],reach:'Shins',inj:'',diet:['No restrictions'],dislike:'',cook:'Basic',track:'Habit checks',nudge:'75',style:'Friendly'};
+const Q=[
+{t:'What are your goals?',h:'Pick all that apply.',f:[['goals','m',['Flexibility','Lose weight','Move more','Build strength','Sleep better','Less back pain','More energy']]]},
+{t:'What equipment do you have?',h:'Workouts only use what you pick.',f:[['equip','m',['None','Yoga mat','Resistance bands','Dumbbells','Kettlebell','Foam roller','Pull-up bar','Treadmill or bike','Gym access']]]},
+{t:'Tell me about your work',f:[['job','t','Job title'],['work','s',['Mostly seated','Mostly on my feet','Mixed'],'At work you are'],['pause','s',['Short pauses between lifts','Scheduled breaks only','Every hour or so'],'When can you stretch?']]},
+{t:'Your shift schedule',h:'The app works out every future shift from this.',f:[['rot','s',['2-2-3 (Panama), days and nights alternate','4 on, 4 off','5 days, 2 off','Custom'],'Rotation'],['hours','s',['7:00 – 19:00','6:00 – 18:00','8:00 – 20:00'],'Shift hours'],['start','d','First night shift of a 28-day cycle'],['cal','b','Read shifts from my phone calendar (Supershift)']]},
+{t:'When do you sleep?',f:[['dbed','tm','Bedtime on day shifts'],['dwake','tm','Wake-up on day shifts'],['nsleep','tm','Sleep after night shifts'],['nwake','tm','Wake-up after night shifts']]},
+{t:'Your body',h:'Stretches focus on your tight spots.',f:[['tight','m',['Neck','Shoulders','Upper back','Low back','Hips','Hamstrings','Knees','Calves'],'Tight or sore spots'],['reach','s',['Knees','Shins','Toes','Floor'],'Bending forward, your hands reach your'],['inj','x','Injuries or moves to avoid']]},
+{t:'Eating',f:[['diet','m',['No restrictions','Vegetarian','Halal','Dairy-free','Gluten-free','Low carb'],'Eating style'],['dislike','t','Foods you won’t eat'],['cook','s',['Basic','Comfortable','Love it'],'Cooking skill'],['track','s',['Gentle nudges','Habit checks','Photo log','Full calorie tracking'],'How much tracking?']]},
+{t:'Reminders and motivation',f:[['nudge','s',['60','75','90','120'],'Move nudge on shift, every … minutes'],['style','s',['Friendly','Strict coach','Game-like streaks and XP'],'Coaching style']]}];
+let S={};try{S=JSON.parse(localStorage.getItem('shiftfit')||'{}')||{}}catch(e){S={}}
+S.done=S.done||{};S.water=S.water||{};S.hab=S.hab||{};S.set=Object.assign({},DEF,S.set||{});S.qs=S.qs||0;
+const save=()=>{try{localStorage.setItem('shiftfit',JSON.stringify(S))}catch(e){}};
+const TODAY=d12(new Date());let sel=TODAY,vm=new Date(TODAY.getFullYear(),TODAY.getMonth(),1,12),pl=null,tick=null;
+const main=document.getElementById('main'),player=document.getElementById('player'),toastEl=document.getElementById('toast');
+const toast=m=>{toastEl.textContent=m;toastEl.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>toastEl.classList.remove('on'),2200)};
+const fig=(a,id)=>{const e=id?EX[id]:null,g=k=>e?e.t.filter(x=>x[0]===k).map(x=>`<ellipse class="tgt" cx="${x[1]}" cy="${x[2]}" rx="${x[3]}" ry="${x[4]}"/>`).join(''):'';
+return `<svg class="fg ${id?'p-':'a-'}${a}" viewBox="0 0 200 210" aria-hidden="true"><defs><marker id="ah" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="4" markerHeight="4" orient="auto-start-reverse"><path class="ahp" d="M0 0L10 5L0 10z"/></marker></defs><rect class="seat" x="66" y="40" width="68" height="100" rx="16" opacity=".55"/><rect class="seat" x="56" y="132" width="88" height="18" rx="8"/>
+<g class="lL"><path class="lim" d="M92 144 L80 160 L82 194"/><g class="fL"><path class="ft" d="M82 196 L70 199"/></g></g>
+<g class="lR"><path class="lim" d="M108 144 L120 160"/><g class="sR"><path class="lim" d="M120 160 L118 194"/><g class="fR"><path class="ft" d="M118 196 L130 199"/></g></g></g>
+<g class="tor"><path class="vest" d="M84 82 Q100 76 116 82 L118 140 Q100 146 82 140 Z"/><path class="strp" d="M84 116 H116 M84 126 H116"/>${g('tor')}<path class="lim" d="M100 70 V80" />
+<g class="aL"><path class="lim" d="M86 86 L78 114 L84 138"/></g><g class="aR"><path class="lim" d="M114 86 L122 114 L116 138"/></g>
+<g class="hd"><circle class="hdc" cx="100" cy="56" r="16"/><path class="hat" d="M83 54 Q84 36 100 36 Q116 36 117 54 Z"/><rect class="hat" x="80" y="52" width="40" height="5" rx="2.5"/>${g('hd')}</g></g>${g('root')}${e&&e.ar?`<path class="arw" d="${e.ar}" marker-end="url(#ah)"/>`:''}</svg>`};
+const ck='<svg viewBox="0 0 24 24"><path d="M5 12l5 5 9-10"/></svg>';
+const nIv=()=>Number(S.set.nudge)||75;
+function nextNudge(){const now=new Date(),t=typeOf(now),iv=nIv();let st=new Date(now);const day=t==='day';st.setHours(day?7:19,0,0,0);if(!day&&now.getHours()<7)st.setDate(st.getDate()-1);let n=new Date(st);while(n<=now)n=new Date(n.getTime()+iv*6e4);const h=n.getHours(),m=n.getMinutes();return fmt(h+':'+m).join(' ')}
+function today(){
+ const t=typeOf(sel),ty=T[t],items=PL[t],k=key(sel),dn=S.done[k]||{},n=items.filter((x,i)=>dn[i]).length,w=S.water[k]||0,circ=2*Math.PI*34;
+ const mv=items.reduce((a,x,i)=>a+(dn[i]&&(x[3]==='s'||x[3]==='m')?(x[4]?mins(R[x[4]]):parseInt(x[2])||15):0),0);
+ const strip=Array.from({length:14},(_,i)=>add(TODAY,i)).map(d=>{const tt=typeOf(d);return `<button class="dc ${key(d)===k?'on':''}" data-day="${key(d)}"><span>${key(d)===key(TODAY)?'Today':WD[d.getDay()]}</span><b>${d.getDate()}</b><i style="background:${T[tt].c}">${T[tt].l}</i></button>`}).join('');
+ const shift=t==='day'||t==='night'||t==='firstnight';
+ const game=S.set.style.startsWith('Game');
+ main.innerHTML=`<div class="strip" aria-label="Next 14 days">${strip}</div>
+ <section class="hero" style="background:${ty.c}"><div><p class="small" style="margin:0 0 4px">${key(sel)===key(TODAY)?'Today · ':''}${nice(sel)}</p><h2>${ty.n}</h2><p>${ty.s}</p></div>
+ <div class="ring"><svg viewBox="0 0 84 84"><circle cx="42" cy="42" r="34" stroke="rgba(255,255,255,.3)" stroke-width="9" fill="none"/><circle cx="42" cy="42" r="34" stroke="#fff" stroke-width="9" fill="none" stroke-linecap="round" stroke-dasharray="${circ}" stroke-dashoffset="${circ*(1-n/items.length)}"/></svg><b>${n}/${items.length}</b></div>
+ <div class="stats"><span>${mv} min moved</span><span>${w}/8 water</span><span>${game?'Streak 6 days · '+(n*10)+' XP':'Caffeine cutoff '+CAF[t]}</span></div></section>
+ ${shift?`<div class="card nudge"><div><b>Move nudges every ${nIv()} min on shift</b><div class="mut small">${key(sel)===key(TODAY)?'Next nudge at '+nextNudge():'Starts at '+(t==='day'?'7:00 AM':'7:00 PM')} · seated stretches you can do in the cab</div></div><div class="row"><button class="btn" data-r="${['cabN','cabH','cabL'][new Date().getHours()%3]}">Stretch now · 2 min</button><button class="btn ghost" data-snooze>Snooze 15</button></div></div>`:''}
+ <h3 class="pad">Plan for the day</h3><ul class="plan">${items.map((x,i)=>{const[a,b]=fmt(x[0]);return `<li class="pi ${dn[i]?'y':''}"><div class="tm">${a}<small>${b}</small></div><button class="pb" ${x[4]?`data-r="${x[4]}" data-item="${i}"`:`data-tg="${i}"`}><b>${x[1]}</b><span><i class="tag tg-${x[3]}">${{s:'Stretch',m:'Move',f:'Food',w:'Work',z:'Sleep'}[x[3]]}</i>${x[2].replace('{n}',nIv())}</span></button><button class="ck ${dn[i]?'y':''}" data-tg="${i}" aria-label="Mark done">${ck}</button></li>`}).join('')}</ul>
+ <div class="card"><b>Water</b> <span class="mut small">· tap a glass</span><div class="cups" style="margin-top:10px">${Array.from({length:8},(_,i)=>`<button class="cup ${i<w?'y':''}" data-w="${i+1}" aria-label="${i+1} glasses"></button>`).join('')}</div></div>
+ <p class="note">Prototype: reminders, steps and streaks are simulated. Tap any day above to preview its plan.</p>`;
+}
+function stretch(){
+ const t=S.set.tight;
+ main.innerHTML=`<div class="pad"><h2>Stretch</h2><p class="mut" style="margin:0">Focus areas: ${t.length?t.map(x=>`<span class="fc">${esc(x)}</span>`).join(' '):'none set'}</p>
+ <h3>Routines</h3>${Object.entries(R).map(([id,r])=>`<button class="rc" data-r="${id}">${fig(EX[r.s[0][0]].a)}<div><b>${r.n}</b><span>${mins(r)} min · ${r.w}</span><br><span>${r.s.map(x=>EX[x[0]].n).slice(0,3).join(', ')}${r.s.length>3?'…':''}</span></div></button>`).join('')}
+ <h3>All moves</h3><div class="lib">${Object.entries(EX).map(([id,e])=>`<button class="lx" data-r="ex:${id}">${fig(e.a,id)}${e.n}</button>`).join('')}</div></div>
+ <p class="note">Each move has a picture (red = where you should feel it, blue arrow = which way to move), a motion view, and a demo video.</p>`;
+}
+function nextBlock(from){let d=from;if(code(d)==='O'){while(code(d)==='O')d=add(d,1)}else{while(code(add(d,-1))===code(d)&&key(d)!==key(from))d=add(d,-1)}const c=code(d);let n=0,e=d;while(code(e)===c){n++;e=add(e,1)}return{d,c,n}}
+function food(){
+ const t=typeOf(sel),k=key(sel),h=S.hab[k]||{},w=S.water[k]||0,b=nextBlock(sel);
+ main.innerHTML=`<div class="pad"><h2>Eating</h2><p class="mut" style="margin:0">${nice(sel)} · <b style="color:${T[t].c}">${T[t].n}</b></p></div>
+ <h3 class="pad">Meal timing</h3><ul class="plan">${FOOD[t].map(x=>{const[a,p]=fmt(x[0]);return `<li class="pi" style="grid-template-columns:64px minmax(0,1fr)"><div class="tm">${a}<small>${p}</small></div><div class="pb"><b>${x[1]}</b><span>${x[2]}</span></div></li>`}).join('')}</ul>
+ <div class="card"><b>Caffeine cutoff: ${CAF[t]}</b><div class="mut small">About 6 hours before you plan to sleep</div></div>
+ <div class="card"><b>Today’s habits</b>${HABS.map((x,i)=>`<div class="hab"><button class="ck ${h[i]?'y':''}" data-hab="${i}" aria-label="${x}">${ck}</button><span>${x}</span></div>`).join('')}<div class="hab"><span class="mut small">Water ${w}/8 glasses · tap glasses on Today</span></div></div>
+ <div class="card"><b>Pack for: ${b.n} ${b.c==='D'?'day':'night'} shift${b.n>1?'s':''} from ${nice(b.d)}</b><ul style="margin:8px 0 0;padding-left:20px"><li>${b.n} cooler meals: protein + veg + some carbs</li><li>${b.n*2} snack packs, pre-portioned (fruit, yogurt, nuts)</li><li>2 water bottles per shift</li>${b.c==='N'?'<li>Something light for after midnight</li>':''}</ul></div>
+ <div class="card"><b>Easy cooler meal ideas</b><div class="mut small" style="margin-top:4px">Matched to “${esc(S.set.cook)}” cooking skill</div><ul style="margin:8px 0 0;padding-left:20px"><li>Chicken, rice and roasted veg bowl</li><li>Turkey chili with beans (batch of 4)</li><li>Egg muffins with spinach and cheese</li><li>Tuna or chickpea salad wraps</li></ul></div>`;
+}
+function schedule(){
+ const y=vm.getFullYear(),m=vm.getMonth(),first=new Date(y,m,1,12).getDay(),days=new Date(y,m+1,0).getDate();
+ let cells=Array.from({length:first},()=>'<div class="cc blank"></div>').join('');
+ for(let i=1;i<=days;i++){const d=new Date(y,m,i,12),t=typeOf(d),c=code(d);cells+=`<button class="cc ${key(d)===key(TODAY)?'now':''}" data-day="${key(d)}" data-open="1"><b>${i}</b>${c!=='O'?`<i style="background:${T[t].c}">${c==='D'?'Day':'Night'}</i>`:t==='recovery'?`<i style="background:var(--rec)">Rec</i>`:''}</button>`}
+ const bl=[];let d=TODAY;for(let j=0;j<4;j++){const b=nextBlock(d);bl.push(b);d=add(b.d,b.n);while(code(d)==='O')d=add(d,1)}
+ main.innerHTML=`<div class="pad"><h2>Shifts</h2><p class="mut" style="margin:0 0 12px">2-2-3 rotation · repeats every 28 days</p></div>
+ <div class="mh"><button class="ib" data-mo="-1" aria-label="Previous month"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button><b style="font-size:18px">${MO[m]} ${y}</b><button class="ib" data-mo="1" aria-label="Next month"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button></div>
+ <div class="cal">${'SMTWTFS'.split('').map(x=>`<div class="wd">${x}</div>`).join('')}${cells}</div>
+ <div class="leg"><span style="--c:var(--day)">Day shift</span><span style="--c:var(--night)">Night shift</span><span style="--c:var(--rec)">Recovery day</span></div>
+ <div class="card"><b>Coming up</b>${bl.map(b=>`<div class="blk"><i style="background:${b.c==='D'?'var(--day)':'var(--night)'}"></i><div><b>${b.n} ${b.c==='D'?'day':'night'} shifts · ${nice(b.d)}</b><div class="mut small">${b.c==='N'?'Sleep in on the first day, main meal at 5 PM':'Bed by '+fmt(S.set.dbed).join(' ')+' the night before'} · pack ${b.n} cooler meals</div></div></div>`).join('')}</div>
+ <p class="note">Tap a date to see its plan. ${S.set.cal?'In the real app, shifts sync from Supershift through your phone calendar.':''}</p>`;
+}
+function setup(){
+ const i=Math.min(S.qs,Q.length),s=S.set;
+ if(i===Q.length){main.innerHTML=`<div class="bar"><i style="width:100%"></i></div><div class="pad q"><h2>Your plan is ready</h2><p class="mut">Goals: ${s.goals.map(esc).join(', ')}. Equipment: ${s.equip.map(esc).join(', ')}. ${esc(s.job)}, ${esc(s.work.toLowerCase())}. Move nudges every ${esc(s.nudge)} min. Tight spots: ${s.tight.map(esc).join(', ')||'none'}.${s.inj?' Avoiding: '+esc(s.inj)+'.':''}</p></div><div class="qnav"><button class="btn ghost" data-q="-1">Back</button><button class="btn" data-done>Build my plan</button></div>`;return}
+ const q=Q[i];
+ main.innerHTML=`<div class="bar"><i style="width:${i/Q.length*100}%"></i></div><div class="pad q"><p class="mut small" style="margin:12px 0 0">Question ${i+1} of ${Q.length}</p><h2>${q.t}</h2>${q.h?`<p class="mut" style="margin:0">${q.h}</p>`:''}
+ ${q.f.map(([k,kind,o,lab])=>{const v=s[k];
+  if(kind==='m'||kind==='s')return `${lab?`<label class="lb">${lab}</label>`:'<div style="height:16px"></div>'}<div class="chips">${o.map(x=>`<button class="chip" data-k="${k}" data-v="${esc(x)}" data-kind="${kind}" aria-pressed="${kind==='m'?v.includes(x):v===x}">${esc(x)}</button>`).join('')}</div>`;
+  if(kind==='b')return `<label class="tog"><input type="checkbox" id="f-${k}" data-in="${k}" ${v?'checked':''}>${o}</label>`;
+  const typ={t:'text',d:'date',tm:'time'}[kind];
+  return `<label class="lb" for="f-${k}">${o}</label>${kind==='x'?`<textarea id="f-${k}" data-in="${k}">${esc(v)}</textarea>`:`<input id="f-${k}" type="${typ}" data-in="${k}" value="${esc(v)}">`}`}).join('')}</div>
+ <div class="qnav"><button class="btn ghost" data-q="-1" ${i===0?'disabled style="opacity:.4"':''}>Back</button><button class="btn" data-q="1">Next</button></div>`;
+}
+const VIEWS={today,stretch,food,schedule,setup};let view='today';
+function go(v){if(!VIEWS[v])v='today';view=v;if(location.hash.slice(1)!==v)history.replaceState(null,'','#'+v);document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('on',b.dataset.go===v));VIEWS[v]();window.scrollTo(0,0)}
+function openR(id,item){const r=id.startsWith('ex:')?{n:EX[id.slice(3)].n,s:[[id.slice(3),45]]}:R[id];pl={r,i:0,left:r.s[0][1],run:true,item,dk:key(sel),mode:'pic'};drawP();clearInterval(tick);tick=setInterval(step,1000);player.classList.add('open')}
+function closeP(){clearInterval(tick);pl=null;player.classList.remove('open');player.innerHTML='';VIEWS[view]()}
+function step(){if(!pl||!pl.run||pl.fin)return;pl.left--;if(pl.left<=0)nextEx();else{const e=document.getElementById('pt');if(e)e.textContent=tf(pl.left)}}
+const tf=s=>Math.floor(s/60)+':'+String(s%60).padStart(2,'0');
+function nextEx(){if(pl.i<pl.r.s.length-1){pl.i++;pl.left=pl.r.s[pl.i][1];drawP()}else{pl.fin=true;if(pl.item!=null){(S.done[pl.dk]=S.done[pl.dk]||{})[pl.item]=true;save()}drawP()}}
+function drawP(){const r=pl.r;if(pl.fin){player.innerHTML=`<div class="pl"><div style="flex:1;display:grid;place-content:center;text-align:center;gap:8px"><div class="stage">${fig('breathe')}</div><h2>Nice work</h2><p class="mut">${r.n} done${pl.item!=null?' and ticked off your plan':''}.</p></div><button class="btn" data-close>Back</button></div>`;return}
+ const[id]=r.s[pl.i],e=EX[id];
+ player.innerHTML=`<div class="pl"><div style="display:flex;justify-content:space-between;align-items:center"><b>${r.n}</b><button class="ib" data-close aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+ <div class="segs">${r.s.map((x,j)=>`<i class="${j<=pl.i?'d':''}"></i>`).join('')}</div>
+ <div class="stage">${pl.mode==='vid'&&CAN_EMBED?`<div class="yt"><iframe src="https://www.youtube-nocookie.com/embed/${e.y}?rel=0&playsinline=1&modestbranding=1" title="${e.n} video" allow="encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div>`:pl.mode==='anim'?fig(e.a):fig(e.a,id)}<div class="vtog"><button class="chip" data-view="pic" aria-pressed="${pl.mode==='pic'}">Picture</button><button class="chip" data-view="anim" aria-pressed="${pl.mode==='anim'}">Motion</button>${CAN_EMBED?`<button class="chip" data-view="vid" aria-pressed="${pl.mode==='vid'}">Video</button>`:''}</div></div>
+ <div class="feel"><i></i>Feel it here: ${e.f}</div>
+ ${CAN_EMBED?`<a class="small mut" style="display:block;margin-top:6px" href="https://www.youtube.com/watch?v=${e.y}" target="_blank" rel="noopener">Video won’t play? Open it in YouTube</a>`:`<a class="vid" href="https://www.youtube.com/watch?v=${e.y}" target="_blank" rel="noopener"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>Watch video demo</a>`}<p class="mut small" style="margin:12px 0 0">Move ${pl.i+1} of ${r.s.length}</p><h2 style="margin:2px 0 0">${e.n}</h2>
+ <div class="pt" id="pt">${tf(pl.left)}</div><ul class="cues">${e.c.map(c=>`<li>${c}</li>`).join('')}</ul>
+ <div class="pctl"><button class="btn ghost" data-prev ${pl.i===0?'disabled style="opacity:.4"':''}>Back</button><button class="btn" data-pause>${pl.run?'Pause':'Resume'}</button><button class="btn ghost" data-skip>Skip</button></div></div>`}
+document.addEventListener('click',ev=>{const b=ev.target.closest('button');if(!b)return;const ds=b.dataset;
+ if(ds.go)return go(ds.go);
+ if(ds.close!==undefined)return closeP();
+ if(ds.pause!==undefined){pl.run=!pl.run;b.textContent=pl.run?'Pause':'Resume';return}
+ if(ds.skip!==undefined)return nextEx();
+ if(ds.view&&pl){pl.mode=ds.view;if(ds.view==='vid')pl.run=false;return drawP()}
+ if(ds.prev!==undefined){pl.i=Math.max(0,pl.i-1);pl.left=pl.r.s[pl.i][1];return drawP()}
+ if(ds.r)return openR(ds.r,ds.item!=null?Number(ds.item):null);
+ if(ds.day){sel=unkey(ds.day);return ds.open?go('today'):today()}
+ if(ds.tg!=null){const k=key(sel),o=S.done[k]=S.done[k]||{};o[ds.tg]=!o[ds.tg];save();return today()}
+ if(ds.w){const k=key(sel),n=Number(ds.w);S.water[k]=S.water[k]===n?n-1:n;save();return today()}
+ if(ds.hab!=null){const k=key(sel),o=S.hab[k]=S.hab[k]||{};o[ds.hab]=!o[ds.hab];save();return food()}
+ if(ds.snooze!==undefined){const t=new Date(Date.now()+15*6e4);return toast('Snoozed until '+fmt(t.getHours()+':'+t.getMinutes()).join(' '))}
+ if(ds.mo){vm=new Date(vm.getFullYear(),vm.getMonth()+Number(ds.mo),1,12);return schedule()}
+ if(ds.k){const k=ds.k,v=ds.v;if(ds.kind==='m'){const a=S.set[k];S.set[k]=a.includes(v)?a.filter(x=>x!==v):[...a,v]}else S.set[k]=v;save();return setup()}
+ if(ds.q){S.qs=Math.max(0,Math.min(Q.length,S.qs+Number(ds.q)));save();return setup()}
+ if(ds.done!==undefined){S.qs=0;S.onb=true;save();go('today');return toast('Plan built from your answers')}
+});
+document.addEventListener('input',ev=>{const k=ev.target.dataset&&ev.target.dataset.in;if(!k)return;S.set[k]=ev.target.type==='checkbox'?ev.target.checked:ev.target.value;save()});
+window.addEventListener('hashchange',()=>{const h=location.hash.slice(1);if(h!==view)go(h)});
+go(location.hash.slice(1)||'today');
+}
+</script>
+</body>
+</html>
