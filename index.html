@@ -966,7 +966,7 @@ function me(){const x=xpInfo(),q=questsFor(monday(TODAY)),st=weightStats(),r=wee
  <details class="card" id="remcard"><summary style="font-weight:700;cursor:pointer">Reminders in your phone’s calendar</summary>
  <p class="small">ShiftFit can’t buzz your phone when it’s closed, but your calendar can. This makes a calendar file with your next 4 weeks of plan items (stretch breaks, cooler packing, wind-down, workouts) as events that alert you on time.</p>
  <label class="tog"><input type="checkbox" id="icsN" checked>Also add move nudges every ${nIv()} min on shift</label>
- <button class="btn" style="margin-top:12px" data-ics>Make calendar file</button>
+ ${NET?'<button class="btn" style="margin-top:12px" data-ics>Make calendar file</button>':'<p class="mut small">Making the calendar file works in the installed app at samsquanch-bin.github.io/shiftfit.</p>'}
  <p class="small mut"><b>Samsung Calendar:</b> open the file, then tap Add. <b>Google Calendar:</b> the phone app can’t import files, so open calendar.google.com in Chrome (menu ⋮ → Desktop site), go to Settings → Import & export, pick the file and a calendar named “ShiftFit”, then set that calendar’s notifications to “0 minutes before”. Make a new file every 4 weeks.</p></details>
  <details class="card"${lastB===null||lastB>14?' open':''}><summary style="font-weight:700;cursor:pointer">Backup & restore</summary>
  <p class="small">Everything you log is stored only in Chrome on this phone. ${lastB===null?'<b style="color:var(--night)">You haven’t made a backup yet.</b>':'Last backup: '+(lastB===0?'today':lastB+' day'+(lastB>1?'s':'')+' ago')+'.'}</p>
