@@ -362,6 +362,9 @@ h3{font-size:17px;margin:22px 0 10px;font-weight:700}
 .btn.snapgo{background:linear-gradient(135deg,#ff7a45,#f5487f);color:#fff;border:0}
 #updbar{position:fixed;left:12px;right:12px;bottom:calc(84px + env(safe-area-inset-bottom));z-index:60;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;border-radius:16px;background:#1f9d6b;color:#fff;box-shadow:0 8px 24px rgba(0,0,0,.35)}
 #updbar .btn{background:#fff;color:#14804f;flex:none}
+.cc{position:relative}.cc.hol{box-shadow:inset 0 0 0 2px #d92d20}.cc .hm{position:absolute;top:2px;right:3px;font-size:11px;line-height:1}
+.holl{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-top:1px solid var(--line,#2a2f38)}.holl:first-of-type{border-top:0}.holl .hm{font-size:20px;line-height:1.1}
+.provsel{width:100%;margin-top:8px}
 </style>
 </head>
 <body>
@@ -669,7 +672,7 @@ function today(){
  const shift=t==='day'||t==='night'||t==='firstnight';
  const game=S.set.style.startsWith('Game');
  main.innerHTML=`<div class="strip" aria-label="Next 14 days">${strip}</div>
- <section class="hero" style="background:${ty.c}"><div><p class="small" style="margin:0 0 4px">${key(sel)===key(TODAY)?'Today · ':''}${nice(sel)}</p><h2>${ty.n}</h2><p>${ty.s}</p></div>
+ <section class="hero" style="background:${ty.c}"><div><p class="small" style="margin:0 0 4px">${key(sel)===key(TODAY)?'Today · ':''}${nice(sel)}${holOf(sel)?' · 🍁 '+esc(holOf(sel)):''}</p><h2>${ty.n}</h2><p>${ty.s}</p></div>
  <div class="ring"><svg viewBox="0 0 84 84"><circle cx="42" cy="42" r="34" stroke="rgba(255,255,255,.3)" stroke-width="9" fill="none"/><circle cx="42" cy="42" r="34" stroke="#fff" stroke-width="9" fill="none" stroke-linecap="round" stroke-dasharray="${circ}" stroke-dashoffset="${circ*(1-n/items.length)}"/></svg><b>${n}/${items.length}</b></div>
  <div class="stats"><span>${mv} min moved</span><span>${w}/8 water</span>${goal()?`<span>${fmtN(goal().kcal-tot(S.food[k]||[]).kcal)} cal left</span>`:''}<span>${game?(()=>{const x=xpInfo();return 'Level '+x.lv+' · '+x.streak+'-day streak'})():'Caffeine cutoff '+CAF[t]}</span></div></section>
  ${shift?`<div class="card nudge"><div><b>Move nudges every ${nIv()} min on shift</b><div class="mut small">${key(sel)===key(TODAY)?'Next nudge at '+nextNudge():'Starts at '+(t==='day'?'7:00 AM':'7:00 PM')} · seated stretches you can do in the cab</div></div><div class="row"><button class="btn" data-r="${['cabN','cabH','cabL'][new Date().getHours()%3]}">Stretch now · 2 min</button><button class="btn ghost" data-snooze>Snooze 15</button></div></div>`:''}
@@ -1123,15 +1126,42 @@ function food(){
  <p class="mut small">Keys stay on this phone. Photos are sent to the AI service you pick. On Gemini’s free tier, Google may use them to improve its products.</p></details>
  <p class="note">Food data: Open Food Facts (ODbL) and USDA FoodData Central. Your food log stays on this phone.</p>`;
 }
+// ===== Canadian statutory holidays =====
+const PROV={ON:'Ontario',QC:'Quebec',BC:'British Columbia',AB:'Alberta',MB:'Manitoba',SK:'Saskatchewan',NS:'Nova Scotia',NB:'New Brunswick',NL:'Newfoundland and Labrador',PE:'Prince Edward Island',NT:'Northwest Territories',YT:'Yukon',NU:'Nunavut',FED:'Federal job (Canada Labour Code)'};
+function easterSun(y){const a=y%19,b=Math.floor(y/100),c=y%100,d=Math.floor(b/4),e=b%4,f=Math.floor((b+8)/25),g=Math.floor((b-f+1)/3),h=(19*a+b-d-g+15)%30,i=Math.floor(c/4),k=c%4,l=(32+2*e+2*i-h-k)%7,m=Math.floor((a+11*h+22*l)/451),mo=Math.floor((h+l-7*m+114)/31),da=((h+l-7*m+114)%31)+1;return new Date(y,mo-1,da,12)}
+const nthMon=(y,m,n)=>{const d=new Date(y,m,1,12);return new Date(y,m,1+((8-d.getDay())%7)+7*(n-1),12)};
+const HCACHE={};
+function statHols(y,p){const ck=y+p;if(HCACHE[ck])return HCACHE[ck];const H={},h=(d,n,ps)=>{if(ps==='*'||ps.split(',').includes(p))H[key(d)]=n};
+ h(new Date(y,0,1,12),'New Year’s Day','*');
+ const f3=nthMon(y,1,3);h(f3,'Family Day','ON,AB,BC,NB,SK');h(f3,'Louis Riel Day','MB');h(f3,'Islander Day','PE');h(f3,'Heritage Day','NS');
+ const es=easterSun(y);h(new Date(y,es.getMonth(),es.getDate()-2,12),'Good Friday','*');
+ const v=new Date(y,4,24,12);v.setDate(24-((v.getDay()+6)%7));h(v,'Victoria Day','FED,ON,AB,BC,MB,SK,NT,NU,YT');h(v,'National Patriots’ Day','QC');
+ h(new Date(y,5,21,12),'National Indigenous Peoples Day','NT,YT');h(new Date(y,5,24,12),'Saint-Jean-Baptiste Day','QC');
+ h(new Date(y,6,1,12),'Canada Day','FED,ON,QC,BC,AB,MB,SK,NS,NB,PE,NT,YT,NU');h(new Date(y,6,1,12),'Memorial Day / Canada Day','NL');h(new Date(y,6,9,12),'Nunavut Day','NU');
+ const a1=nthMon(y,7,1);h(a1,'Civic Holiday','NT,NU');h(a1,'British Columbia Day','BC');h(a1,'New Brunswick Day','NB');h(a1,'Saskatchewan Day','SK');h(nthMon(y,7,3),'Discovery Day','YT');
+ h(nthMon(y,8,1),'Labour Day','*');
+ h(new Date(y,8,30,12),'National Day for Truth and Reconciliation','FED,BC,PE,NT,YT');h(new Date(y,8,30,12),'Orange Shirt Day','MB');
+ h(nthMon(y,9,2),'Thanksgiving','FED,ON,QC,BC,AB,MB,SK,NT,NU,YT');
+ h(new Date(y,10,11,12),'Remembrance Day','FED,AB,BC,NB,NL,NT,NU,PE,SK,YT');
+ h(new Date(y,11,25,12),'Christmas Day','*');h(new Date(y,11,26,12),'Boxing Day','FED,ON');
+ return HCACHE[ck]=H}
+const provOf=()=>PROV[S.set.prov]?S.set.prov:'ON';
+const holOf=d=>statHols(d.getFullYear(),provOf())[key(d)]||'';
+function nextHol(from){for(let i=0;i<400;i++){const d=add(from,i),n=holOf(d);if(n)return {d,n}}return null}
 function schedule(){
  const y=vm.getFullYear(),m=vm.getMonth(),first=new Date(y,m,1,12).getDay(),days=new Date(y,m+1,0).getDate();
  let cells=Array.from({length:first},()=>'<div class="cc blank"></div>').join('');
- for(let i=1;i<=days;i++){const d=new Date(y,m,i,12),t=typeOf(d),c=code(d);cells+=`<button class="cc ${key(d)===key(TODAY)?'now':''}" data-day="${key(d)}" data-open="1"><b>${i}</b>${c!=='O'?`<i style="background:${T[t].c}">${c==='D'?'Day':'Night'}</i>`:t==='recovery'?`<i style="background:var(--rec)">Rec</i>`:''}</button>`}
+ for(let i=1;i<=days;i++){const d=new Date(y,m,i,12),t=typeOf(d),c=code(d);const hn=holOf(d);cells+=`<button class="cc ${key(d)===key(TODAY)?'now':''}${hn?' hol':''}" data-day="${key(d)}" data-open="1"${hn?` aria-label="${esc(hn)}"`:''}>${hn?'<span class="hm">🍁</span>':''}<b>${i}</b>${c!=='O'?`<i style="background:${T[t].c}">${c==='D'?'Day':'Night'}</i>`:t==='recovery'?`<i style="background:var(--rec)">Rec</i>`:''}</button>`}
+ const hm=Object.entries(statHols(y,provOf())).filter(([k])=>k.slice(0,7)===key(new Date(y,m,1,12)).slice(0,7)).sort(),nh=nextHol(TODAY);
+ const shiftTxt=d=>{const c=code(d),t=typeOf(d);return c==='D'?'You’re on a <b>day shift</b>':c==='N'?'You’re on a <b>night shift</b>':t==='recovery'?'Recovery day off':'You’re off'};
+ const holCard=`<div class="card"><b>Stat holidays${hm.length?' in '+MO[m]:''}</b>${hm.length?hm.map(([k,n])=>{const d=new Date(k+'T12:00');return `<div class="holl"><span class="hm">🍁</span><div><b>${esc(n)}</b><div class="mut small">${nice(d)} · ${shiftTxt(d)}</div></div></div>`}).join(''):`<p class="mut small" style="margin:6px 0">None this month.${nh?` Next: <b>${esc(nh.n)}</b>, ${nice(nh.d)} (${shiftTxt(nh.d).replace(/<\/?b>/g,'').replace('You’re','you’re').replace('Recovery','recovery')}).`:''}</p>`}
+  <label class="lb small" for="provsel" style="margin-top:8px">Holidays for</label><select class="fin provsel" id="provsel">${Object.entries(PROV).map(([c,n])=>`<option value="${c}"${provOf()===c?' selected':''}>${n}</option>`).join('')}</select>
+  <p class="mut small" style="margin:6px 0 0">Ports, rail and other federally regulated jobs follow the federal list. Your union agreement may add more days.</p></div>`;
  const bl=[];let d=TODAY;for(let j=0;j<4;j++){const b=nextBlock(d);bl.push(b);d=add(b.d,b.n);while(code(d)==='O')d=add(d,1)}
  main.innerHTML=`<div class="pad"><h2>Shifts</h2><p class="mut" style="margin:0 0 12px">2-2-3 rotation · repeats every 28 days</p></div>
  <div class="mh"><button class="ib" data-mo="-1" aria-label="Previous month"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button><b style="font-size:18px">${MO[m]} ${y}</b><button class="ib" data-mo="1" aria-label="Next month"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button></div>
  <div class="cal">${'SMTWTFS'.split('').map(x=>`<div class="wd">${x}</div>`).join('')}${cells}</div>
- <div class="leg"><span style="--c:var(--day)">Day shift</span><span style="--c:var(--night)">Night shift</span><span style="--c:var(--rec)">Recovery day</span></div>
+ <div class="leg"><span style="--c:var(--day)">Day shift</span><span style="--c:var(--night)">Night shift</span><span style="--c:var(--rec)">Recovery day</span><span style="--c:#d92d20">🍁 Stat holiday</span></div>${holCard}
  <div class="card"><b>Coming up</b>${bl.map(b=>`<div class="blk"><i style="background:${b.c==='D'?'var(--day)':'var(--night)'}"></i><div><b>${b.n} ${b.c==='D'?'day':'night'} shifts · ${nice(b.d)}</b><div class="mut small">${b.c==='N'?'Sleep in on the first day, main meal at 5 PM':'Bed by '+fmt(S.set.dbed).join(' ')+' the night before'} · pack ${b.n} cooler meals</div></div></div>`).join('')}</div>
  <p class="note">Tap a date to see its plan. ${S.set.cal?'In the real app, shifts sync from Supershift through your phone calendar.':''}</p>`;
 }
@@ -1224,7 +1254,7 @@ function me(){const x=xpInfo(),q=questsFor(monday(TODAY)),st=weightStats(),r=wee
  <label class="btn ghost" style="display:inline-flex;align-items:center;margin-top:4px">Restore from a backup<input type="file" id="rfile" accept=".json,application/json" style="display:none"></label>`:'<p class="mut small">Backup works in the installed app at samsquanch-bin.github.io/shiftfit.</p>'}</details>
  <div class="card"><b>App version</b> <span class="mut">${APP_VERSION.replace(/^(\d{4})(\d{2})(\d{2})(\d+)$/,'$1-$2-$3 #$4')}</span>${updV?'<p class="small" style="color:#1f9d6b;margin:6px 0"><b>A newer version is ready.</b></p><button class="btn" data-doupd>Update now</button>':`<p class="mut small" style="margin:6px 0">ShiftFit updates itself. If something new hasn’t shown up, check here.</p>${NET?'<button class="btn ghost" data-chkupd>Check for updates</button>':''}`}</div>`}
 // ===== App updates =====
-const APP_VERSION='2026112606';let updV=null;
+const APP_VERSION='2026112607';let updV=null;
 async function checkUpdate(manual){if(!NET||typeof fetch==='undefined')return;try{const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)throw 0;const j=await r.json();
  if(String(j.v)>APP_VERSION){updV=String(j.v);showUpd()}else{updV=null;if(manual)toast('You’re on the newest version')}}catch(e){if(manual)toast('Couldn’t check for updates. Are you online?')}if(view==='me'&&manual)me()}
 function showUpd(){if(typeof document==='undefined'||!document.body||!document.body.insertAdjacentHTML)return;if(document.getElementById('updbar'))return;
@@ -1453,7 +1483,7 @@ document.addEventListener('submit',ev=>{ev.preventDefault();const tid=ev.target.
  if(id==='fsearch'){const q=v('fq').trim();if(q)doSearch(q)}
  else if(id==='bcform'){const c=v('bc').replace(/\D/g,'');if(c)lookup(c)}
  else if(id==='qform'){const k=+v('qk');if(!(k>0))return;setFood({src:'quick',name:v('qn').trim()||'Quick add',brand:'',per:{kcal:k,p:+v('qp')||0,c:0,f:0},serving:null},1,'item');saveEntry()}});
-document.addEventListener('change',async ev=>{if(ev.target.id==='snapf'&&ev.target.files&&ev.target.files[0])return snapFile(ev.target.files[0]);if(fs&&fs.snap&&fs.snap.items&&ev.target.dataset&&ev.target.dataset.snapon!==undefined){fs.snap.items[+ev.target.dataset.snapon].on=ev.target.checked;return drawSheet()}if(ev.target.id==='rfile'&&ev.target.files&&ev.target.files[0])return doRestore(ev.target.files[0]);if(ev.target.id!=='larea')return;larea=ev.target.value;lshow=40;if(!larea){lareaIds=null;return recipes()}const j=await mdb('filter.php?a='+encodeURIComponent(larea));lareaIds=new Set(((j&&j.meals)||[]).map(m=>String(m.idMeal)));recipes()});
+document.addEventListener('change',async ev=>{if(ev.target.id==='provsel'){S.set.prov=ev.target.value;save();return schedule()}if(ev.target.id==='snapf'&&ev.target.files&&ev.target.files[0])return snapFile(ev.target.files[0]);if(fs&&fs.snap&&fs.snap.items&&ev.target.dataset&&ev.target.dataset.snapon!==undefined){fs.snap.items[+ev.target.dataset.snapon].on=ev.target.checked;return drawSheet()}if(ev.target.id==='rfile'&&ev.target.files&&ev.target.files[0])return doRestore(ev.target.files[0]);if(ev.target.id!=='larea')return;larea=ev.target.value;lshow=40;if(!larea){lareaIds=null;return recipes()}const j=await mdb('filter.php?a='+encodeURIComponent(larea));lareaIds=new Set(((j&&j.meals)||[]).map(m=>String(m.idMeal)));recipes()});
 document.addEventListener('input',ev=>{if(fs&&fs.snap&&fs.snap.items&&ev.target.dataset&&ev.target.dataset.snapg!==undefined){const i=+ev.target.dataset.snapg,x=fs.snap.items[i],v=parseFloat(ev.target.value);if(v>0){x.g=v;const r=snapScale(x),n=document.getElementById('snapn'+i),T=snapTot(),t=document.getElementById('snaptot');if(n)n.innerHTML=`<b>${fmtN(x.kcal*r)} cal</b> · P ${fmtN(x.p*r)} g · C ${fmtN(x.c*r)} g · F ${fmtN(x.f*r)} g`;if(t)t.innerHTML=`<b>${fmtN(T.kcal)} cal</b> total · P ${fmtN(T.p)} g · C ${fmtN(T.c)} g · F ${fmtN(T.f)} g`}return}if(ev.target.id==='f-spk')return;if(fs&&(ev.target.id==='famt'||ev.target.id==='funit')){fs[ev.target.id==='famt'?'amt':'unit']=ev.target.value;if(ev.target.id==='funit'){fs.amt=fs.unit==='serving'||/^p\d+$/.test(fs.unit)?1:fs.unit==='oz'?3.5:100;const a=document.getElementById('famt');if(a)a.value=fs.amt}const d=document.getElementById('dnut');if(d)d.innerHTML=nutHTML();return}if(wp&&ev.target.dataset&&ev.target.dataset.wt){const v=parseFloat(ev.target.value);(wp.log[ev.target.dataset.wt]=wp.log[ev.target.dataset.wt]||{}).w=isNaN(v)?0:v;return}const k=ev.target.dataset&&ev.target.dataset.in;if(!k)return;S.set[k]=ev.target.type==='checkbox'?ev.target.checked:ev.target.value;save();const bp=document.getElementById('bprev');if(bp)bp.innerHTML=bprevHTML()});
 window.addEventListener('hashchange',()=>{const h=location.hash.slice(1);if(h!==view)go(h)});
 go(location.hash.slice(1)||'today');
