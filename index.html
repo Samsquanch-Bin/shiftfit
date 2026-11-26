@@ -1130,7 +1130,11 @@ function reportLine(r,G){const out=[];if(r.workouts)out.push(`${r.workouts} work
 function logWeight(v){const k=key(TODAY),i=S.weights.findIndex(w=>w.d===k);if(i>=0)S.weights[i].w=v;else S.weights.push({d:k,w:v});
  const ser=trendSeries();S.set.wt=String(Math.round(ser[ser.length-1].t*10)/10);save()}
 // ===== Backup / restore =====
+const CAP=()=>{const C=typeof window!=='undefined'&&window.Capacitor;return C&&C.isNativePlatform&&C.isNativePlatform()?C:null};
+async function nativeShare(name,txt,title){const C=CAP();if(!C||!C.Plugins.Filesystem||!C.Plugins.Share)return false;
+ const w=await C.Plugins.Filesystem.writeFile({path:name,data:txt,directory:'CACHE',encoding:'utf8'});await C.Plugins.Share.share({title,dialogTitle:title,files:[w.uri]});return true}
 async function doBackup(){const txt=JSON.stringify({app:'ShiftFit',v:1,at:new Date().toISOString(),data:S}),name='shiftfit-backup-'+key(TODAY)+'.json';let file;
+ if(CAP()){try{if(await nativeShare(name,txt,'ShiftFit backup')){S.lastBackup=Date.now();save();toast('Pick Drive or Files to keep your backup');return me()}}catch(e){}try{await navigator.clipboard.writeText(txt);S.lastBackup=Date.now();save();toast('Backup copied. Paste it into a note or email');return me()}catch(e){return toast('Couldn’t make a backup')}}
  try{file=new File([txt],name,{type:'application/json'})}catch(e){file=null}
  if(file&&navigator.canShare&&navigator.canShare({files:[file]})){try{await navigator.share({files:[file],title:'ShiftFit backup'});S.lastBackup=Date.now();save();toast('Backup saved');return me()}catch(e){if(e&&e.name==='AbortError')return}}
  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([txt],{type:'application/json'}));a.download=name;document.body.appendChild(a);a.click();a.remove();S.lastBackup=Date.now();save();toast('Backup saved to Downloads');me()}
@@ -1145,7 +1149,7 @@ function icsText(nudges){const p2=n=>String(n).padStart(2,'0'),dt=d=>d.getFullYe
   it.forEach((x,j)=>{const[h,m]=x[0].split(':').map(Number);if(h<ph)off=1;ph=h;const s=new Date(d.getFullYear(),d.getMonth(),d.getDate()+off,h,m);if(s<new Date())return;ev(key(d)+'-'+j,s,10,x[1],x[2].replace('{n}',nIv())+' · ShiftFit');n++});
   if(nudges&&(t==='day'||t==='night'||t==='firstnight')){const iv=nIv(),st=new Date(d.getFullYear(),d.getMonth(),d.getDate(),t==='day'?7:19,0);for(let mm=iv;mm<12*60-20;mm+=iv){const s=new Date(st.getTime()+mm*6e4);if(s<new Date())continue;ev(key(d)+'-n'+mm,s,5,'Move: 2-min cab stretch','Open ShiftFit → Stretch → At work');n++}}}
  L.push('END:VCALENDAR');return {txt:L.join('\r\n')+'\r\n',n}}
-async function doIcs(){const nud=(document.getElementById('icsN')||{}).checked,r=icsText(nud),name='shiftfit-reminders.ics';let file=null;try{file=new File([r.txt],name,{type:'text/calendar'})}catch(e){}
+async function doIcs(){const nud=(document.getElementById('icsN')||{}).checked,r=icsText(nud),name='shiftfit-reminders.ics';let file=null;if(CAP()){try{if(await nativeShare(name,r.txt,'ShiftFit reminders'))return toast('Open it with your Calendar app')}catch(e){}return toast('Couldn’t share the reminders file')}try{file=new File([r.txt],name,{type:'text/calendar'})}catch(e){}
  if(file&&navigator.canShare&&navigator.canShare({files:[file]})){try{await navigator.share({files:[file],title:'ShiftFit reminders'});return toast(r.n+' reminders ready')}catch(e){if(e&&e.name==='AbortError')return}}
  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([r.txt],{type:'text/calendar'}));a.download=name;document.body.appendChild(a);a.click();a.remove();toast(r.n+' reminders saved to Downloads')}
 // ===== Switch-over helper =====
@@ -1340,6 +1344,7 @@ document.addEventListener('input',ev=>{if(ev.target.id==='f-spk')return;if(fs&&(
 window.addEventListener('hashchange',()=>{const h=location.hash.slice(1);if(h!==view)go(h)});
 go(location.hash.slice(1)||'today');
 if(NET&&typeof navigator!=='undefined'&&'serviceWorker' in navigator){try{navigator.serviceWorker.register('sw.js').catch(()=>{})}catch(e){}}
+if(CAP()&&CAP().Plugins.App){CAP().Plugins.App.addListener('backButton',()=>{if(fs)return closeSheet();if(rv)return closeRV();if(wp)return closeW();if(pl)return closeP();if(view!=='today')return go('today');CAP().Plugins.App.exitApp()})}
 window.addEventListener('online',()=>toast('Back online'));window.addEventListener('offline',()=>toast('You’re offline. Logging still works.'));
 }
 </script>

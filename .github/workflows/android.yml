@@ -1,0 +1,50 @@
+name: Build Android APK
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, master]
+    paths: ['android/**', '.github/workflows/android.yml', 'icon-512.png']
+permissions:
+  contents: write
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: 17 }
+      - uses: android-actions/setup-android@v3
+      - name: Create the Capacitor wrapper
+        run: |
+          mkdir app && cd app
+          npm init -y >/dev/null
+          npm i @capacitor/core@6 @capacitor/cli@6 @capacitor/android@6 @capacitor/app@6 @capacitor/filesystem@6 @capacitor/share@6
+          mkdir www && cp ../index.html ../manifest.json ../sw.js ../icon-*.png www/
+          cp ../android/capacitor.config.json .
+          npx cap add android
+          npx cap sync android
+      - name: Permissions, icon and version
+        run: |
+          cd app/android
+          sed -i 's#<uses-permission android:name="android.permission.INTERNET" />#<uses-permission android:name="android.permission.INTERNET" />\n    <uses-permission android:name="android.permission.CAMERA" />\n    <uses-feature android:name="android.hardware.camera" android:required="false" />#' app/src/main/AndroidManifest.xml
+          grep -q CAMERA app/src/main/AndroidManifest.xml
+          rm -rf app/src/main/res/mipmap-anydpi-v26
+          for d in mdpi:48 hdpi:72 xhdpi:96 xxhdpi:144 xxxhdpi:192; do n=${d%%:*}; px=${d##*:};
+            convert ../../icon-512.png -resize ${px}x${px} app/src/main/res/mipmap-$n/ic_launcher.png
+            cp app/src/main/res/mipmap-$n/ic_launcher.png app/src/main/res/mipmap-$n/ic_launcher_round.png
+            rm -f app/src/main/res/mipmap-$n/ic_launcher_foreground.png; done
+          sed -i "s/versionCode 1/versionCode ${{ github.run_number }}/; s/versionName \"1.0\"/versionName \"1.${{ github.run_number }}\"/" app/build.gradle
+          mkdir -p ~/.android && cp ../../android/debug.keystore ~/.android/debug.keystore
+      - name: Build
+        run: cd app/android && ./gradlew assembleDebug --no-daemon && cp app/build/outputs/apk/debug/app-debug.apk ../../ShiftFit.apk
+      - uses: actions/upload-artifact@v4
+        with: { name: ShiftFit-apk, path: ShiftFit.apk }
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: apk-${{ github.run_number }}
+          name: ShiftFit Android app (build ${{ github.run_number }})
+          body: "Tap ShiftFit.apk below to download, then open it to install. The app loads the live ShiftFit site, so app content updates by itself."
+          files: ShiftFit.apk
+          make_latest: true

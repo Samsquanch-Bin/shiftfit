@@ -1,0 +1,10 @@
+{
+  "appId": "com.samsquanch.shiftfit",
+  "appName": "ShiftFit",
+  "webDir": "www",
+  "server": {
+    "url": "https://samsquanch-bin.github.io/shiftfit/",
+    "allowNavigation": ["samsquanch-bin.github.io"]
+  },
+  "android": { "backgroundColor": "#0f1720" }
+}
