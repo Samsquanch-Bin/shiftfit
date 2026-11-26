@@ -354,6 +354,12 @@ h3{font-size:17px;margin:22px 0 10px;font-weight:700}
 .p-sqz .aL{transform:rotate(16deg)}.p-sqz .aR{transform:rotate(-16deg)}.p-sqz .tor{transform:scale(1.03)}.p-reach1 .aR{transform:rotate(-172deg)}
 .p-hug .lL{transform:translateY(-18px)}.p-hug .aL{transform:rotate(-24deg)}.p-hug .aR{transform:rotate(10deg)}.p-march .lL{transform:translateY(-8px)}.p-circ .fL{transform:rotate(-20deg)}
 .p-fold2 .tor{transform:scale(.98,.84)}.p-fold2 .hd{transform:scale(1.02,1.19)}
+.snapbtn{display:flex;flex-direction:column;align-items:center;gap:4px;padding:26px 14px;border:2px dashed var(--line,#3a3f4a);border-radius:18px;cursor:pointer;text-align:center}.snapbtn>span:first-of-type{font-size:40px}
+.snapimg{width:100%;max-height:260px;object-fit:cover;border-radius:16px;margin:6px 0}
+.snapit{border:1px solid var(--line,#3a3f4a);border-radius:14px;padding:10px 12px;margin:8px 0}.snapit.off{opacity:.45}.snapit .srow{margin:6px 0}.snapit .srow .fin{max-width:110px}
+.snaphd{display:flex;align-items:center;gap:8px}.snaphd b{flex:1}.conf{font-size:11px;font-weight:800;border-radius:6px;padding:1px 6px;text-transform:uppercase}.c-high{background:#1f9d6b;color:#fff}.c-medium{background:#e0a100;color:#111}.c-low{background:#d92d20;color:#fff}
+.linkb{background:none;border:0;color:var(--acc,#2f80ed);font-weight:700;padding:4px 0;text-decoration:underline}.snaptot{margin:10px 0;font-size:15px}
+.btn.snapgo{background:linear-gradient(135deg,#ff7a45,#f5487f);color:#fff;border:0}
 </style>
 </head>
 <body>
@@ -994,10 +1000,11 @@ function drawSheet(){if(!fs)return;const M=MEALS(typeOf(sel));let h=`<div class=
   <form class="srow" id="bcform"><input class="fin" id="bc" inputmode="numeric" placeholder="Or type the barcode number"><button class="btn">Look up</button></form><div class="row" style="margin-top:12px"><button class="btn ghost" data-fview="search">Search by name</button><button class="btn ghost" data-fview="quick">Quick add</button></div>`}
  else if(fs.view==='quick'){h+=`<form id="qform"><p class="slab">Quick add</p><input class="fin" id="qn" placeholder="What did you eat? (optional)"><div class="srow" style="margin-top:8px"><input class="fin" id="qk" type="number" inputmode="numeric" placeholder="Calories" required><input class="fin" id="qp" type="number" inputmode="numeric" placeholder="Protein g"></div><div class="pctl" style="grid-template-columns:1fr"><button class="btn">Add to ${esc(fs.meal)}</button></div></form>${NET?'<button class="btn ghost" data-fview="search" style="margin-top:10px">Search the database instead</button>':''}`}
  else if(fs.view==='custom'){h+=customHTML()}
+ else if(fs.view==='snap'){h+=snapHTML()}
  else if(fs.view==='savemeal'){h+=`<form id="smform"><p class="slab">Save ${esc(fs.meal)} as a meal</p><p class="mut small" style="margin:0 0 8px">Log the whole thing in one tap next time.</p><input class="fin" id="smn" value="My ${esc(fs.meal.toLowerCase())}" required><div class="pctl" style="grid-template-columns:1fr"><button class="btn">Save meal</button></div></form>`}
  else{const rec=!fs.q,mf=myFoods(fs.q);fs.list=rec?[...mf,...S.recent]:rankFoods([...mf,...fs.usda,...fs.off],fs.q);
   h+=`<form class="srow" id="fsearch"><input class="fin" id="fq" type="search" enterkeyhint="search" placeholder="Search foods, e.g. chicken breast" value="${esc(fs.q)}"><button class="btn">Search</button></form>
-  <div class="row" style="margin-top:10px"><button class="btn ghost" data-fview="scan">Scan barcode</button><button class="btn ghost" data-fview="quick">Quick add</button><button class="btn ghost" data-fview="custom">Create food</button></div>
+  <div class="row" style="margin-top:10px">${NET?'<button class="btn snapgo" data-fview="snap">📷 Snap it</button>':''}<button class="btn ghost" data-fview="scan">Scan barcode</button><button class="btn ghost" data-fview="quick">Quick add</button><button class="btn ghost" data-fview="custom">Create food</button></div>
   ${fs.loading?'<p class="mut">Searching…</p>':''}${fs.msg?`<p class="mut small">${esc(fs.msg)}</p>`:''}
   ${rec?savedHTML()+(mf.length?`<p class="slab">My foods</p>${mf.map((x,i)=>resRow(x,i)).join('')}`:'')+(S.recent.length?`<p class="slab">Recent foods</p>${S.recent.map((x,i)=>resRow(x,i+mf.length)).join('')}`:'<p class="mut small" style="margin-top:14px">Foods you add show up here for quick re-logging.</p>'):
   (fs.loading?'':`${fs.list.length?`<p class="slab">Best matches</p>${fs.list.map((x,i)=>resRow(x,i)).join('')}`:''}${fs.uerr===429?'<p class="mut small">USDA search limit reached. Add a free key under Food database settings.</p>':''}
@@ -1016,8 +1023,70 @@ async function startScan(){const v=document.getElementById('vid'),msg=t=>{fs&&(f
   const loop=async()=>{if(!stream)return;try{const c=await det.detect(v);if(c.length&&c[0].rawValue){lookup(String(c[0].rawValue).replace(/\D/g,''));return}}catch(e){}scanT=setTimeout(loop,250)};loop()}
  catch(e){msg('Camera not available. Allow camera access for this site in Chrome, or type the barcode.')}}
 function stopScan(){clearTimeout(scanT);if(stream){stream.getTracks().forEach(t=>t.stop());stream=null}}
+// ===== Snap it (AI photo calorie estimate) =====
+const SNAP_PROMPT=`You are a registered dietitian estimating the nutrition of a meal from a photo, for a calorie-tracking app.
+Identify every separate food and drink item visible. For each item:
+- Name it specifically (e.g. "scrambled eggs", "white toast with butter", "McDonald's medium fries"). If it is a recognisable restaurant or packaged product, name the brand and use that brand's published nutrition.
+- Estimate the portion in grams. Use the plate (about 26 cm), cups, cutlery, hands, packaging and other objects in the photo for scale. Think about depth/height, not just the area seen from above.
+- Include hidden calories: cooking oil, butter, sauces, dressings, cheese, sugar and milk in drinks.
+- Give calories, protein, carbs and fat for THAT portion, based on standard nutrition data (USDA / brand data). Do not lowball.
+- Give a short household portion (e.g. "1 cup", "2 slices", "1 medium").
+- Give confidence: high, medium or low.
+If the user added a note, treat it as true and use it.
+Reply with JSON only, no other text, in this shape:
+{"items":[{"name":"","portion":"","grams":0,"kcal":0,"protein":0,"carbs":0,"fat":0,"confidence":"medium"}],"note":"one short sentence about anything that was hard to judge"}
+If there is no food in the photo, reply {"items":[],"note":"No food found"}.`;
+const aiProv=()=>S.set.aiprov==='claude'?'claude':'gemini';
+const aiKey=()=>aiProv()==='claude'?(S.set.ckey||''):(S.set.gkey||'');
+function snapImage(file){return new Promise((res,rej)=>{const url=URL.createObjectURL(file),im=new Image();im.onload=()=>{const M=1280,s=Math.min(1,M/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*s);c.height=Math.round(im.height*s);c.getContext('2d').drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(url);res(c.toDataURL('image/jpeg',.85))};im.onerror=()=>rej(new Error('Couldn’t read that photo'));im.src=url})}
+async function geminiModel(k,force){if(S.set.gmodel&&!force)return S.set.gmodel;let best='gemini-2.5-flash';
+ try{const r=await fetch('https://generativelanguage.googleapis.com/v1beta/models?pageSize=200&key='+encodeURIComponent(k));if(r.ok){const j=await r.json();
+  const ok=(j.models||[]).filter(m=>(m.supportedGenerationMethods||[]).includes('generateContent')).map(m=>m.name.replace(/^models\//,'')).filter(n=>/^gemini-[\d.]+-flash$/.test(n)||/^gemini-[\d.]+-flash-latest$/.test(n));
+  const v=n=>parseFloat((n.match(/gemini-([\d.]+)/)||[])[1]||0);ok.sort((a,b)=>v(b)-v(a)||a.length-b.length);if(ok[0])best=ok[0]}}catch(e){}
+ S.set.gmodel=best;save();return best}
+function parseAI(t){t=String(t||'').replace(/```json|```/g,'').trim();const a=t.indexOf('{'),b=t.lastIndexOf('}');const o=JSON.parse(a>=0?t.slice(a,b+1):t);
+ const items=(o.items||[]).map(x=>({name:String(x.name||'Food'),portion:String(x.portion||''),g:Math.max(1,Math.round(+x.grams||100)),kcal:Math.max(0,+x.kcal||0),p:Math.max(0,+x.protein||0),c:Math.max(0,+x.carbs||0),f:Math.max(0,+x.fat||0),conf:String(x.confidence||'medium').toLowerCase(),on:true}));
+ items.forEach(x=>{x.g0=x.g});return {items,note:String(o.note||'')}}
+async function askAI(dataUrl,note){const k=aiKey(),b64=dataUrl.split(',')[1],prompt=SNAP_PROMPT+(note?'\nUser note: '+note:'');
+ if(aiProv()==='claude'){const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'content-type':'application/json','x-api-key':k,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+   body:JSON.stringify({model:S.set.cmodel||'claude-sonnet-5-5',max_tokens:1500,messages:[{role:'user',content:[{type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}},{type:'text',text:prompt}]}]})});
+  if(!r.ok){const e=await r.text();throw new Error(r.status===401?'Your Claude API key was rejected':'Claude error '+r.status+': '+e.slice(0,120))}const j=await r.json();return parseAI((j.content||[]).map(c=>c.text||'').join(''))}
+ for(let attempt=0;attempt<2;attempt++){const m=await geminiModel(k,attempt>0);
+  const r=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+m+':generateContent?key='+encodeURIComponent(k),{method:'POST',headers:{'Content-Type':'application/json'},
+   body:JSON.stringify({contents:[{parts:[{text:prompt},{inline_data:{mime_type:'image/jpeg',data:b64}}]}],generationConfig:{responseMimeType:'application/json',temperature:.2}})});
+  if(r.status===404&&attempt===0)continue;
+  if(!r.ok){const e=await r.text();throw new Error(r.status===400&&/API key/i.test(e)?'Your Gemini API key was rejected':r.status===429?'Gemini’s free limit is used up for now. Try again in a minute.':'Gemini error '+r.status+': '+e.slice(0,120))}
+  const j=await r.json(),t=(((j.candidates||[])[0]||{}).content||{}).parts||[];return parseAI(t.map(p=>p.text||'').join(''))}
+ throw new Error('No Gemini model available')}
+const snapScale=x=>x.g/x.g0;
+function snapTot(){return fs.snap.items.filter(x=>x.on).reduce((a,x)=>{const r=snapScale(x);a.kcal+=x.kcal*r;a.p+=x.p*r;a.c+=x.c*r;a.f+=x.f*r;return a},{kcal:0,p:0,c:0,f:0})}
+function snapHTML(){const sn=fs.snap||{},k=aiKey(),pv=aiProv();
+ if(!k)return `<p class="slab">Snap it</p><div class="card"><b>One-time setup (free)</b><p class="small" style="margin:6px 0">Snap it uses Google’s Gemini AI to look at your photo. You need your own free key:</p>
+  <ol class="small" style="padding-left:18px;margin:0 0 8px"><li>Open <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a> and sign in with Google</li><li>Tap <b>Create API key</b> and copy it</li><li>Paste it below</li></ol>
+  <input class="fin" id="gkey" placeholder="Paste Gemini API key" autocomplete="off"><button class="btn" style="width:100%;margin-top:8px" data-snapkey>Save key</button>
+  <p class="mut small" style="margin-top:8px">Have a Claude API key instead? Choose it under Food database settings on the Food tab.</p></div>`;
+ if(sn.busy)return `<p class="slab">Snap it</p>${sn.img?`<img class="snapimg" src="${sn.img}" alt="">`:''}<p class="mut" style="text-align:center">Looking at your food…</p>`;
+ if(sn.items){const T=snapTot();return `<p class="slab">Snap it · ${esc(fs.meal)}</p><img class="snapimg" src="${sn.img}" alt="">
+  ${sn.items.length?`<p class="mut small" style="margin:8px 0">Check each portion. Fix the grams if they look off; calories update as you go. Use <b>Find in database</b> for exact nutrition.</p>
+  ${sn.items.map((x,i)=>{const r=snapScale(x);return `<div class="snapit${x.on?'':' off'}"><label class="snaphd"><input type="checkbox" data-snapon="${i}"${x.on?' checked':''}><b>${esc(x.name)}</b><span class="conf c-${esc(x.conf)}">${esc(x.conf)}</span></label>
+   <div class="srow"><input class="fin" type="number" inputmode="numeric" min="1" data-snapg="${i}" value="${x.g}"><span class="mut small" style="align-self:center">g · ${esc(x.portion)}</span></div>
+   <div class="small" id="snapn${i}"><b>${fmtN(x.kcal*r)} cal</b> · P ${fmtN(x.p*r)} g · C ${fmtN(x.c*r)} g · F ${fmtN(x.f*r)} g</div><button class="linkb small" data-snapfind="${i}">Find in database</button></div>`}).join('')}
+  <div class="card snaptot" id="snaptot"><b>${fmtN(T.kcal)} cal</b> total · P ${fmtN(T.p)} g · C ${fmtN(T.c)} g · F ${fmtN(T.f)} g</div>
+  ${sn.note?`<p class="mut small">${esc(sn.note)}</p>`:''}<div class="pctl" style="grid-template-columns:1fr 1fr"><button class="btn ghost" data-snapredo>Retake</button><button class="btn" data-snaplog>Add to ${esc(fs.meal)}</button></div>`
+  :`<p>No food found in that photo.</p><button class="btn" data-snapredo>Try again</button>`}
+  <p class="mut small" style="margin-top:10px">AI estimates are usually within about 20–30%. Portion size is the hardest part, so a quick gram check makes the biggest difference.</p>`}
+ return `<p class="slab">Snap it · ${esc(fs.meal)}</p><label class="snapbtn"><input type="file" id="snapf" accept="image/*" capture="environment" hidden><span>📷</span><b>Take a photo of your food</b><span class="mut small">or pick one from your gallery</span></label>
+  <label class="lb" for="snapnote" style="margin-top:12px;font-weight:700">Add details (optional, improves accuracy)</label><input class="fin" id="snapnote" placeholder="e.g. large double-double, cooked in butter, 2 eggs" value="${esc(sn.note0||'')}">
+  ${sn.err?`<p class="small" style="color:#d92d20;margin-top:8px">${esc(sn.err)}</p>`:''}
+  <p class="mut small" style="margin-top:10px">Tips: shoot from about 45°, get the whole plate in, and keep a fork or your hand in the picture for scale. Using ${pv==='claude'?'Claude':'Gemini'}.</p>`}
+async function snapFile(file){const note=(document.getElementById('snapnote')||{}).value||'';fs.snap={busy:true,note0:note};drawSheet();
+ try{const img=await snapImage(file);fs.snap.img=img;drawSheet();const r=await askAI(img,note.trim());if(!fs||!fs.snap)return;fs.snap={img,items:r.items,note:r.note,note0:note}}
+ catch(e){if(!fs)return;fs.snap={err:(e&&e.message)||'Something went wrong',note0:note}}drawSheet()}
+function snapLog(){const sn=fs.snap,on=sn.items.filter(x=>x.on);if(!on.length)return toast('Tick at least one item');const k=key(sel),L=S.food[k]=S.food[k]||[];
+ on.forEach(x=>{const per=v=>Math.round(v/x.g0*1000)/10,ff={src:'ai',code:'',name:x.name,brand:'Snap it estimate',per:{kcal:per(x.kcal),p:per(x.p),c:per(x.c),f:per(x.f)},serving:null,ok:true};L.push({f:ff,g:x.g,amt:x.g,unit:'g',meal:fs.meal})});
+ save();const G=goal(),n=on.length;closeSheet();toast('Added '+n+' item'+(n>1?'s':'')+(G?' · '+fmtN(G.kcal-tot(S.food[k]).kcal)+' cal left':''))}
 function saveEntry(){const f=fs.food,amt=+fs.amt;if(!(amt>0))return toast('Enter an amount');const k=key(sel),L=S.food[k]=S.food[k]||[];
- const ff={src:f.src,code:f.code||'',name:f.name,brand:f.brand||'',per:f.per,serving:f.serving||null,ok:true},e={f:ff,g:gOf(ff,amt,fs.unit),amt,unit:fs.unit,meal:fs.meal};
+ const ff={src:f.src,code:f.code||'',name:f.name,brand:f.brand||'',per:f.per,serving:f.serving||null,portions:f.portions||null,ok:true},e={f:ff,g:gOf(ff,amt,fs.unit),amt,unit:fs.unit,meal:fs.meal};
  if(fs.edit!==null)L[fs.edit]=e;else L.push(e);
  if(f.src!=='quick'){S.recent=[ff,...S.recent.filter(x=>(x.code||x.name)!==(ff.code||ff.name))].slice(0,40)}
  save();const n=f.name,ed=fs.edit!==null,G=goal();closeSheet();toast((ed?'Updated ':'Added ')+n+(G?' · '+fmtN(G.kcal-tot(S.food[k]).kcal)+' cal left':''))}
@@ -1038,7 +1107,11 @@ function food(){
  <div class="card"><b>Today’s habits</b>${HABS.map((x,i)=>`<div class="hab"><button class="ck ${h[i]?'y':''}" data-hab="${i}" aria-label="${x}">${ck}</button><span>${x}</span></div>`).join('')}<div class="hab"><span class="mut small">Water ${w}/8 glasses · tap glasses on Today</span></div></div>
  <div class="card"><b>Pack for: ${b.n} ${b.c==='D'?'day':'night'} shift${b.n>1?'s':''} from ${nice(b.d)}</b><ul style="margin:8px 0 0;padding-left:20px"><li>${b.n} cooler meals: protein + veg + some carbs</li><li>${b.n*2} snack packs, pre-portioned (fruit, yogurt, nuts)</li><li>2 water bottles per shift</li>${b.c==='N'?'<li>Something light for after midnight</li>':''}</ul></div>
  <div class="card"><b>Easy cooler meal ideas</b><div class="mut small" style="margin-top:4px">Matched to “${esc(S.set.cook)}” cooking skill</div><ul style="margin:8px 0 0;padding-left:20px"><li>Chicken, rice and roasted veg bowl</li><li>Turkey chili with beans (batch of 4)</li><li>Egg muffins with spinach and cheese</li><li>Tuna or chickpea salad wraps</li></ul></div>
- <details class="card"><summary style="font-weight:700;cursor:pointer">Food database settings</summary><p class="mut small">Basic foods come from USDA FoodData Central. The shared demo key allows only a few searches an hour; a free personal key (api.data.gov) allows 1,000.</p><label class="lb" for="f-usda" style="font-weight:700">USDA API key</label><input class="fin" id="f-usda" data-in="usda" value="${esc(S.set.usda||'')}" placeholder="DEMO_KEY" autocomplete="off"></details>
+ <details class="card"><summary style="font-weight:700;cursor:pointer">Food database settings</summary><p class="mut small">Basic foods come from USDA FoodData Central. The shared demo key allows only a few searches an hour; a free personal key (api.data.gov) allows 1,000.</p><label class="lb" for="f-usda" style="font-weight:700">USDA API key</label><input class="fin" id="f-usda" data-in="usda" value="${esc(S.set.usda||'')}" placeholder="DEMO_KEY" autocomplete="off">
+ <p style="font-weight:700;margin:14px 0 4px">Snap it (AI photo estimates)</p><label class="lb" for="f-aip">AI service</label><select class="fin" id="f-aip" data-in="aiprov"><option value="gemini"${aiProv()==='gemini'?' selected':''}>Google Gemini (free key)</option><option value="claude"${aiProv()==='claude'?' selected':''}>Claude (paid API key)</option></select>
+ <label class="lb" for="f-gk" style="margin-top:8px">Gemini API key</label><input class="fin" id="f-gk" data-in="gkey" value="${esc(S.set.gkey||'')}" placeholder="From aistudio.google.com/apikey" autocomplete="off">
+ <label class="lb" for="f-ck" style="margin-top:8px">Claude API key</label><input class="fin" id="f-ck" data-in="ckey" value="${esc(S.set.ckey||'')}" placeholder="From console.anthropic.com" autocomplete="off">
+ <p class="mut small">Keys stay on this phone. Photos are sent to the AI service you pick. On Gemini’s free tier, Google may use them to improve its products.</p></details>
  <p class="note">Food data: Open Food Facts (ODbL) and USDA FoodData Central. Your food log stays on this phone.</p>`;
 }
 function schedule(){
@@ -1313,7 +1386,11 @@ document.addEventListener('click',ev=>{const b=ev.target.closest('button');if(!b
  if(ds.goal!==undefined){S.qs=Q.findIndex(q=>q.t==='Calorie budget');save();return go('setup')}
  if(ds.fedit!==undefined){const e=(S.food[key(sel)]||[])[+ds.fedit];if(!e)return;openSheet(e.meal,'detail');setFood(e.f,e.amt,e.unit);fs.edit=+ds.fedit;return drawSheet()}
  if(fs&&ds.fmeal){fs.meal=ds.fmeal;document.querySelectorAll('#fmeals .chip').forEach(c=>c.setAttribute('aria-pressed',c===b));const sb=document.querySelector('[data-fsave]');if(sb&&fs.edit===null)sb.textContent='Add to '+fs.meal;return}
- if(fs&&ds.fview){stopScan();fs.view=ds.fview;fs.msg='';drawSheet();if(ds.fview==='scan')startScan();return}
+ if(fs&&ds.snapkey!==undefined){const v=((document.getElementById('gkey')||{}).value||'').trim();if(!v)return toast('Paste your key first');S.set.gkey=v;S.set.aiprov='gemini';S.set.gmodel='';save();toast('Key saved');return drawSheet()}
+ if(fs&&ds.snapredo!==undefined){fs.snap={note0:(fs.snap||{}).note0||''};return drawSheet()}
+ if(fs&&ds.snaplog!==undefined)return snapLog();
+ if(fs&&ds.snapfind!==undefined){const x=fs.snap.items[+ds.snapfind];fs.view='search';fs.msg='';drawSheet();return doSearch(x.name)}
+ if(fs&&ds.fview){stopScan();if(ds.fview==='snap'&&(!fs.snap||fs.snap.err))fs.snap={note0:''};fs.view=ds.fview;fs.msg='';drawSheet();if(ds.fview==='scan')startScan();return}
  if(fs&&ds.fpick!==undefined)return pick(+ds.fpick);
  if(fs&&ds.fsave!==undefined)return saveEntry();
  if(fs&&ds.fdel!==undefined){const L=S.food[key(sel)]||[];L.splice(fs.edit,1);save();closeSheet();return toast('Deleted')}
@@ -1354,8 +1431,8 @@ document.addEventListener('submit',ev=>{ev.preventDefault();const tid=ev.target.
  if(id==='fsearch'){const q=v('fq').trim();if(q)doSearch(q)}
  else if(id==='bcform'){const c=v('bc').replace(/\D/g,'');if(c)lookup(c)}
  else if(id==='qform'){const k=+v('qk');if(!(k>0))return;setFood({src:'quick',name:v('qn').trim()||'Quick add',brand:'',per:{kcal:k,p:+v('qp')||0,c:0,f:0},serving:null},1,'item');saveEntry()}});
-document.addEventListener('change',async ev=>{if(ev.target.id==='rfile'&&ev.target.files&&ev.target.files[0])return doRestore(ev.target.files[0]);if(ev.target.id!=='larea')return;larea=ev.target.value;lshow=40;if(!larea){lareaIds=null;return recipes()}const j=await mdb('filter.php?a='+encodeURIComponent(larea));lareaIds=new Set(((j&&j.meals)||[]).map(m=>String(m.idMeal)));recipes()});
-document.addEventListener('input',ev=>{if(ev.target.id==='f-spk')return;if(fs&&(ev.target.id==='famt'||ev.target.id==='funit')){fs[ev.target.id==='famt'?'amt':'unit']=ev.target.value;if(ev.target.id==='funit'){fs.amt=fs.unit==='serving'||/^p\d+$/.test(fs.unit)?1:fs.unit==='oz'?3.5:100;const a=document.getElementById('famt');if(a)a.value=fs.amt}const d=document.getElementById('dnut');if(d)d.innerHTML=nutHTML();return}if(wp&&ev.target.dataset&&ev.target.dataset.wt){const v=parseFloat(ev.target.value);(wp.log[ev.target.dataset.wt]=wp.log[ev.target.dataset.wt]||{}).w=isNaN(v)?0:v;return}const k=ev.target.dataset&&ev.target.dataset.in;if(!k)return;S.set[k]=ev.target.type==='checkbox'?ev.target.checked:ev.target.value;save();const bp=document.getElementById('bprev');if(bp)bp.innerHTML=bprevHTML()});
+document.addEventListener('change',async ev=>{if(ev.target.id==='snapf'&&ev.target.files&&ev.target.files[0])return snapFile(ev.target.files[0]);if(fs&&fs.snap&&fs.snap.items&&ev.target.dataset&&ev.target.dataset.snapon!==undefined){fs.snap.items[+ev.target.dataset.snapon].on=ev.target.checked;return drawSheet()}if(ev.target.id==='rfile'&&ev.target.files&&ev.target.files[0])return doRestore(ev.target.files[0]);if(ev.target.id!=='larea')return;larea=ev.target.value;lshow=40;if(!larea){lareaIds=null;return recipes()}const j=await mdb('filter.php?a='+encodeURIComponent(larea));lareaIds=new Set(((j&&j.meals)||[]).map(m=>String(m.idMeal)));recipes()});
+document.addEventListener('input',ev=>{if(fs&&fs.snap&&fs.snap.items&&ev.target.dataset&&ev.target.dataset.snapg!==undefined){const i=+ev.target.dataset.snapg,x=fs.snap.items[i],v=parseFloat(ev.target.value);if(v>0){x.g=v;const r=snapScale(x),n=document.getElementById('snapn'+i),T=snapTot(),t=document.getElementById('snaptot');if(n)n.innerHTML=`<b>${fmtN(x.kcal*r)} cal</b> · P ${fmtN(x.p*r)} g · C ${fmtN(x.c*r)} g · F ${fmtN(x.f*r)} g`;if(t)t.innerHTML=`<b>${fmtN(T.kcal)} cal</b> total · P ${fmtN(T.p)} g · C ${fmtN(T.c)} g · F ${fmtN(T.f)} g`}return}if(ev.target.id==='f-spk')return;if(fs&&(ev.target.id==='famt'||ev.target.id==='funit')){fs[ev.target.id==='famt'?'amt':'unit']=ev.target.value;if(ev.target.id==='funit'){fs.amt=fs.unit==='serving'||/^p\d+$/.test(fs.unit)?1:fs.unit==='oz'?3.5:100;const a=document.getElementById('famt');if(a)a.value=fs.amt}const d=document.getElementById('dnut');if(d)d.innerHTML=nutHTML();return}if(wp&&ev.target.dataset&&ev.target.dataset.wt){const v=parseFloat(ev.target.value);(wp.log[ev.target.dataset.wt]=wp.log[ev.target.dataset.wt]||{}).w=isNaN(v)?0:v;return}const k=ev.target.dataset&&ev.target.dataset.in;if(!k)return;S.set[k]=ev.target.type==='checkbox'?ev.target.checked:ev.target.value;save();const bp=document.getElementById('bprev');if(bp)bp.innerHTML=bprevHTML()});
 window.addEventListener('hashchange',()=>{const h=location.hash.slice(1);if(h!==view)go(h)});
 go(location.hash.slice(1)||'today');
 if(NET&&typeof navigator!=='undefined'&&'serviceWorker' in navigator){try{navigator.serviceWorker.register('sw.js').catch(()=>{})}catch(e){}}
