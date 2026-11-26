@@ -124,51 +124,72 @@ h3{font-size:17px;margin:22px 0 10px;font-weight:700}
 .fg .vest{fill:var(--vest)}.fg .strp{stroke:#e9edf2;stroke-width:4}
 .fg .hdc{fill:var(--skin)}.fg .hat{fill:var(--vest)}
 .fg g{transform-box:view-box}
-.tor{transform-origin:100px 142px}.hd{transform-origin:100px 76px}
-.aL{transform-origin:86px 86px}.aR{transform-origin:114px 86px}
-.lL{transform-origin:92px 144px}.lR{transform-origin:108px 144px}
-.sR{transform-origin:120px 160px}.fL{transform-origin:82px 194px}.fR{transform-origin:118px 194px}
+.fg .cw{fill:light-dark(#d8e8f4,#1c2a39)}
+.fg .cwl{stroke:light-dark(#c2d6e6,#243548);stroke-width:1}
+.fg .cjib{fill:none;stroke:light-dark(#e0a400,#a87800);stroke-width:2;stroke-linecap:round;opacity:.55}
+.fg .cframe{fill:none;stroke:light-dark(#9aa6b2,#3d4652);stroke-width:4}
+.fg .sback{fill:#3b4049}.fg .sbol{fill:#31353d}.fg .shead{fill:#3b4049}.fg .spost{fill:#2a2e34}.fg .scush{fill:#3a3f48}.fg .slip{fill:#2c3037}.fg .tshadow{fill:rgba(0,0,0,.25)}.fg .khi{fill:none;stroke:#8b826f;stroke-width:1.4;stroke-linecap:round}.fg .jbtn{fill:#d94040}
+.fg .jcon{fill:#454b55}.fg .jtop{fill:#575e69}.fg .jstick{stroke:#2a2e34;stroke-width:3;stroke-linecap:round}.fg .jknob{fill:#1f2328}
+.fg .floor{fill:rgba(0,0,0,.18)}
+.fg .pant{fill:#6b6253}.fg .pshade{fill:#584f42}.fg .knee{fill:#7b7262}.fg .pcrease,.fg .pocket{fill:none;stroke:#544c40;stroke-width:1}
+.fg .boot{fill:#5a3e2b}.fg .bootcap{fill:#76553c}.fg .sole{fill:#22201e}.fg .lace{stroke:#3a281c;stroke-width:.9}
+.fg .shirt{fill:#2f3f5c}.fg .sshade{fill:#243149}.fg .cuff{fill:#283752}
+.fg .vest{fill:#f5b700}.fg .vshade{fill:#dc9f00}.fg .stripe{fill:#e8edf2;stroke:#aeb6c0;stroke-width:.6}
+.fg .zip{stroke:#b88800;stroke-width:1}.fg .pocket2{fill:none;stroke:#c99600;stroke-width:1}
+.fg .belt{fill:#2b2420}.fg .buckle{fill:#b8bec6}
+.fg .skin{fill:#e2b48e}.fg .skinsh{fill:#cc9873}.fg .collar{fill:#22304a}
+.fg .hair{fill:#5a4030}.fg .brow{fill:none;stroke:#4a3426;stroke-width:1.2;stroke-linecap:round}
+.fg .eye{fill:#2a2420}.fg .nose{fill:none;stroke:#b98462;stroke-width:1;stroke-linecap:round}.fg .mouth{fill:none;stroke:#9b5f4c;stroke-width:1.2;stroke-linecap:round}
+.fg .hat{fill:#f5b700}.fg .hatsh{fill:#d89c00}.fg .hathi{fill:none;stroke:#ffd75a;stroke-width:2;stroke-linecap:round}.fg .hatrib{stroke:#dca200;stroke-width:2}
+.fg .glove{fill:#c9a46c}.fg .gshade{fill:#a98650}
+.fg g{transform-box:view-box}
+.tor{transform-origin:100px 142px}.hd{transform-origin:100px 66px}
+.aL{transform-origin:78px 82px}.aR{transform-origin:122px 82px}
+.lL{transform-origin:90px 144px}.lR{transform-origin:110px 144px}
+.sR{transform-origin:117px 160px}.fL{transform-origin:83px 190px}.fR{transform-origin:117px 190px}
 .a-tilt .hd{animation:tilt 5s ease-in-out infinite}
 .a-tuck .hd{animation:tuck 2.4s ease-in-out infinite}
 .a-shrug .aL,.a-shrug .aR,.a-shrug .hd{animation:shrug 2.4s ease-in-out infinite}
 .a-twist .tor{animation:twist 4s ease-in-out infinite}.a-twist .hd{animation:look 4s ease-in-out infinite}
 .a-side .tor{animation:side 4s ease-in-out infinite}.a-side .aR{animation:up 4s ease-in-out infinite}
-.a-chest .aL{transform:rotate(150deg);animation:chL 3s ease-in-out infinite}.a-chest .aR{transform:rotate(-150deg);animation:chR 3s ease-in-out infinite}
+.a-chest .aL{transform:rotate(112deg);animation:chL 3s ease-in-out infinite}.a-chest .aR{transform:rotate(-112deg);animation:chR 3s ease-in-out infinite}
 .a-reach .aL{animation:rL 3.5s ease-in-out infinite}.a-reach .aR{animation:rR 3.5s ease-in-out infinite}
-.a-fig4 .sR{animation:f4 4s ease-in-out infinite}.a-fig4 .tor{animation:lean 4s ease-in-out infinite}
+.a-fig4 .sR{animation:f4 4s ease-in-out infinite}.a-fig4 .tor{animation:lean 4s ease-in-out infinite}.a-fig4 .hd{animation:leanH 4s ease-in-out infinite}
 .a-knee .lL{animation:kn 2.4s ease-in-out infinite}.a-knee .lR{animation:kn 2.4s ease-in-out 1.2s infinite}
 .a-ankle .fL,.a-ankle .fR{animation:ank 1.6s ease-in-out infinite}
-.a-fold .tor{animation:fold 5s ease-in-out infinite}
+.a-fold .tor{animation:fold 5s ease-in-out infinite}.a-fold .hd{animation:unsq 5s ease-in-out infinite}
 .a-breathe .tor{animation:br 6s ease-in-out infinite}
 @keyframes tilt{0%,100%{transform:rotate(0)}25%{transform:rotate(-22deg)}75%{transform:rotate(22deg)}}
 @keyframes tuck{0%,100%{transform:none}50%{transform:translateY(4px) scale(.94)}}
 @keyframes shrug{0%,100%{transform:none}50%{transform:translateY(-8px)}}
-@keyframes twist{0%,100%{transform:none}50%{transform:scaleX(.72)}}
-@keyframes look{0%,100%{transform:none}50%{transform:translateX(10px) scaleX(.85)}}
+@keyframes twist{0%,100%{transform:none}50%{transform:scaleX(.8)}}
+@keyframes look{0%,100%{transform:none}50%{transform:translateX(8px) scaleX(1.15)}}
 @keyframes side{0%,100%{transform:none}50%{transform:rotate(-16deg)}}
 @keyframes up{0%,100%{transform:none}50%{transform:rotate(-165deg)}}
-@keyframes chL{0%,100%{transform:rotate(140deg)}50%{transform:rotate(160deg)}}
-@keyframes chR{0%,100%{transform:rotate(-140deg)}50%{transform:rotate(-160deg)}}
+@keyframes chL{0%,100%{transform:rotate(104deg)}50%{transform:rotate(124deg)}}
+@keyframes chR{0%,100%{transform:rotate(-104deg)}50%{transform:rotate(-124deg)}}
 @keyframes rL{0%,100%{transform:none}50%{transform:rotate(172deg)}}
 @keyframes rR{0%,100%{transform:none}50%{transform:rotate(-172deg)}}
-@keyframes f4{0%,100%{transform:none}30%,70%{transform:rotate(68deg) translateY(-6px)}}
+@keyframes f4{0%,100%{transform:none}30%,70%{transform:translateY(-4px) rotate(100deg)}}
 @keyframes lean{0%,30%,100%{transform:none}55%{transform:scaleY(.9)}}
+@keyframes leanH{0%,30%,100%{transform:none}55%{transform:scaleY(1.11)}}
 @keyframes kn{0%,100%{transform:none}50%{transform:translateY(-16px)}}
 @keyframes ank{0%,100%{transform:rotate(0)}50%{transform:rotate(-28deg)}}
 @keyframes fold{0%,100%{transform:none}50%{transform:scale(.96,.68)}}
+@keyframes unsq{0%,100%{transform:none}50%{transform:scale(1.04,1.47)}}
 @keyframes br{0%,100%{transform:none}50%{transform:scale(1.05)}}
 .fg .tgt{fill:var(--night);opacity:.55}
 .fg .arw{fill:none;stroke:var(--day);stroke-width:3.5;stroke-linecap:round}.fg .ahp{fill:var(--day)}
 .p-tilt .hd{transform:rotate(22deg)}.p-tuck .hd{transform:translateY(3px) scale(.95)}
 .p-shrug .aL,.p-shrug .aR,.p-shrug .hd{transform:translateY(-7px)}
-.p-twist .tor{transform:scaleX(.74)}.p-twist .hd{transform:translateX(10px) scaleX(.86)}
+.p-twist .tor{transform:scaleX(.8)}.p-twist .hd{transform:translateX(8px) scaleX(1.15)}
 .p-side .tor{transform:rotate(-16deg)}.p-side .aR{transform:rotate(-165deg)}
-.p-chest .aL{transform:rotate(152deg)}.p-chest .aR{transform:rotate(-152deg)}
+.p-chest .aL{transform:rotate(118deg)}.p-chest .aR{transform:rotate(-118deg)}
 .p-reach .aL{transform:rotate(172deg)}.p-reach .aR{transform:rotate(-172deg)}
-.p-fig4 .sR{transform:rotate(68deg) translateY(-6px)}.p-fig4 .tor{transform:scaleY(.92)}
+.p-fig4 .sR{transform:translateY(-4px) rotate(100deg)}.p-fig4 .tor{transform:scaleY(.92)}.p-fig4 .hd{transform:scaleY(1.087)}
 .p-knee .lL{transform:translateY(-16px)}
 .p-ankle .fL,.p-ankle .fR{transform:rotate(-28deg)}
-.p-fold .tor{transform:scale(.96,.68)}
+.p-fold .tor{transform:scale(.96,.68)}.p-fold .hd{transform:scale(1.04,1.47)}
 .p-breathe .tor{transform:scale(1.05)}
 .feel{display:flex;align-items:center;gap:8px;font-size:14px;margin-top:8px}.feel i{width:14px;height:14px;border-radius:7px;background:var(--night);opacity:.7}
 .vid{display:flex;align-items:center;justify-content:center;gap:8px;min-height:48px;border-radius:24px;background:var(--day);color:#fff;font-weight:700;text-decoration:none;margin-top:12px}
@@ -347,17 +368,17 @@ const fmt=t=>{let[h,m]=t.split(':').map(Number);const ap=h<12?'AM':'PM';h=h%12||
 const T={day:{n:'Day shift',s:'Crane shift 7 AM – 7 PM',c:'var(--day)',l:'D'},firstnight:{n:'First night shift',s:'Sleep in, then 7 PM – 7 AM',c:'var(--night)',l:'N'},night:{n:'Night shift',s:'Crane shift 7 PM – 7 AM',c:'var(--night)',l:'N'},recovery:{n:'Recovery day',s:'Sleep first, then go gentle',c:'var(--rec)',l:'R'},off:{n:'Day off',s:'Your big day for stretching and walking',c:'var(--off)',l:'Off'}};
 const CAN_EMBED=/github\.io$|^localhost$|^127\./.test(location.hostname);
 const EX={
-neck:{n:'Neck side tilt',a:'tilt',f:'Side of your neck',y:'7K7k2c5P9cw',t:[['root',91,76,5,9]],ar:'M120 40 Q132 52 126 66',c:['Sit tall, shoulders down','Ear toward shoulder, hold 10 s each side','Keep the other shoulder relaxed']},
-tuck:{n:'Chin tuck',a:'tuck',f:'Back of your neck',y:'da1CNvbD56s',t:[['hd',100,72,7,4]],c:['Look straight ahead','Slide your chin straight back','Hold 3 s, repeat 8 times']},
-roll:{n:'Shoulder rolls',a:'shrug',f:'Top of your shoulders',y:'XbzY45Z5DE8',t:[['tor',89,84,7,4],['tor',111,84,7,4]],ar:'M140 96 Q150 76 138 66',c:['Lift shoulders to your ears','Roll them back and down','Slow circles, 10 times']},
-twist:{n:'Seated twist',a:'twist',f:'Mid and low back',y:'7GzDGqJ41IQ',t:[['tor',100,110,13,12]],ar:'M74 100 Q100 122 126 100',c:['Sit tall, feet flat','Turn your chest to one side, hand on the seat back','Breathe out and turn a little further']},
-side:{n:'Seated side bend',a:'side',f:'Along your ribs and waist',y:'f-7Eeu4xeZc',t:[['tor',115,110,5,16]],ar:'M146 80 Q140 44 104 30',c:['Reach one arm overhead','Lean the other way, long through the ribs','Hold 15 s each side']},
-chest:{n:'Chest opener',a:'chest',f:'Across your chest',y:'FO0adb9RZCI',t:[['tor',100,93,12,6]],c:['Hands behind your head, elbows wide','Squeeze shoulder blades together','Lift the chest without arching your low back']},
-reach:{n:'Overhead reach',a:'reach',f:'Sides and shoulders',y:'aJBEW7a4ADc',t:[['tor',86,100,4,12],['tor',114,100,4,12]],ar:'M160 70 V26',c:['Both arms straight up','Grow tall through the spine','Lower slowly, repeat 5 times']},
-fig4:{n:'Seated figure-4',a:'fig4',f:'Outer hip and buttock',y:'ujCk9xfP6sM',t:[['root',118,140,10,6]],ar:'M146 92 Q142 116 128 124',c:['Ankle on the opposite knee','Sit tall and hinge forward a little','Feel it in the outer hip, then switch sides']},
-knee:{n:'Seated knee raises',a:'knee',f:'Front of your hip',y:'1m72e65YZtM',t:[['root',90,138,6,6]],ar:'M62 182 V146',c:['Hold the seat edge','Lift one knee, lower slowly','Alternate, 10 each side']},
-ankle:{n:'Ankle pumps',a:'ankle',f:'Calves and shins',y:'6EPNA9owQJw',t:[['root',81,178,5,11],['root',119,178,5,11]],ar:'M52 200 Q46 186 56 176',c:['Heels down, toes up','Then toes down, heels up','Keeps blood moving on long sits']},
-fold:{n:'Seated forward fold',a:'fold',f:'Your whole back',y:'oi4Dq7uZfEg',t:[['tor',100,128,13,8]],ar:'M150 50 Q164 86 150 122',c:['Feet hip-width apart','Let your chest drop toward your knees','Hang loose and breathe slowly']},
+neck:{n:'Neck side tilt',a:'tilt',f:'Side of your neck',y:'7K7k2c5P9cw',t:[['root',94,68,4,6]],ar:'M122 34 Q134 46 128 62',c:['Sit tall, shoulders down','Ear toward shoulder, hold 10 s each side','Keep the other shoulder relaxed']},
+tuck:{n:'Chin tuck',a:'tuck',f:'Back of your neck',y:'da1CNvbD56s',t:[['hd',100,64,6,3]],c:['Look straight ahead','Slide your chin straight back','Hold 3 s, repeat 8 times']},
+roll:{n:'Shoulder rolls',a:'shrug',f:'Top of your shoulders',y:'XbzY45Z5DE8',t:[['tor',84,76,7,3],['tor',116,76,7,3]],ar:'M142 98 Q152 78 140 68',c:['Lift shoulders to your ears','Roll them back and down','Slow circles, 10 times']},
+twist:{n:'Seated twist',a:'twist',f:'Mid and low back',y:'7GzDGqJ41IQ',t:[['tor',100,112,14,12]],ar:'M66 104 Q100 128 134 104',c:['Sit tall, feet flat','Turn your chest to one side, hand on the seat back','Breathe out and turn a little further']},
+side:{n:'Seated side bend',a:'side',f:'Along your ribs and waist',y:'f-7Eeu4xeZc',t:[['tor',119,112,4,16]],ar:'M150 84 Q144 46 108 30',c:['Reach one arm overhead','Lean the other way, long through the ribs','Hold 15 s each side']},
+chest:{n:'Chest opener',a:'chest',f:'Across your chest and front shoulders',y:'FO0adb9RZCI',t:[['tor',100,90,15,6]],ar:'M60 40 Q46 56 52 74',c:['Open your arms wide, palms forward','Squeeze your shoulder blades together','Lift your chest without arching your low back']},
+reach:{n:'Overhead reach',a:'reach',f:'Sides and shoulders',y:'aJBEW7a4ADc',t:[['tor',80,104,3,12],['tor',120,104,3,12]],ar:'M164 76 V28',c:['Both arms straight up','Grow tall through the spine','Lower slowly, repeat 5 times']},
+fig4:{n:'Seated figure-4',a:'fig4',f:'Outer hip and buttock',y:'ujCk9xfP6sM',t:[['root',118,147,9,5]],ar:'M148 96 Q144 118 130 126',c:['Ankle on the opposite knee','Sit tall and hinge forward a little','Feel it in the outer hip, then switch sides']},
+knee:{n:'Seated knee raises',a:'knee',f:'Front of your hip',y:'1m72e65YZtM',t:[['root',90,148,6,5]],ar:'M60 186 V150',c:['Hold the seat edge','Lift one knee, lower slowly','Alternate, 10 each side']},
+ankle:{n:'Ankle pumps',a:'ankle',f:'Calves and shins',y:'6EPNA9owQJw',t:[['root',83,178,4,10],['root',117,178,4,10]],ar:'M50 200 Q44 186 54 176',c:['Heels down, toes up','Then toes down, heels up','Keeps blood moving on long sits']},
+fold:{n:'Seated forward fold',a:'fold',f:'Your whole back',y:'oi4Dq7uZfEg',t:[['tor',100,130,14,7]],ar:'M154 50 Q168 86 154 122',c:['Feet hip-width apart','Let your chest drop toward your knees','Hang loose and breathe slowly']},
 breathe:{n:'Slow breathing',a:'breathe',f:'Belly rises as you breathe in',y:'yHe1q8xtncc',t:[['tor',100,120,12,9]],c:['In through the nose for 4','Out slowly for 6','Let your shoulders drop each time you breathe out']}};
 const R={
 wake:{n:'Morning mobility',w:'Every morning',p:'home',s:[['catcow',60],['wgs',60],['thread',60],['hipflex',60],['quad',60]]},
@@ -493,13 +514,61 @@ const save=()=>{try{localStorage.setItem('shiftfit',JSON.stringify(S))}catch(e){
 const TODAY=d12(new Date());let sel=(new Date().getHours()<8&&PAT[(idx(TODAY)+27)%28]==='N')?add(TODAY,-1):TODAY,vm=new Date(TODAY.getFullYear(),TODAY.getMonth(),1,12),pl=null,tick=null;
 const main=document.getElementById('main'),player=document.getElementById('player'),toastEl=document.getElementById('toast');
 const toast=m=>{toastEl.textContent=m;toastEl.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>toastEl.classList.remove('on'),2200)};
-const fig=(a,id)=>{const e=id?EX[id]:null,g=k=>e?e.t.filter(x=>x[0]===k).map(x=>`<ellipse class="tgt" cx="${x[1]}" cy="${x[2]}" rx="${x[3]}" ry="${x[4]}"/>`).join(''):'';
-return `<svg class="fg ${id?'p-':'a-'}${a}" viewBox="0 0 200 210" aria-hidden="true"><defs><marker id="ah" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="4" markerHeight="4" orient="auto-start-reverse"><path class="ahp" d="M0 0L10 5L0 10z"/></marker></defs><rect class="seat" x="66" y="40" width="68" height="100" rx="16" opacity=".55"/><rect class="seat" x="56" y="132" width="88" height="18" rx="8"/>
-<g class="lL"><path class="lim" d="M92 144 L80 160 L82 194"/><g class="fL"><path class="ft" d="M82 196 L70 199"/></g></g>
-<g class="lR"><path class="lim" d="M108 144 L120 160"/><g class="sR"><path class="lim" d="M120 160 L118 194"/><g class="fR"><path class="ft" d="M118 196 L130 199"/></g></g></g>
-<g class="tor"><path class="vest" d="M84 82 Q100 76 116 82 L118 140 Q100 146 82 140 Z"/><path class="strp" d="M84 116 H116 M84 126 H116"/>${g('tor')}<path class="lim" d="M100 70 V80" />
-<g class="aL"><path class="lim" d="M86 86 L78 114 L84 138"/></g><g class="aR"><path class="lim" d="M114 86 L122 114 L116 138"/></g>
-<g class="hd"><circle class="hdc" cx="100" cy="56" r="16"/><path class="hat" d="M83 54 Q84 36 100 36 Q116 36 117 54 Z"/><rect class="hat" x="80" y="52" width="40" height="5" rx="2.5"/>${g('hd')}</g></g>${g('root')}${e&&e.ar?`<path class="arw" d="${e.ar}" marker-end="url(#ah)"/>`:''}</svg>`};
+const FIG_PARTS=(()=>{
+ const M=d=>d; // readability
+ const mir=s=>s; 
+ // ---------- background: cab window, boom, seat, joysticks ----------
+ const bg=`<rect class="cw" x="18" y="8" width="164" height="118" rx="10"/>
+ <path class="cwl" d="M18 70 H182"/><path class="cjib" d="M28 120 L172 22 M36 126 L182 30 M28 120 L36 126 M52 104 L60 110 M76 88 L84 94 M100 72 L108 78 M124 56 L132 62 M148 40 L156 46 M28 120 L60 110 M52 104 L84 94 M76 88 L108 78 M100 72 L132 62 M124 56 L156 46"/>
+ <rect class="cframe" x="18" y="8" width="164" height="118" rx="10"/>
+ <rect class="sback" x="68" y="52" width="64" height="96" rx="18"/><rect class="sbol" x="68" y="58" width="9" height="84" rx="4.5"/><rect class="sbol" x="123" y="58" width="9" height="84" rx="4.5"/>
+ <rect class="shead" x="81" y="26" width="38" height="30" rx="10"/><rect class="spost" x="96" y="50" width="8" height="6"/>
+ <g class="joy"><path class="jcon" d="M30 140 L52 134 L54 176 L32 176 Z"/><path class="jtop" d="M30 140 L52 134 L53 140 L31 146 Z"/><path class="jstick" d="M42 139 V121"/><ellipse class="jknob" cx="42" cy="118" rx="4.5" ry="5.5"/><circle class="jbtn" cx="47" cy="140" r="1.6"/></g>
+ <g class="joy"><path class="jcon" d="M170 140 L148 134 L146 176 L168 176 Z"/><path class="jtop" d="M170 140 L148 134 L147 140 L169 146 Z"/><path class="jstick" d="M158 139 V121"/><ellipse class="jknob" cx="158" cy="118" rx="4.5" ry="5.5"/><circle class="jbtn" cx="153" cy="140" r="1.6"/></g>
+ <ellipse class="floor" cx="100" cy="203" rx="46" ry="5"/>
+ <rect class="scush" x="54" y="128" width="92" height="26" rx="11"/><rect class="slip" x="56" y="146" width="88" height="8" rx="4"/>`;
+ // ---------- legs ----------
+ const boot=(x,dir)=>`<path class="boot" d="M${x-7} 189 L${x+7} 189 L${x+8} 196 Q${x+9} 202 ${x+3} 202 L${x-10*dir+ (dir<0?20:0)} 202 Z"/>`;
+ const bootL=`<path class="boot" d="M76 188 H90 L91 195 Q92 202 85 202 H71 Q66 202 68 197 Q70 193 76 192 Z"/><path class="bootcap" d="M68 197 Q70 193 76 192 L78 196 Q74 199 70 201 Q67 200 68 197 Z"/><rect class="sole" x="66" y="200.5" width="26" height="3.5" rx="1.5"/><path class="lace" d="M80 191 H88 M80 194.5 H88"/>`;
+ const bootR=`<path class="boot" d="M124 188 H110 L109 195 Q108 202 115 202 H129 Q134 202 132 197 Q130 193 124 192 Z"/><path class="bootcap" d="M132 197 Q130 193 124 192 L122 196 Q126 199 130 201 Q133 200 132 197 Z"/><rect class="sole" x="108" y="200.5" width="26" height="3.5" rx="1.5"/><path class="lace" d="M120 191 H112 M120 194.5 H112"/>`;
+ const shinL=`<path class="pant" d="M73 160 Q73 176 77 190 H90 Q93 176 93 160 Z"/><path class="pshade" d="M86 162 Q88 176 87 190 H90 Q92 176 92 160 Z"/><path class="pcrease" d="M83 166 V188"/>`;
+ const shinR=`<path class="pant" d="M127 160 Q127 176 123 190 H110 Q107 176 107 160 Z"/><path class="pshade" d="M121 162 Q122 176 122 190 H124 Q126 176 125 160 Z"/><path class="pcrease" d="M117 166 V188"/>`;
+ const thighL=`<path class="pant" d="M77 137 H100 L98 157 Q86 169 70 161 Q69 147 77 137 Z"/><path class="pshade" d="M91 138 H100 L98 157 Q94 162 89 164 Z"/><ellipse class="knee" cx="83" cy="159" rx="11" ry="6.5"/><path class="khi" d="M76 157 Q82 153 89 155"/><path class="pocket" d="M82 145 Q86 147 89 144"/>`;
+ const thighR=`<path class="pant" d="M123 137 H100 L102 157 Q114 169 130 161 Q131 147 123 137 Z"/><path class="pshade" d="M102 157 Q114 169 130 161 Q131 155 129 150 Q116 161 102 154 Z"/><ellipse class="knee" cx="117" cy="159" rx="11" ry="6.5"/><path class="khi" d="M111 155 Q117 153 124 157"/><path class="pocket" d="M118 145 Q114 147 111 144"/>`;
+ // ---------- torso ----------
+ const torso=`<path class="shirt" d="M80 74 Q100 68 120 74 Q127 77 127 86 L124 108 L122 141 Q100 147 78 141 L76 108 L73 86 Q73 77 80 74 Z"/>
+ <path class="sshade" d="M112 72 Q122 74 126 82 L123 108 L121 141 Q114 143 108 144 Z"/>
+ <path class="vest" d="M79 77 Q86 74 93 73 L99 100 L99 142 Q88 143 78 140 L77 108 L75 88 Q75 80 79 77 Z"/>
+ <path class="vest" d="M121 77 Q114 74 107 73 L101 100 L101 142 Q112 143 122 140 L123 108 L125 88 Q125 80 121 77 Z"/>
+ <path class="vshade" d="M110 74 Q117 76 121 80 L124 88 L122 108 L121 140 Q116 142 111 142 Z"/>
+ <path class="stripe" d="M77 117 H99 V123 H77.4 Z M101 117 H123 L122.6 123 H101 Z M77.6 128 H99 V134 H77.8 Z M101 128 H122.4 L122.2 134 H101 Z"/>
+ <path class="stripe" d="M84 75 L88 74 L91 117 H86.5 Z M116 75 L112 74 L109 117 H113.5 Z"/>
+ <path class="zip" d="M100 100 V142"/><rect class="pocket2" x="104" y="102" width="9" height="8" rx="1.5"/>
+ <path class="belt" d="M78 139 Q100 145 122 139 L122 144 Q100 150 78 144 Z"/><rect class="buckle" x="96" y="141" width="8" height="5" rx="1"/>
+ <path class="skin" d="M94 60 H106 L107 72 Q100 76 93 72 Z"/><path class="skinsh" d="M101 60 H106 L107 72 Q104 74 101 74 Z"/><path class="collar" d="M90 72 Q100 80 110 72 L107 70 Q100 76 93 70 Z"/>`;
+ // ---------- arms (hang from shoulders at 78,82 / 122,82) ----------
+ const armL=`<path class="shirt" d="M71 79 Q63 92 64 110 L76 112 Q79 98 84 84 Q80 78 71 79 Z"/><path class="sshade" d="M77 84 Q76 98 76 112 L71 112 Q71 96 75 83 Z" opacity=".7"/>
+ <path class="shirt" d="M64 108 Q63 124 69 137 L79 136 Q79 122 76 110 Z"/><path class="cuff" d="M68.5 133 L79.5 132 L79.8 137.5 L69.6 138.6 Z"/>
+ <path class="glove" d="M69 137 Q66 145 71 150 Q76 153 80 149 Q83 144 80 137 Z"/><path class="gshade" d="M76 138 Q80 140 80 146 Q79 150 76 151 Q79 145 76 138 Z"/><path class="glove" d="M80 140 Q85 141 84 146 Q82 147 80 145 Z"/>`;
+ const armR=`<path class="shirt" d="M129 79 Q137 92 136 110 L124 112 Q121 98 116 84 Q120 78 129 79 Z"/><path class="sshade" d="M129 79 Q137 92 136 110 L130 111 Q131 94 126 80 Z"/>
+ <path class="shirt" d="M136 108 Q137 124 131 137 L121 136 Q121 122 124 110 Z"/><path class="sshade" d="M136 108 Q137 124 131 137 L127 136 Q131 122 131 109 Z"/><path class="cuff" d="M131.5 133 L120.5 132 L120.2 137.5 L130.4 138.6 Z"/>
+ <path class="glove" d="M131 137 Q134 145 129 150 Q124 153 120 149 Q117 144 120 137 Z"/><path class="gshade" d="M131 137 Q134 145 129 150 Q127 151 125 151 Q130 145 128 137 Z"/><path class="glove" d="M120 140 Q115 141 116 146 Q118 147 120 145 Z"/>`;
+ // ---------- head ----------
+ const head=`<ellipse class="skin" cx="87.6" cy="52" rx="2.6" ry="4"/><ellipse class="skin" cx="112.4" cy="52" rx="2.6" ry="4"/>
+ <path class="skin" d="M88 46 Q88 64 100 66 Q112 64 112 46 Q112 36 100 35 Q88 36 88 46 Z"/>
+ <path class="skinsh" d="M104 36 Q112 38 112 46 Q112 62 101 66 Q108 58 108 46 Q108 39 104 36 Z"/>
+ <path class="hair" d="M88.5 46 Q88 51 89.5 55 L91 55 Q90 50 90.5 46 Z M111.5 46 Q112 51 110.5 55 L109 55 Q110 50 109.5 46 Z"/>
+ <path class="brow" d="M92.5 47.5 Q95 46.2 97.5 47.3 M102.5 47.3 Q105 46.2 107.5 47.5"/>
+ <ellipse class="eye" cx="95" cy="50.6" rx="1.3" ry="1.5"/><ellipse class="eye" cx="105" cy="50.6" rx="1.3" ry="1.5"/>
+ <path class="nose" d="M100 51 Q99 55.5 98.3 56.5 Q99.8 57.6 101.6 56.8"/><path class="mouth" d="M96.5 60.4 Q100 62.4 103.5 60.4"/>
+ <path class="hat" d="M86 44 Q85 29 100 27.5 Q115 29 114 44 Z"/><path class="hatsh" d="M106 29 Q114 32 114 44 H108 Q109 34 106 29 Z"/><path class="hathi" d="M91 40 Q91 32 98 30" /><path class="hatrib" d="M100 27.6 V44"/>
+ <rect class="hat" x="82" y="42.5" width="36" height="4.5" rx="2.2"/><path class="hatsh" d="M84 46 H116 Q117 47 115.5 47.2 H84.5 Q83 47 84 46 Z"/>`;
+ return {bg,bootL,bootR,shinL,shinR,thighL,thighR,torso,armL,armR,head}})();
+const fig=(a,id)=>{const e=id?EX[id]:null,g=k=>e&&e.t?e.t.filter(x=>x[0]===k).map(x=>`<ellipse class="tgt" cx="${x[1]}" cy="${x[2]}" rx="${x[3]}" ry="${x[4]}"/>`).join(''):'',P=FIG_PARTS;
+return `<svg class="fg ${id?'p-':'a-'}${a}" viewBox="0 0 200 210" aria-hidden="true"><defs><marker id="ah" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="4" markerHeight="4" orient="auto-start-reverse"><path class="ahp" d="M0 0L10 5L0 10z"/></marker></defs>${P.bg}
+<g class="lL">${P.shinL}<g class="fL">${P.bootL}</g>${P.thighL}</g>
+<g class="lR">${P.thighR}<g class="sR">${P.shinR}<g class="fR">${P.bootR}</g></g></g>
+<g class="tor">${P.torso}${g('tor')}<g class="aL">${P.armL}</g><g class="aR">${P.armR}</g><g class="hd">${P.head}${g('hd')}</g></g>${g('root')}${e&&e.ar?`<path class="arw" d="${e.ar}" marker-end="url(#ah)"/>`:''}</svg>`};
 const ck='<svg viewBox="0 0 24 24"><path d="M5 12l5 5 9-10"/></svg>';
 const nIv=()=>Number(S.set.nudge)||75;
 function nextNudge(){const now=new Date(),t=typeOf(now),iv=nIv();let st=new Date(now);const day=t==='day';st.setHours(day?7:19,0,0,0);if(!day&&now.getHours()<7)st.setDate(st.getDate()-1);let n=new Date(st);while(n<=now)n=new Date(n.getTime()+iv*6e4);const h=n.getHours(),m=n.getMinutes();return fmt(h+':'+m).join(' ')}
