@@ -1041,11 +1041,12 @@ If there is no food in the photo, reply {"items":[],"note":"No food found"}.`;
 const aiProv=()=>S.set.aiprov==='claude'?'claude':'gemini';
 const aiKey=()=>aiProv()==='claude'?(S.set.ckey||''):(S.set.gkey||'');
 function snapImage(file){return new Promise((res,rej)=>{const url=URL.createObjectURL(file),im=new Image();im.onload=()=>{const M=1280,s=Math.min(1,M/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*s);c.height=Math.round(im.height*s);c.getContext('2d').drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(url);res(c.toDataURL('image/jpeg',.85))};im.onerror=()=>rej(new Error('Couldn’t read that photo'));im.src=url})}
-async function geminiModel(k,force){if(S.set.gmodel&&!force)return S.set.gmodel;let best='gemini-2.5-flash';
+async function geminiModels(k){if(S.set.gmodels&&S.set.gmodels.length&&S.set.gmodelsAt>Date.now()-7*864e5)return S.set.gmodels;let list=[];
  try{const r=await fetch('https://generativelanguage.googleapis.com/v1beta/models?pageSize=200&key='+encodeURIComponent(k));if(r.ok){const j=await r.json();
-  const ok=(j.models||[]).filter(m=>(m.supportedGenerationMethods||[]).includes('generateContent')).map(m=>m.name.replace(/^models\//,'')).filter(n=>/^gemini-[\d.]+-flash$/.test(n)||/^gemini-[\d.]+-flash-latest$/.test(n));
-  const v=n=>parseFloat((n.match(/gemini-([\d.]+)/)||[])[1]||0);ok.sort((a,b)=>v(b)-v(a)||a.length-b.length);if(ok[0])best=ok[0]}}catch(e){}
- S.set.gmodel=best;save();return best}
+  list=(j.models||[]).filter(m=>(m.supportedGenerationMethods||[]).includes('generateContent')).map(m=>m.name.replace(/^models\//,'')).filter(n=>/^gemini-[\d.]+-flash(-lite)?(-latest)?$/.test(n));
+  const v=n=>parseFloat((n.match(/gemini-([\d.]+)/)||[])[1]||0),lite=n=>/lite/.test(n)?1:0;list.sort((a,b)=>lite(a)-lite(b)||v(b)-v(a)||a.length-b.length)}}catch(e){}
+ if(!list.length)list=['gemini-2.5-flash','gemini-2.5-flash-lite'];S.set.gmodels=list.slice(0,6);S.set.gmodelsAt=Date.now();save();return S.set.gmodels}
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 function parseAI(t){t=String(t||'').replace(/```json|```/g,'').trim();const a=t.indexOf('{'),b=t.lastIndexOf('}');const o=JSON.parse(a>=0?t.slice(a,b+1):t);
  const items=(o.items||[]).map(x=>({name:String(x.name||'Food'),portion:String(x.portion||''),g:Math.max(1,Math.round(+x.grams||100)),kcal:Math.max(0,+x.kcal||0),p:Math.max(0,+x.protein||0),c:Math.max(0,+x.carbs||0),f:Math.max(0,+x.fat||0),conf:String(x.confidence||'medium').toLowerCase(),on:true}));
  items.forEach(x=>{x.g0=x.g});return {items,note:String(o.note||'')}}
@@ -1053,13 +1054,19 @@ async function askAI(dataUrl,note){const k=aiKey(),b64=dataUrl.split(',')[1],pro
  if(aiProv()==='claude'){const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'content-type':'application/json','x-api-key':k,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
    body:JSON.stringify({model:S.set.cmodel||'claude-sonnet-5-5',max_tokens:1500,messages:[{role:'user',content:[{type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}},{type:'text',text:prompt}]}]})});
   if(!r.ok){const e=await r.text();throw new Error(r.status===401?'Your Claude API key was rejected':'Claude error '+r.status+': '+e.slice(0,120))}const j=await r.json();return parseAI((j.content||[]).map(c=>c.text||'').join(''))}
- for(let attempt=0;attempt<2;attempt++){const m=await geminiModel(k,attempt>0);
+ let models=await geminiModels(k);if(S.set.gmodel&&models.includes(S.set.gmodel))models=[S.set.gmodel,...models.filter(m=>m!==S.set.gmodel)];let lastErr='';
+ for(const m of models.slice(0,4)){for(let attempt=0;attempt<2;attempt++){
+  if(fs&&fs.snap&&fs.snap.busy){fs.snap.stage=attempt||m!==models[0]?'Gemini is busy, trying again…':'';drawSheet()}
   const r=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+m+':generateContent?key='+encodeURIComponent(k),{method:'POST',headers:{'Content-Type':'application/json'},
    body:JSON.stringify({contents:[{parts:[{text:prompt},{inline_data:{mime_type:'image/jpeg',data:b64}}]}],generationConfig:{responseMimeType:'application/json',temperature:.2}})});
-  if(r.status===404&&attempt===0)continue;
-  if(!r.ok){const e=await r.text();throw new Error(r.status===400&&/API key/i.test(e)?'Your Gemini API key was rejected':r.status===429?'Gemini’s free limit is used up for now. Try again in a minute.':r.status===402?'This Gemini key belongs to a Google project that has billing turned on with no credits. Make a new key in a new project that shows “Free” in AI Studio, then paste it in Food database settings.':'Gemini error '+r.status+': '+e.slice(0,120))}
-  const j=await r.json(),t=(((j.candidates||[])[0]||{}).content||{}).parts||[];return parseAI(t.map(p=>p.text||'').join(''))}
- throw new Error('No Gemini model available')}
+  if(r.ok){const j=await r.json(),t=(((j.candidates||[])[0]||{}).content||{}).parts||[];S.set.gmodel=m;save();return parseAI(t.map(p=>p.text||'').join(''))}
+  const e=await r.text();
+  if(r.status===400&&/API key/i.test(e))throw new Error('Your Gemini API key was rejected');
+  if(r.status===402)throw new Error('This Gemini key belongs to a Google project that has billing turned on with no credits. Make a new key in a new project that shows “Free” in AI Studio, then paste it in Food database settings.');
+  if(r.status===404)break;
+  if(r.status===503||r.status===500||r.status===429){lastErr=r.status===429?'Gemini’s free limit is used up for now. Try again in a minute.':'Gemini is very busy right now. Try again in a minute.';if(attempt===0){await sleep(2000);continue}break}
+  throw new Error('Gemini error '+r.status+': '+e.slice(0,120))}}
+ S.set.gmodels=null;save();throw new Error(lastErr||'No Gemini model available right now. Try again in a minute.')}
 const snapScale=x=>x.g/x.g0;
 function snapTot(){return fs.snap.items.filter(x=>x.on).reduce((a,x)=>{const r=snapScale(x);a.kcal+=x.kcal*r;a.p+=x.p*r;a.c+=x.c*r;a.f+=x.f*r;return a},{kcal:0,p:0,c:0,f:0})}
 function snapHTML(){const sn=fs.snap||{},k=aiKey(),pv=aiProv();
@@ -1067,7 +1074,7 @@ function snapHTML(){const sn=fs.snap||{},k=aiKey(),pv=aiProv();
   <ol class="small" style="padding-left:18px;margin:0 0 8px"><li>Open <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a> and sign in with Google</li><li>Tap <b>Create API key</b> and copy it</li><li>Paste it below</li></ol>
   <input class="fin" id="gkey" placeholder="Paste Gemini API key" autocomplete="off"><button class="btn" style="width:100%;margin-top:8px" data-snapkey>Save key</button>
   <p class="mut small" style="margin-top:8px">Have a Claude API key instead? Choose it under Food database settings on the Food tab.</p></div>`;
- if(sn.busy)return `<p class="slab">Snap it</p>${sn.img?`<img class="snapimg" src="${sn.img}" alt="">`:''}<p class="mut" style="text-align:center">Looking at your food…</p>`;
+ if(sn.busy)return `<p class="slab">Snap it</p>${sn.img?`<img class="snapimg" src="${sn.img}" alt="">`:''}<p class="mut" style="text-align:center">${esc(sn.stage||'Looking at your food…')}</p>`;
  if(sn.items){const T=snapTot();return `<p class="slab">Snap it · ${esc(fs.meal)}</p><img class="snapimg" src="${sn.img}" alt="">
   ${sn.items.length?`<p class="mut small" style="margin:8px 0">Check each portion. Fix the grams if they look off; calories update as you go. Use <b>Find in database</b> for exact nutrition.</p>
   ${sn.items.map((x,i)=>{const r=snapScale(x);return `<div class="snapit${x.on?'':' off'}"><label class="snaphd"><input type="checkbox" data-snapon="${i}"${x.on?' checked':''}><b>${esc(x.name)}</b><span class="conf c-${esc(x.conf)}">${esc(x.conf)}</span></label>
@@ -1217,7 +1224,7 @@ function me(){const x=xpInfo(),q=questsFor(monday(TODAY)),st=weightStats(),r=wee
  <label class="btn ghost" style="display:inline-flex;align-items:center;margin-top:4px">Restore from a backup<input type="file" id="rfile" accept=".json,application/json" style="display:none"></label>`:'<p class="mut small">Backup works in the installed app at samsquanch-bin.github.io/shiftfit.</p>'}</details>
  <div class="card"><b>App version</b> <span class="mut">${APP_VERSION.replace(/^(\d{4})(\d{2})(\d{2})(\d+)$/,'$1-$2-$3 #$4')}</span>${updV?'<p class="small" style="color:#1f9d6b;margin:6px 0"><b>A newer version is ready.</b></p><button class="btn" data-doupd>Update now</button>':`<p class="mut small" style="margin:6px 0">ShiftFit updates itself. If something new hasn’t shown up, check here.</p>${NET?'<button class="btn ghost" data-chkupd>Check for updates</button>':''}`}</div>`}
 // ===== App updates =====
-const APP_VERSION='2026112605';let updV=null;
+const APP_VERSION='2026112606';let updV=null;
 async function checkUpdate(manual){if(!NET||typeof fetch==='undefined')return;try{const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)throw 0;const j=await r.json();
  if(String(j.v)>APP_VERSION){updV=String(j.v);showUpd()}else{updV=null;if(manual)toast('You’re on the newest version')}}catch(e){if(manual)toast('Couldn’t check for updates. Are you online?')}if(view==='me'&&manual)me()}
 function showUpd(){if(typeof document==='undefined'||!document.body||!document.body.insertAdjacentHTML)return;if(document.getElementById('updbar'))return;
@@ -1401,7 +1408,7 @@ document.addEventListener('click',ev=>{const b=ev.target.closest('button');if(!b
  if(fs&&ds.fmeal){fs.meal=ds.fmeal;document.querySelectorAll('#fmeals .chip').forEach(c=>c.setAttribute('aria-pressed',c===b));const sb=document.querySelector('[data-fsave]');if(sb&&fs.edit===null)sb.textContent='Add to '+fs.meal;return}
  if(ds.doupd!==undefined)return doUpdate();
  if(ds.chkupd!==undefined)return checkUpdate(true);
- if(fs&&ds.snapkey!==undefined){const v=((document.getElementById('gkey')||{}).value||'').trim();if(!v)return toast('Paste your key first');S.set.gkey=v;S.set.aiprov='gemini';S.set.gmodel='';save();toast('Key saved');return drawSheet()}
+ if(fs&&ds.snapkey!==undefined){const v=((document.getElementById('gkey')||{}).value||'').trim();if(!v)return toast('Paste your key first');S.set.gkey=v;S.set.aiprov='gemini';S.set.gmodel='';S.set.gmodels=null;save();toast('Key saved');return drawSheet()}
  if(fs&&ds.snapredo!==undefined){fs.snap={note0:(fs.snap||{}).note0||''};return drawSheet()}
  if(fs&&ds.snaplog!==undefined)return snapLog();
  if(fs&&ds.snapfind!==undefined){const x=fs.snap.items[+ds.snapfind];fs.view='search';fs.msg='';drawSheet();return doSearch(x.name)}
