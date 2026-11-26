@@ -22,9 +22,29 @@ for n in mdpi hdpi xhdpi xxhdpi xxxhdpi; do
 done
 sed -i "s/versionCode 1/versionCode $RUN/; s/versionName \"1.0\"/versionName \"1.$RUN\"/" app/build.gradle
 grep -n "versionCode\|versionName" app/build.gradle
-mkdir -p ~/.android && cp ../../android/debug.keystore ~/.android/debug.keystore
+cp ../../android/debug.keystore app/shiftfit.keystore
+cat >> app/build.gradle <<'GRADLE'
+
+android {
+    signingConfigs {
+        shiftfit {
+            storeFile file('shiftfit.keystore')
+            storePassword 'android'
+            keyAlias 'androiddebugkey'
+            keyPassword 'android'
+        }
+    }
+    buildTypes {
+        debug { signingConfig signingConfigs.shiftfit }
+        release { signingConfig signingConfigs.shiftfit }
+    }
+}
+GRADLE
 echo "sdk.dir=${ANDROID_HOME:-$ANDROID_SDK_ROOT}" > local.properties
 chmod +x gradlew
 ./gradlew assembleDebug --no-daemon --stacktrace
 cp app/build/outputs/apk/debug/app-debug.apk ../../ShiftFit.apk
 ls -la ../../ShiftFit.apk
+# Make sure the APK carries the fixed ShiftFit key, so updates install over the old app.
+keytool -printcert -jarfile ../../ShiftFit.apk | grep -q "BE:07:59:A0:D5:4C:A5:08:27:48:50:66:79:74:D9:B9:76:44:65:65:57:22:0A:FF:F4:FE:49:9F:61:7A:9D:F8" || { echo "APK is not signed with the ShiftFit key"; exit 1; }
+echo "Signed with the ShiftFit key"
