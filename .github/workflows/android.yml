@@ -19,6 +19,7 @@ jobs:
           distribution: temurin
           java-version: 17
       - name: Build APK
+        shell: bash
         run: bash android/build.sh 2>&1 | tee build.log
       - name: Save build log for debugging
         if: always()
