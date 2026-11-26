@@ -1099,7 +1099,7 @@ function logHTML(t){const k=key(sel),L=S.food[k]||[],G=goal(),T2=tot(L),pg=protG
  <div class="kbar"><i style="width:${Math.min(100,T2.kcal/G.kcal*100)}%;background:${left<0?'var(--night)':'#1f9d6b'}"></i></div>`
   :`<b style="font-size:20px">${fmtN(T2.kcal)} calories eaten</b><div class="mut small">${goalMissing().length<4?'To show your daily calorie allowance, add your '+goalMissing().join(', ').replace(/, ([^,]*)$/,' and $1')+'.':'Set your calorie budget to see your daily allowance and what’s left.'}</div><button class="btn" style="margin-top:10px" data-goal>${goalMissing().length<4?'Finish my budget':'Set my budget'}</button>`}
  <div class="macros">${[['Protein',T2.p,pg],['Carbs',T2.c,0],['Fat',T2.f,0]].map(([n,v,g])=>`<div><div class="small"><b>${n}</b> ${Math.round(v)}${g?' / '+g:''} g</div>${g?`<div class="kbar sm"><i style="width:${Math.min(100,v/g*100)}%;background:var(--day)"></i></div>`:''}</div>`).join('')}</div></div>
- <div class="row pad" style="margin-top:12px"><button class="btn" data-fadd="">Search food</button><button class="btn ghost" data-fscan>Scan barcode</button><button class="btn ghost" data-fcopy>Copy yesterday</button></div>
+ <div class="row pad" style="margin-top:12px">${NET?'<button class="btn snapgo" data-fsnap>📷 Snap it</button>':''}<button class="btn" data-fadd="">Search food</button><button class="btn ghost" data-fscan>Scan barcode</button><button class="btn ghost" data-fcopy>Copy yesterday</button></div>
  ${MEALS(t).map(m=>{const it=L.map((e,i)=>[e,i]).filter(([e])=>e.meal===m),s=tot(it.map(x=>x[0]));return `<div class="card"><div class="mhd"><b>${m}</b><span class="mut">${fmtN(s.kcal)} cal</span>${it.length?`<button class="ib sm" data-fsavem="${m}" aria-label="Save ${m} as a meal"><svg viewBox="0 0 24 24"><path d="M6 3h12v18l-6-4-6 4z"/></svg></button>`:''}<button class="ib sm" data-fadd="${m}" aria-label="Add to ${m}">+</button></div>${it.map(([e,i])=>`<button class="fi" data-fedit="${i}"><span><b>${esc(e.f.name)}</b><span class="mut small">${esc(amtLabel(e))}${e.f.brand&&e.f.src==='off'?' · '+esc(e.f.brand):''}</span></span><span>${fmtN(kc(e))}</span></button>`).join('')}</div>`}).join('')}
  ${G&&G.floored?'<p class="note">Your budget is held at a safe minimum. Losing faster than this isn’t recommended without a doctor.</p>':G&&G.tdee?`<p class="note">Budget: about ${fmtN(G.tdee)} calories burned a day, minus ${esc(S.set.pace)} of loss. <button class="btn ghost" style="min-height:36px;margin-left:4px" data-goal>Edit</button></p>`:''}`}
 function food(){
@@ -1217,7 +1217,7 @@ function me(){const x=xpInfo(),q=questsFor(monday(TODAY)),st=weightStats(),r=wee
  <label class="btn ghost" style="display:inline-flex;align-items:center;margin-top:4px">Restore from a backup<input type="file" id="rfile" accept=".json,application/json" style="display:none"></label>`:'<p class="mut small">Backup works in the installed app at samsquanch-bin.github.io/shiftfit.</p>'}</details>
  <div class="card"><b>App version</b> <span class="mut">${APP_VERSION.replace(/^(\d{4})(\d{2})(\d{2})(\d+)$/,'$1-$2-$3 #$4')}</span>${updV?'<p class="small" style="color:#1f9d6b;margin:6px 0"><b>A newer version is ready.</b></p><button class="btn" data-doupd>Update now</button>':`<p class="mut small" style="margin:6px 0">ShiftFit updates itself. If something new hasn’t shown up, check here.</p>${NET?'<button class="btn ghost" data-chkupd>Check for updates</button>':''}`}</div>`}
 // ===== App updates =====
-const APP_VERSION='2026112602';let updV=null;
+const APP_VERSION='2026112604';let updV=null;
 async function checkUpdate(manual){if(!NET||typeof fetch==='undefined')return;try{const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)throw 0;const j=await r.json();
  if(String(j.v)>APP_VERSION){updV=String(j.v);showUpd()}else{updV=null;if(manual)toast('You’re on the newest version')}}catch(e){if(manual)toast('Couldn’t check for updates. Are you online?')}if(view==='me'&&manual)me()}
 function showUpd(){if(typeof document==='undefined'||!document.body||!document.body.insertAdjacentHTML)return;if(document.getElementById('updbar'))return;
@@ -1395,6 +1395,7 @@ document.addEventListener('click',ev=>{const b=ev.target.closest('button');if(!b
  if(ds.fclose!==undefined)return closeSheet();
  if(ds.fadd!==undefined)return openSheet(ds.fadd||defMeal(),'search');
  if(ds.fscan!==undefined)return openSheet(defMeal(),'scan');
+ if(ds.fsnap!==undefined){openSheet(defMeal(),'snap');fs.snap={note0:''};return drawSheet()}
  if(ds.goal!==undefined){S.qs=Q.findIndex(q=>q.t==='Calorie budget');save();return go('setup')}
  if(ds.fedit!==undefined){const e=(S.food[key(sel)]||[])[+ds.fedit];if(!e)return;openSheet(e.meal,'detail');setFood(e.f,e.amt,e.unit);fs.edit=+ds.fedit;return drawSheet()}
  if(fs&&ds.fmeal){fs.meal=ds.fmeal;document.querySelectorAll('#fmeals .chip').forEach(c=>c.setAttribute('aria-pressed',c===b));const sb=document.querySelector('[data-fsave]');if(sb&&fs.edit===null)sb.textContent='Add to '+fs.meal;return}
