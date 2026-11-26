@@ -1,7 +1,7 @@
 // ShiftFit offline support: the app always loads, even with no signal.
 // App files: try the network first (so updates show up), fall back to the saved copy.
 // Fonts and recipe photos: use the saved copy if there is one.
-const APP = 'shiftfit-app-v1';
+const APP = 'shiftfit-app-v2';
 const MEDIA = 'shiftfit-media-v1';
 const CORE = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png'];
 
@@ -25,11 +25,12 @@ async function trimMedia(max) {
 self.addEventListener('fetch', e => {
   const req = e.request;
   if (req.method !== 'GET') return;
+  if (/version\.json/.test(req.url)) return; // update checks always go to the network
   const url = new URL(req.url);
 
   if (url.origin === self.location.origin) {
     e.respondWith(
-      fetch(req).then(res => {
+      fetch(req, { cache: 'no-cache' }).then(res => {
         if (res.ok) { const copy = res.clone(); caches.open(APP).then(c => c.put(req, copy)); }
         return res;
       }).catch(() => caches.match(req).then(r => r || caches.match('./index.html')))

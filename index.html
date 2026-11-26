@@ -360,6 +360,8 @@ h3{font-size:17px;margin:22px 0 10px;font-weight:700}
 .snaphd{display:flex;align-items:center;gap:8px}.snaphd b{flex:1}.conf{font-size:11px;font-weight:800;border-radius:6px;padding:1px 6px;text-transform:uppercase}.c-high{background:#1f9d6b;color:#fff}.c-medium{background:#e0a100;color:#111}.c-low{background:#d92d20;color:#fff}
 .linkb{background:none;border:0;color:var(--acc,#2f80ed);font-weight:700;padding:4px 0;text-decoration:underline}.snaptot{margin:10px 0;font-size:15px}
 .btn.snapgo{background:linear-gradient(135deg,#ff7a45,#f5487f);color:#fff;border:0}
+#updbar{position:fixed;left:12px;right:12px;bottom:calc(84px + env(safe-area-inset-bottom));z-index:60;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;border-radius:16px;background:#1f9d6b;color:#fff;box-shadow:0 8px 24px rgba(0,0,0,.35)}
+#updbar .btn{background:#fff;color:#14804f;flex:none}
 </style>
 </head>
 <body>
@@ -1212,7 +1214,17 @@ function me(){const x=xpInfo(),q=questsFor(monday(TODAY)),st=weightStats(),r=wee
  <details class="card"${lastB===null||lastB>14?' open':''}><summary style="font-weight:700;cursor:pointer">Backup & restore</summary>
  <p class="small">Everything you log is stored only in Chrome on this phone. ${lastB===null?'<b style="color:var(--night)">You haven’t made a backup yet.</b>':'Last backup: '+(lastB===0?'today':lastB+' day'+(lastB>1?'s':'')+' ago')+'.'}</p>
  ${NET?`<button class="btn" data-backup>Back up now</button><p class="mut small">Save it to Google Drive or email it to yourself when the share menu opens.</p>
- <label class="btn ghost" style="display:inline-flex;align-items:center;margin-top:4px">Restore from a backup<input type="file" id="rfile" accept=".json,application/json" style="display:none"></label>`:'<p class="mut small">Backup works in the installed app at samsquanch-bin.github.io/shiftfit.</p>'}</details>`}
+ <label class="btn ghost" style="display:inline-flex;align-items:center;margin-top:4px">Restore from a backup<input type="file" id="rfile" accept=".json,application/json" style="display:none"></label>`:'<p class="mut small">Backup works in the installed app at samsquanch-bin.github.io/shiftfit.</p>'}</details>
+ <div class="card"><b>App version</b> <span class="mut">${APP_VERSION.replace(/^(\d{4})(\d{2})(\d{2})(\d+)$/,'$1-$2-$3 #$4')}</span>${updV?'<p class="small" style="color:#1f9d6b;margin:6px 0"><b>A newer version is ready.</b></p><button class="btn" data-doupd>Update now</button>':`<p class="mut small" style="margin:6px 0">ShiftFit updates itself. If something new hasn’t shown up, check here.</p>${NET?'<button class="btn ghost" data-chkupd>Check for updates</button>':''}`}</div>`}
+// ===== App updates =====
+const APP_VERSION='2026112602';let updV=null;
+async function checkUpdate(manual){if(!NET||typeof fetch==='undefined')return;try{const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)throw 0;const j=await r.json();
+ if(String(j.v)>APP_VERSION){updV=String(j.v);showUpd()}else{updV=null;if(manual)toast('You’re on the newest version')}}catch(e){if(manual)toast('Couldn’t check for updates. Are you online?')}if(view==='me'&&manual)me()}
+function showUpd(){if(typeof document==='undefined'||!document.body||!document.body.insertAdjacentHTML)return;if(document.getElementById('updbar'))return;
+ document.body.insertAdjacentHTML('beforeend','<div id="updbar"><span><b>Update ready</b><br><span class="small">New ShiftFit features are waiting</span></span><button class="btn" data-doupd>Update now</button></div>')}
+async function doUpdate(){toast('Updating…');try{const ks=await caches.keys();await Promise.all(ks.filter(k=>!/media/.test(k)).map(k=>caches.delete(k)))}catch(e){}
+ try{const rs=await navigator.serviceWorker.getRegistrations();await Promise.all(rs.map(r=>r.unregister()))}catch(e){}
+ location.replace(location.pathname+'?v='+encodeURIComponent(updV||Date.now())+location.hash)}
 function reportLine(r,G){const out=[];if(r.workouts)out.push(`${r.workouts} workout${r.workouts>1?'s':''} done`);if(r.cal!==null&&G)out.push(r.cal<=G.kcal?'averaging under budget':'averaging '+fmtN(r.cal-G.kcal)+' over budget');if(r.prot)out.push(`protein goal hit ${r.prot} time${r.prot>1?'s':''}`);
  return out.length?'This week: '+out.join(', ')+'.':'Log food, stretches and workouts this week to fill in your report card.'}
 function logWeight(v){const k=key(TODAY),i=S.weights.findIndex(w=>w.d===k);if(i>=0)S.weights[i].w=v;else S.weights.push({d:k,w:v});
@@ -1386,6 +1398,8 @@ document.addEventListener('click',ev=>{const b=ev.target.closest('button');if(!b
  if(ds.goal!==undefined){S.qs=Q.findIndex(q=>q.t==='Calorie budget');save();return go('setup')}
  if(ds.fedit!==undefined){const e=(S.food[key(sel)]||[])[+ds.fedit];if(!e)return;openSheet(e.meal,'detail');setFood(e.f,e.amt,e.unit);fs.edit=+ds.fedit;return drawSheet()}
  if(fs&&ds.fmeal){fs.meal=ds.fmeal;document.querySelectorAll('#fmeals .chip').forEach(c=>c.setAttribute('aria-pressed',c===b));const sb=document.querySelector('[data-fsave]');if(sb&&fs.edit===null)sb.textContent='Add to '+fs.meal;return}
+ if(ds.doupd!==undefined)return doUpdate();
+ if(ds.chkupd!==undefined)return checkUpdate(true);
  if(fs&&ds.snapkey!==undefined){const v=((document.getElementById('gkey')||{}).value||'').trim();if(!v)return toast('Paste your key first');S.set.gkey=v;S.set.aiprov='gemini';S.set.gmodel='';save();toast('Key saved');return drawSheet()}
  if(fs&&ds.snapredo!==undefined){fs.snap={note0:(fs.snap||{}).note0||''};return drawSheet()}
  if(fs&&ds.snaplog!==undefined)return snapLog();
@@ -1435,6 +1449,7 @@ document.addEventListener('change',async ev=>{if(ev.target.id==='snapf'&&ev.targ
 document.addEventListener('input',ev=>{if(fs&&fs.snap&&fs.snap.items&&ev.target.dataset&&ev.target.dataset.snapg!==undefined){const i=+ev.target.dataset.snapg,x=fs.snap.items[i],v=parseFloat(ev.target.value);if(v>0){x.g=v;const r=snapScale(x),n=document.getElementById('snapn'+i),T=snapTot(),t=document.getElementById('snaptot');if(n)n.innerHTML=`<b>${fmtN(x.kcal*r)} cal</b> · P ${fmtN(x.p*r)} g · C ${fmtN(x.c*r)} g · F ${fmtN(x.f*r)} g`;if(t)t.innerHTML=`<b>${fmtN(T.kcal)} cal</b> total · P ${fmtN(T.p)} g · C ${fmtN(T.c)} g · F ${fmtN(T.f)} g`}return}if(ev.target.id==='f-spk')return;if(fs&&(ev.target.id==='famt'||ev.target.id==='funit')){fs[ev.target.id==='famt'?'amt':'unit']=ev.target.value;if(ev.target.id==='funit'){fs.amt=fs.unit==='serving'||/^p\d+$/.test(fs.unit)?1:fs.unit==='oz'?3.5:100;const a=document.getElementById('famt');if(a)a.value=fs.amt}const d=document.getElementById('dnut');if(d)d.innerHTML=nutHTML();return}if(wp&&ev.target.dataset&&ev.target.dataset.wt){const v=parseFloat(ev.target.value);(wp.log[ev.target.dataset.wt]=wp.log[ev.target.dataset.wt]||{}).w=isNaN(v)?0:v;return}const k=ev.target.dataset&&ev.target.dataset.in;if(!k)return;S.set[k]=ev.target.type==='checkbox'?ev.target.checked:ev.target.value;save();const bp=document.getElementById('bprev');if(bp)bp.innerHTML=bprevHTML()});
 window.addEventListener('hashchange',()=>{const h=location.hash.slice(1);if(h!==view)go(h)});
 go(location.hash.slice(1)||'today');
+if(NET&&typeof setTimeout!=='undefined'){setTimeout(()=>checkUpdate(false),1500);if(typeof document!=='undefined'&&document.addEventListener)document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')checkUpdate(false)})}
 if(NET&&typeof navigator!=='undefined'&&'serviceWorker' in navigator){try{navigator.serviceWorker.register('sw.js').catch(()=>{})}catch(e){}}
 if(CAP()&&CAP().Plugins.App){CAP().Plugins.App.addListener('backButton',()=>{if(fs)return closeSheet();if(rv)return closeRV();if(wp)return closeW();if(pl)return closeP();if(view!=='today')return go('today');CAP().Plugins.App.exitApp()})}
 window.addEventListener('online',()=>toast('Back online'));window.addEventListener('offline',()=>toast('You’re offline. Logging still works.'));
