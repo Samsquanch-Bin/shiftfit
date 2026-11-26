@@ -1057,7 +1057,7 @@ async function askAI(dataUrl,note){const k=aiKey(),b64=dataUrl.split(',')[1],pro
   const r=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+m+':generateContent?key='+encodeURIComponent(k),{method:'POST',headers:{'Content-Type':'application/json'},
    body:JSON.stringify({contents:[{parts:[{text:prompt},{inline_data:{mime_type:'image/jpeg',data:b64}}]}],generationConfig:{responseMimeType:'application/json',temperature:.2}})});
   if(r.status===404&&attempt===0)continue;
-  if(!r.ok){const e=await r.text();throw new Error(r.status===400&&/API key/i.test(e)?'Your Gemini API key was rejected':r.status===429?'Gemini’s free limit is used up for now. Try again in a minute.':'Gemini error '+r.status+': '+e.slice(0,120))}
+  if(!r.ok){const e=await r.text();throw new Error(r.status===400&&/API key/i.test(e)?'Your Gemini API key was rejected':r.status===429?'Gemini’s free limit is used up for now. Try again in a minute.':r.status===402?'This Gemini key belongs to a Google project that has billing turned on with no credits. Make a new key in a new project that shows “Free” in AI Studio, then paste it in Food database settings.':'Gemini error '+r.status+': '+e.slice(0,120))}
   const j=await r.json(),t=(((j.candidates||[])[0]||{}).content||{}).parts||[];return parseAI(t.map(p=>p.text||'').join(''))}
  throw new Error('No Gemini model available')}
 const snapScale=x=>x.g/x.g0;
@@ -1217,7 +1217,7 @@ function me(){const x=xpInfo(),q=questsFor(monday(TODAY)),st=weightStats(),r=wee
  <label class="btn ghost" style="display:inline-flex;align-items:center;margin-top:4px">Restore from a backup<input type="file" id="rfile" accept=".json,application/json" style="display:none"></label>`:'<p class="mut small">Backup works in the installed app at samsquanch-bin.github.io/shiftfit.</p>'}</details>
  <div class="card"><b>App version</b> <span class="mut">${APP_VERSION.replace(/^(\d{4})(\d{2})(\d{2})(\d+)$/,'$1-$2-$3 #$4')}</span>${updV?'<p class="small" style="color:#1f9d6b;margin:6px 0"><b>A newer version is ready.</b></p><button class="btn" data-doupd>Update now</button>':`<p class="mut small" style="margin:6px 0">ShiftFit updates itself. If something new hasn’t shown up, check here.</p>${NET?'<button class="btn ghost" data-chkupd>Check for updates</button>':''}`}</div>`}
 // ===== App updates =====
-const APP_VERSION='2026112604';let updV=null;
+const APP_VERSION='2026112605';let updV=null;
 async function checkUpdate(manual){if(!NET||typeof fetch==='undefined')return;try{const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)throw 0;const j=await r.json();
  if(String(j.v)>APP_VERSION){updV=String(j.v);showUpd()}else{updV=null;if(manual)toast('You’re on the newest version')}}catch(e){if(manual)toast('Couldn’t check for updates. Are you online?')}if(view==='me'&&manual)me()}
 function showUpd(){if(typeof document==='undefined'||!document.body||!document.body.insertAdjacentHTML)return;if(document.getElementById('updbar'))return;
